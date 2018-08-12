@@ -42,7 +42,14 @@ export default function makeRoutes(requireAuth = () => {}) {
           </Route>
           <Route path='people' component={AdminPersonList} />
           <Route path='optouts' component={AdminOptOutList} />
-          <Route path='incoming' component={AdminIncomingMessageList} />
+          <Route path='incoming' component={AdminIncomingMessageList}>
+            <Route
+              path=':campaignId'
+              components={{
+                fullScreen: (p) => <AdminIncomingMessageList initialCampaignId={p.params.campaignId} />
+              }}
+            />
+          </Route>
           <Route path='settings' component={Settings} />
         </Route>
       </Route>

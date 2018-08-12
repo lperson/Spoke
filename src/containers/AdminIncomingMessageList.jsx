@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
+import type from 'prop-types'
 import _ from 'lodash'
-
 
 import IncomingMessageActions from '../components/IncomingMessageActions'
 import IncomingMessageFilter from '../components/IncomingMessageFilter'
@@ -21,8 +21,9 @@ export class AdminIncomingMessageList extends Component {
       page: 0,
       pageSize: 10,
       contactsFilter: {},
-      campaignsFilter: {},
-      campaignsFilterForTexterFiltering: { isArchived: false },
+      campaignsFilter: props.params.campaignId ? { campaignId: parseInt(props.params.campaignId, 10) } : {},
+      campaignsFilterForTexterFiltering:
+        props.params.campaignId ? { campaignId: parseInt(props.params.campaignId, 10) } : { isArchived: false },
       assignmentsFilter: {},
       needsRender: false,
       utc: Date.now().toString(),
@@ -151,6 +152,7 @@ export class AdminIncomingMessageList extends Component {
       offset: this.state.page * this.state.pageSize,
       limit: this.state.pageSize
     }
+
     return (
       <div>
         <h3> Message Review </h3>
@@ -250,6 +252,10 @@ const mapMutationsToProps = () => ({
     variables: { organizationId, campaignIdsContactIds, newTexterUserId }
   })
 })
+
+AdminIncomingMessageList.propTypes = {
+  initialCampaignId: type.number
+}
 
 export default loadData(withRouter(wrapMutations(AdminIncomingMessageList)), {
   mapQueriesToProps,

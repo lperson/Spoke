@@ -220,6 +220,7 @@ class IncomingMessageFilter extends Component {
 }
 
 IncomingMessageFilter.propTypes = {
+  initialCampaignId: type.number,
   onCampaignChanged: type.func.isRequired,
   onTexterChanged: type.func.isRequired,
   campaigns: type.array.isRequired,
