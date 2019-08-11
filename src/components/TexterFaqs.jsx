@@ -19,7 +19,7 @@ const TexterFaqs = ({ faqs }) => {
 }
 
 TexterFaqs.propTypes = {
-  faqs: PropTypes.array,
+  faqs: PropTypes.array
 }
 
 export default TexterFaqs
