@@ -2,8 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Card, CardTitle, CardText } from 'material-ui/Card'
 
-const TexterFaqs = ({ faqs }) => {
-  return (
+const TexterFaqs = ({ faqs }) =>
+  (
     <div>
       <h1>Frequently Asked Questions</h1>
       {faqs.map((faq, idx) => (
@@ -16,7 +16,6 @@ const TexterFaqs = ({ faqs }) => {
       ))}
     </div>
   )
-}
 
 TexterFaqs.propTypes = {
   faqs: PropTypes.array
