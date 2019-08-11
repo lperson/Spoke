@@ -15,33 +15,33 @@ const styles = StyleSheet.create({
     height: 65,
     verticalAlign: 'middle',
     paddingLeft: 15,
-    paddingRight: 15
+    paddingRight: 15,
   },
   inline: {
     display: 'inline-block',
     marginLeft: 5,
     marginTop: 'auto',
-    marginBottom: 'auto'
+    marginBottom: 'auto',
   },
   userMenu: {
     marginTop: 'auto',
-    marginBottom: 'auto'
+    marginBottom: 'auto',
   },
   header: {
     ...theme.text.header,
     fontSize: 24,
-    color: theme.colors.white
+    color: theme.colors.white,
   },
   flexColumn: {
     flex: 1,
     textAlign: 'left',
-    display: 'flex'
-  }
+    display: 'flex',
+  },
 })
 
 class TopNav extends React.Component {
   state = {
-    userMenuOpen: false
+    userMenuOpen: false,
   }
 
   renderBack(backToURL) {
@@ -49,7 +49,10 @@ class TopNav extends React.Component {
       return (
         <Link to={backToURL}>
           <IconButton>
-            <ArrowBackIcon style={{ fill: 'white' }} color={theme.colors.white} />
+            <ArrowBackIcon
+              style={{ fill: 'white' }}
+              color={theme.colors.white}
+            />
           </IconButton>
         </Link>
       )
@@ -62,12 +65,8 @@ class TopNav extends React.Component {
     return (
       <div className={css(styles.container)}>
         <div className={css(styles.flexColumn)}>
-          <div className={css(styles.inline)}>
-            {this.renderBack(backToURL)}
-          </div>
-          <div className={css(styles.inline, styles.header)}>
-            {title}
-          </div>
+          <div className={css(styles.inline)}>{this.renderBack(backToURL)}</div>
+          <div className={css(styles.inline, styles.header)}>{title}</div>
         </div>
         <div className={css(styles.userMenu)}>
           <UserMenu orgId={orgId} />
@@ -80,7 +79,7 @@ class TopNav extends React.Component {
 TopNav.propTypes = {
   backToURL: PropTypes.string,
   title: PropTypes.string.isRequired,
-  orgId: PropTypes.string
+  orgId: PropTypes.string,
 }
 
 export default TopNav

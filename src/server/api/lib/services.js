@@ -11,7 +11,7 @@ import fakeservice from './fakeservice'
 const serviceMap = {
   nexmo,
   twilio,
-  fakeservice
+  fakeservice,
 }
 
 export default serviceMap

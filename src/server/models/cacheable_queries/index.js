@@ -11,9 +11,7 @@ const cacheableData = {
   cannedResponse: cannedResponseCache,
   optOut: optOutCache,
   organization: organizationCache,
-  user: userCache
+  user: userCache,
 }
 
-export {
-  cacheableData
-}
+export { cacheableData }

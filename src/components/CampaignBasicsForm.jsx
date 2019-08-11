@@ -13,25 +13,39 @@ const FormSchema = {
   title: yup.string(),
   description: yup.string(),
   dueBy: yup.mixed(),
-  logoImageUrl: yup.string().url().transform(value => !value ? null : value).nullable(),
+  logoImageUrl: yup
+    .string()
+    .url()
+    .transform(value => (!value ? null : value))
+    .nullable(),
   primaryColor: yup.string().nullable(),
-  introHtml: yup.string().nullable()
+  introHtml: yup.string().nullable(),
 }
 
 const EnsureCompletedFormSchema = {
   title: yup.string().required(),
   description: yup.string().required(),
   dueBy: yup.mixed().required(),
-  logoImageUrl: yup.string().transform(value => !value ? null : value).url().nullable(),
-  primaryColor: yup.string().transform(value => !value ? null : value).nullable(),
-  introHtml: yup.string().transform(value => !value ? null : value).nullable()
+  logoImageUrl: yup
+    .string()
+    .transform(value => (!value ? null : value))
+    .url()
+    .nullable(),
+  primaryColor: yup
+    .string()
+    .transform(value => (!value ? null : value))
+    .nullable(),
+  introHtml: yup
+    .string()
+    .transform(value => (!value ? null : value))
+    .nullable(),
 }
 
 export default class CampaignBasicsForm extends React.Component {
   formValues() {
     return {
       ...this.props.formValues,
-      dueBy: this.props.formValues.dueBy
+      dueBy: this.props.formValues.dueBy,
     }
   }
 
@@ -45,9 +59,7 @@ export default class CampaignBasicsForm extends React.Component {
   render() {
     return (
       <div>
-        <CampaignFormSectionHeading
-          title="What's your campaign about?"
-        />
+        <CampaignFormSectionHeading title="What's your campaign about?" />
         <GSForm
           schema={this.formSchema()}
           value={this.formValues()}
@@ -56,50 +68,45 @@ export default class CampaignBasicsForm extends React.Component {
         >
           <Form.Field
             {...dataTest('title')}
-            name='title'
-            label='Title'
-            hintText='e.g. Election Day 2016'
+            name="title"
+            label="Title"
+            hintText="e.g. Election Day 2016"
             fullWidth
           />
           <Form.Field
             {...dataTest('description')}
-            name='description'
-            label='Description'
-            hintText='Get out the vote'
+            name="description"
+            label="Description"
+            hintText="Get out the vote"
             fullWidth
           />
           <Form.Field
             {...dataTest('dueBy')}
-            name='dueBy'
-            label='Due date'
-            type='date'
-            locale='en-US'
-            shouldDisableDate={(date) => moment(date).diff(moment()) < 0}
+            name="dueBy"
+            label="Due date"
+            type="date"
+            locale="en-US"
+            shouldDisableDate={date => moment(date).diff(moment()) < 0}
             autoOk
             fullWidth
             utcOffset={0}
           />
+          <Form.Field name="introHtml" label="Intro HTML" multiLine fullWidth />
           <Form.Field
-            name='introHtml'
-            label='Intro HTML'
-            multiLine
-            fullWidth
-          />
-          <Form.Field
-            name='logoImageUrl'
-            label='Logo Image URL'
-            hintText='https://www.mysite.com/images/logo.png'
+            name="logoImageUrl"
+            label="Logo Image URL"
+            hintText="https://www.mysite.com/images/logo.png"
             fullWidth
           />
           <label>Primary color</label>
           <Form.Field
-            name='primaryColor'
-            label='Primary color'
+            name="primaryColor"
+            label="Primary color"
             defaultValue={this.props.formValues.primaryColor || '#ffffff'}
             type={ColorPicker}
           />
           <Form.Button
-            type='submit'
+            type="submit"
             label={this.props.saveLabel}
             disabled={this.props.saveDisabled}
           />
@@ -116,11 +123,11 @@ CampaignBasicsForm.propTypes = {
     dueBy: PropTypes.any,
     logoImageUrl: PropTypes.string,
     primaryColor: PropTypes.string,
-    introHtml: PropTypes.string
+    introHtml: PropTypes.string,
   }),
   onChange: PropTypes.func,
   onSubmit: PropTypes.func,
   saveLabel: PropTypes.string,
   saveDisabled: PropTypes.bool,
-  ensureComplete: PropTypes.bool
+  ensureComplete: PropTypes.bool,
 }

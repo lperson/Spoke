@@ -27,7 +27,7 @@ import { optOutCache } from './opt-out'
 //   - messageStatus
 
 // TODO: relocate this method elsewhere
-const getMessageServiceSid = (organization) => {
+const getMessageServiceSid = organization => {
   let orgFeatures = {}
   if (organization.features) {
     orgFeatures = JSON.parse(organization.features)
@@ -43,13 +43,20 @@ const getMessageServiceSid = (organization) => {
   return orgSid
 }
 
-const cacheKey = async (id) => `${process.env.CACHE_PREFIX | ''}contact-${id}`
+const cacheKey = async id => `${process.env.CACHE_PREFIX | ''}contact-${id}`
 
 const saveCacheRecord = async (dbRecord, organization, messageServiceSid) => {
   if (r.redis) {
     // basic contact record
-    const contactCacheObj = generateCacheRecord(dbRecord, organization.id, messageServiceSid)
-    await r.redis.setAsync(cacheKey(dbRecord.id), JSON.stringify(contactCacheObj))
+    const contactCacheObj = generateCacheRecord(
+      dbRecord,
+      organization.id,
+      messageServiceSid
+    )
+    await r.redis.setAsync(
+      cacheKey(dbRecord.id),
+      JSON.stringify(contactCacheObj)
+    )
     // TODO:
     //   messageStatus-<cell>
   }
@@ -77,16 +84,16 @@ const generateCacheRecord = (dbRecord, organizationId, messageServiceSid) => ({
   // message_status -- because it will be indexed by cell elsewhere
   timezone_offset: dbRecord.timezone_offset,
   city: dbRecord.city,
-  state: dbRecord.state
+  state: dbRecord.state,
 })
 
 export const campaignContactCache = {
-  clear: async (id) => {
+  clear: async id => {
     if (r.redis) {
       await r.redis.delAsync(cacheKey(id))
     }
   },
-  load: async(id) => {
+  load: async id => {
     if (r.redis) {
       const cacheRecord = await r.redis.getAsync(cacheKey(id))
       if (cacheRecord) {
@@ -94,7 +101,8 @@ export const campaignContactCache = {
         if (cacheData.cell && cacheData.organization_id) {
           cacheData.is_opted_out = await optOutCache.query({
             cell: cacheData.cell,
-            organizationId: cacheData.organization_id })
+            organizationId: cacheData.organization_id,
+          })
         }
         console.log('fromCache', cacheData)
         return cacheData
@@ -109,24 +117,27 @@ export const campaignContactCache = {
       return
     }
     // 1. load the data
-    let query = r.knex('campaign_contact')
+    let query = r
+      .knex('campaign_contact')
       .leftJoin('zip_code', 'zip_code.zip', 'campaign_contact.zip')
       .leftJoin('assignment', 'assignment.id', 'campaign_contact.assignment_id')
-      .select('campaign_contact.id',
-              'campaign_contact.assignment_id',
-              'campaign_contact.campaign_id',
-              'assignment.user_id',
-              'campaign_contact.first_name',
-              'campaign_contact.last_name',
-              'campaign_contact.cell',
-              'campaign_contact.custom_fields',
-              'campaign_contact.zip',
-              'campaign_contact.external_id',
-              'campaign_contact.message_status',
-              'campaign_contact.timezone_offset',
-              'campaign_contact.has_unresolved_tags',
-              'zip_code.city',
-              'zip_code.state')
+      .select(
+        'campaign_contact.id',
+        'campaign_contact.assignment_id',
+        'campaign_contact.campaign_id',
+        'assignment.user_id',
+        'campaign_contact.first_name',
+        'campaign_contact.last_name',
+        'campaign_contact.cell',
+        'campaign_contact.custom_fields',
+        'campaign_contact.zip',
+        'campaign_contact.external_id',
+        'campaign_contact.message_status',
+        'campaign_contact.timezone_offset',
+        'campaign_contact.has_unresolved_tags',
+        'zip_code.city',
+        'zip_code.state'
+      )
     if (campaign) {
       query = query.where('campaign_contact.campaign_id', campaign.id)
     }
@@ -140,5 +151,5 @@ export const campaignContactCache = {
       const dbRecord = dbResult[i]
       await saveCacheRecord(dbRecord, organization, messageServiceSid)
     }
-  }
+  },
 }

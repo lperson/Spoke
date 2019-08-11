@@ -13,52 +13,54 @@ import { dataTest } from '../../lib/attributes'
 
 const inlineStyles = {
   past: {
-    opacity: 0.6
+    opacity: 0.6,
   },
   warn: {
-    color: theme.colors.orange
+    color: theme.colors.orange,
   },
   good: {
-    color: theme.colors.green
+    color: theme.colors.green,
   },
   warnUnsent: {
-    color: theme.colors.blue
-  }
+    color: theme.colors.blue,
+  },
 }
 
 const renderRightIcon = (campaign, archiveCampaign, unarchiveCampaign) => {
   if (campaign.isArchived) {
     return (
       <IconButton
-        tooltip='Unarchive'
+        tooltip="Unarchive"
         onTouchTap={async () => unarchiveCampaign(campaign.id)}
       >
         <UnarchiveIcon />
-      </IconButton>)
+      </IconButton>
+    )
   }
   return (
     <IconButton
-      tooltip='Archive'
+      tooltip="Archive"
       onTouchTap={async () => archiveCampaign(campaign.id)}
     >
       <ArchiveIcon />
-    </IconButton>)
+    </IconButton>
+  )
 }
 
-const Campaign = (props) => {
+const Campaign = props => {
   const {
     campaign,
     adminPerms,
     selectMultiple,
     archiveCampaign,
-    unarchiveCampaign
+    unarchiveCampaign,
   } = props
 
   const {
     isStarted,
     isArchived,
     hasUnassignedContacts,
-    hasUnsentInitialMessages
+    hasUnsentInitialMessages,
   } = campaign
 
   let listItemStyle = {}
@@ -92,7 +94,9 @@ const Campaign = (props) => {
   const primaryText = (
     <div>
       {campaign.title}
-      {tags.map((tag) => <Chip key={tag} text={tag} />)}
+      {tags.map(tag => (
+        <Chip key={tag} text={tag} />
+      ))}
     </div>
   )
   const secondaryText = (
@@ -101,16 +105,14 @@ const Campaign = (props) => {
         Campaign ID: {campaign.id}
         <br />
         {campaign.description}
-        {creatorName ?
-          (<span> &mdash; Created by {creatorName}</span>) : null}
+        {creatorName ? <span> &mdash; Created by {creatorName}</span> : null}
         <br />
-        {dueByMoment.isValid() ?
-          dueByMoment.format('MMM D, YYYY') :
-          'No due date set'}
+        {dueByMoment.isValid()
+          ? dueByMoment.format('MMM D, YYYY')
+          : 'No due date set'}
       </span>
     </span>
   )
-
 
   const campaignUrl = `/admin/${props.organizationId}/campaigns/${campaign.id}`
   return (
@@ -120,22 +122,27 @@ const Campaign = (props) => {
       key={campaign.id}
       primaryText={primaryText}
       onTouchTap={({
-        currentTarget: { firstElementChild: { firstElementChild: { checked } } }
+        currentTarget: {
+          firstElementChild: {
+            firstElementChild: { checked },
+          },
+        },
       }) => {
         if (selectMultiple) {
           return props.handleChecked({ campaignId: campaign.id, checked })
         }
 
-        return !isStarted ?
-          props.router.push(`${campaignUrl}/edit`) :
-          props.router.push(campaignUrl)
-      }
-      }
+        return !isStarted
+          ? props.router.push(`${campaignUrl}/edit`)
+          : props.router.push(campaignUrl)
+      }}
       secondaryText={secondaryText}
       leftIcon={!selectMultiple ? leftIcon : null}
-      rightIconButton={(!selectMultiple && adminPerms) ? renderRightIcon(
-          campaign, archiveCampaign, unarchiveCampaign
-      ) : null}
+      rightIconButton={
+        !selectMultiple && adminPerms
+          ? renderRightIcon(campaign, archiveCampaign, unarchiveCampaign)
+          : null
+      }
       leftCheckbox={selectMultiple ? <Checkbox /> : null}
     />
   )
@@ -149,8 +156,7 @@ Campaign.propTypes = {
   handleChecked: PropTypes.func,
   organizationId: PropTypes.string,
   archiveCampaign: PropTypes.func,
-  unarchiveCampaign: PropTypes.func
+  unarchiveCampaign: PropTypes.func,
 }
 
 export default Campaign
-

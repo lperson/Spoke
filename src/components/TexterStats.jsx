@@ -9,16 +9,15 @@ class TexterStats extends React.Component {
       return <div key={id} />
     }
 
-    const percentComplete = Math.round(((contactsCount - unmessagedCount) * 100) / contactsCount)
+    const percentComplete = Math.round(
+      ((contactsCount - unmessagedCount) * 100) / contactsCount
+    )
 
     return (
       <div key={id}>
         {texter.firstName} {texter.lastName}
         <div>{percentComplete}%</div>
-        <LinearProgress
-          mode='determinate'
-          value={percentComplete}
-        />
+        <LinearProgress mode="determinate" value={percentComplete} />
       </div>
     )
   }
@@ -42,13 +41,17 @@ class TexterStats extends React.Component {
     const { assignments } = campaign
     return (
       <div>
-        {assignments.map((assignment) => campaign.useDynamicAssignment ? this.renderAssignmentDynamic(assignment) : this.renderAssignment(assignment))}
+        {assignments.map(assignment =>
+          campaign.useDynamicAssignment
+            ? this.renderAssignmentDynamic(assignment)
+            : this.renderAssignment(assignment)
+        )}
       </div>
     )
   }
 }
 
 TexterStats.propTypes = {
-  campaign: PropTypes.object
+  campaign: PropTypes.object,
 }
 export default TexterStats

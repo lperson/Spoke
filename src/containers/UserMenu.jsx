@@ -19,25 +19,25 @@ class UserMenu extends Component {
     super(props)
     this.state = {
       open: false,
-      anchorEl: null
+      anchorEl: null,
     }
     this.handleReturn = this.handleReturn.bind(this)
     this.handleRequestFaqs = this.handleRequestFaqs.bind(this)
   }
 
-  handleTouchTap = (event) => {
+  handleTouchTap = event => {
     // This prevents ghost click.
     event.preventDefault()
 
     this.setState({
       open: true,
-      anchorEl: event.currentTarget
+      anchorEl: event.currentTarget,
     })
   }
 
   handleRequestClose = () => {
     this.setState({
-      open: false
+      open: false,
     })
   }
 
@@ -56,18 +56,17 @@ class UserMenu extends Component {
     }
   }
 
-  handleReturn = (e) => {
+  handleReturn = e => {
     e.preventDefault()
     const { orgId } = this.props
     this.props.router.push(`/app/${orgId}/todos`)
   }
 
-  handleRequestFaqs = (e) => {
+  handleRequestFaqs = e => {
     e.preventDefault()
     const { orgId } = this.props
     this.props.router.push(`/app/${orgId}/faqs`)
   }
-
 
   renderAvatar(user, size) {
     // Material-UI seems to not be handling this correctly when doing serverside rendering
@@ -75,9 +74,13 @@ class UserMenu extends Component {
       lineHeight: '1.25',
       textAlign: 'center',
       color: 'white',
-      padding: '5px'
+      padding: '5px',
     }
-    return <Avatar style={inlineStyles} size={size}>{user.displayName.charAt(0)}</Avatar>
+    return (
+      <Avatar style={inlineStyles} size={size}>
+        {user.displayName.charAt(0)}
+      </Avatar>
+    )
   }
 
   render() {
@@ -114,7 +117,7 @@ class UserMenu extends Component {
             </MenuItem>
             <Divider />
             <Subheader>Teams</Subheader>
-            {currentUser.organizations.map((organization) => (
+            {currentUser.organizations.map(organization => (
               <MenuItem
                 key={organization.id}
                 primaryText={organization.name}
@@ -124,18 +127,15 @@ class UserMenu extends Component {
             <Divider />
             <MenuItem
               {...dataTest('home')}
-              primaryText='Home'
+              primaryText="Home"
               onClick={this.handleReturn}
             />
-            <MenuItem
-              primaryText='FAQs'
-              onClick={this.handleRequestFaqs}
-            />
+            <MenuItem primaryText="FAQs" onClick={this.handleRequestFaqs} />
             <Divider />
             <MenuItem
               {...dataTest('userMenuLogOut')}
-              primaryText='Log out'
-              value='logout'
+              primaryText="Log out"
+              value="logout"
             />
           </Menu>
         </Popover>
@@ -147,26 +147,28 @@ class UserMenu extends Component {
 UserMenu.propTypes = {
   data: PropTypes.object,
   orgId: PropTypes.string,
-  router: PropTypes.object
+  router: PropTypes.object,
 }
 
 const mapQueriesToProps = () => ({
   data: {
-    query: gql`query getCurrentUserForMenu {
-      currentUser {
-        id
-        displayName
-        email
-        organizations {
+    query: gql`
+      query getCurrentUserForMenu {
+        currentUser {
           id
-          name
+          displayName
+          email
+          organizations {
+            id
+            name
+          }
         }
       }
-    }`,
-    forceFetch: true
-  }
+    `,
+    forceFetch: true,
+  },
 })
 
 export default connect({
-  mapQueriesToProps
+  mapQueriesToProps,
 })(withRouter(UserMenu))

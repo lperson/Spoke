@@ -14,7 +14,7 @@ import {
   assignTexter,
   createScript,
   startCampaign,
-  getCampaignContact
+  getCampaignContact,
 } from '../test_helpers'
 import waitForExpect from 'wait-for-expect'
 
@@ -50,13 +50,17 @@ afterEach(async () => {
 it('should send an inital message to test contacts', async () => {
   const {
     query: [getContacts, getContactsVars],
-    mutations
+    mutations,
   } = getGql('../src/containers/TexterTodo', {
     messageStatus: 'needsMessage',
-    params: { assignmentId }
+    params: { assignmentId },
   })
 
-  const contactsResult = await runGql(getContacts, getContactsVars, testTexterUser)
+  const contactsResult = await runGql(
+    getContacts,
+    getContactsVars,
+    testTexterUser
+  )
 
   const [getAssignmentContacts, assignVars] = mutations.getAssignmentContacts(
     contactsResult.data.assignment.contacts.map(e => e.id),
@@ -70,12 +74,19 @@ it('should send an inital message to test contacts', async () => {
     contactNumber: contact.cell,
     userId: testTexterUser.id,
     text: 'test text',
-    assignmentId
+    assignmentId,
   }
 
-  const [messageMutation, messageVars] = mutations.sendMessage(message, contact.id)
+  const [messageMutation, messageVars] = mutations.sendMessage(
+    message,
+    contact.id
+  )
 
-  const messageResult = await runGql(messageMutation, messageVars, testTexterUser)
+  const messageResult = await runGql(
+    messageMutation,
+    messageVars,
+    testTexterUser
+  )
   const campaignContact = messageResult.data.sendMessage
 
   // These things are expected to be returned from the sendMessage mutation
@@ -99,7 +110,7 @@ it('should send an inital message to test contacts', async () => {
     expect(dbMessage[0]).toEqual(
       expect.objectContaining({
         send_status: 'SENT',
-        ...expectedDbMessage
+        ...expectedDbMessage,
       })
     )
     const dbCampaignContact = await getCampaignContact(testContact.id)
@@ -114,13 +125,17 @@ it('should send an inital message to test contacts', async () => {
 it('should be able to receive a response and reply (using fakeService)', async () => {
   const {
     query: [getContacts, getContactsVars],
-    mutations
+    mutations,
   } = getGql('../src/containers/TexterTodo', {
     messageStatus: 'needsMessage',
-    params: { assignmentId }
+    params: { assignmentId },
   })
 
-  const contactsResult = await runGql(getContacts, getContactsVars, testTexterUser)
+  const contactsResult = await runGql(
+    getContacts,
+    getContactsVars,
+    testTexterUser
+  )
 
   const [getAssignmentContacts, assignVars] = mutations.getAssignmentContacts(
     contactsResult.data.assignment.contacts.map(e => e.id),
@@ -134,10 +149,13 @@ it('should be able to receive a response and reply (using fakeService)', async (
     contactNumber: contact.cell,
     userId: testTexterUser.id,
     text: 'test text autorespond',
-    assignmentId
+    assignmentId,
   }
 
-  const [messageMutation, messageVars] = mutations.sendMessage(message, contact.id)
+  const [messageMutation, messageVars] = mutations.sendMessage(
+    message,
+    contact.id
+  )
 
   await runGql(messageMutation, messageVars, testTexterUser)
 
@@ -165,14 +183,16 @@ it('should be able to receive a response and reply (using fakeService)', async (
 
   // Refetch the contacts via gql to check the caching
   const ret3 = await runGql(getAssignmentContacts, assignVars, testTexterUser)
-  expect(ret3.data.getAssignmentContacts[0].messageStatus).toEqual('needsResponse')
+  expect(ret3.data.getAssignmentContacts[0].messageStatus).toEqual(
+    'needsResponse'
+  )
 
   // Then we reply
   const message2 = {
     contactNumber: contact.cell,
     userId: testTexterUser.id,
     text: 'reply',
-    assignmentId
+    assignmentId,
   }
 
   const [replyMutation, replyVars] = mutations.sendMessage(message2, contact.id)
@@ -185,7 +205,7 @@ it('should be able to receive a response and reply (using fakeService)', async (
     expect(dbMessage.length).toEqual(3)
     expect(dbMessage[2]).toEqual(
       expect.objectContaining({
-        send_status: 'SENT'
+        send_status: 'SENT',
       })
     )
     const dbCampaignContact = await getCampaignContact(testContact.id)

@@ -1,16 +1,18 @@
 import { r } from '../server/models'
 import { sleep, getNextJob, log } from './lib'
-import { exportCampaign,
-         processSqsMessages,
-         uploadContacts,
-         loadContactsFromDataWarehouse,
-         loadContactsFromDataWarehouseFragment,
-         assignTexters,
-         sendMessages,
-         handleIncomingMessageParts,
-         fixOrgless,
-         clearOldJobs, 
-         importScript } from './jobs'
+import {
+  exportCampaign,
+  processSqsMessages,
+  uploadContacts,
+  loadContactsFromDataWarehouse,
+  loadContactsFromDataWarehouseFragment,
+  assignTexters,
+  sendMessages,
+  handleIncomingMessageParts,
+  fixOrgless,
+  clearOldJobs,
+  importScript,
+} from './jobs'
 import { runMigrations } from '../migrations'
 import { setupUserNotificationObservers } from '../server/notifications'
 
@@ -26,11 +28,11 @@ export { seedZipCodes } from '../server/seeds/seed-zip-codes'
  */
 
 const jobMap = {
-  'export': exportCampaign,
-  'upload_contacts': uploadContacts,
-  'upload_contacts_sql': loadContactsFromDataWarehouse,
-  'assign_texters': assignTexters,
-  'import_script': importScript
+  export: exportCampaign,
+  upload_contacts: uploadContacts,
+  upload_contacts_sql: loadContactsFromDataWarehouse,
+  assign_texters: assignTexters,
+  import_script: importScript,
 }
 
 export async function processJobs() {
@@ -42,7 +44,7 @@ export async function processJobs() {
       await sleep(1000)
       const job = await getNextJob()
       if (job) {
-        await (jobMap[job.job_type])(job)
+        await jobMap[job.job_type](job)
       }
 
       const twoMinutesAgo = new Date(new Date() - 1000 * 60 * 2)
@@ -71,7 +73,7 @@ export async function checkMessageQueue() {
 }
 
 const messageSenderCreator = (subQuery, defaultStatus) => {
-  return async (event) => {
+  return async event => {
     console.log('Running a message sender')
     setupUserNotificationObservers()
     let delay = 1100
@@ -90,23 +92,35 @@ const messageSenderCreator = (subQuery, defaultStatus) => {
   }
 }
 
-export const messageSender01 = messageSenderCreator(function (mQuery) {
-  return mQuery.where(r.knex.raw("(contact_number LIKE '%0' OR contact_number LIKE '%1')"))
+export const messageSender01 = messageSenderCreator(function(mQuery) {
+  return mQuery.where(
+    r.knex.raw("(contact_number LIKE '%0' OR contact_number LIKE '%1')")
+  )
 })
 
-export const messageSender234 = messageSenderCreator(function (mQuery) {
-  return mQuery.where(r.knex.raw("(contact_number LIKE '%2' OR contact_number LIKE '%3' or contact_number LIKE '%4')"))
+export const messageSender234 = messageSenderCreator(function(mQuery) {
+  return mQuery.where(
+    r.knex.raw(
+      "(contact_number LIKE '%2' OR contact_number LIKE '%3' or contact_number LIKE '%4')"
+    )
+  )
 })
 
-export const messageSender56 = messageSenderCreator(function (mQuery) {
-  return mQuery.where(r.knex.raw("(contact_number LIKE '%5' OR contact_number LIKE '%6')"))
+export const messageSender56 = messageSenderCreator(function(mQuery) {
+  return mQuery.where(
+    r.knex.raw("(contact_number LIKE '%5' OR contact_number LIKE '%6')")
+  )
 })
 
-export const messageSender789 = messageSenderCreator(function (mQuery) {
-  return mQuery.where(r.knex.raw("(contact_number LIKE '%7' OR contact_number LIKE '%8' or contact_number LIKE '%9')"))
+export const messageSender789 = messageSenderCreator(function(mQuery) {
+  return mQuery.where(
+    r.knex.raw(
+      "(contact_number LIKE '%7' OR contact_number LIKE '%8' or contact_number LIKE '%9')"
+    )
+  )
 })
 
-export const failedMessageSender = messageSenderCreator(function (mQuery) {
+export const failedMessageSender = messageSenderCreator(function(mQuery) {
   // messages that were attempted to be sent five minutes ago in status=SENDING
   // when JOBS_SAME_PROCESS is enabled, the send attempt is done immediately.
   // However, if it's still marked SENDING, then it must have failed to go out.
@@ -117,7 +131,7 @@ export const failedMessageSender = messageSenderCreator(function (mQuery) {
   return mQuery.where('created_at', '>', fiveMinutesAgo)
 }, 'SENDING')
 
-export const failedDayMessageSender = messageSenderCreator(function (mQuery) {
+export const failedDayMessageSender = messageSenderCreator(function(mQuery) {
   // messages that were attempted to be sent five minutes ago in status=SENDING
   // when JOBS_SAME_PROCESS is enabled, the send attempt is done immediately.
   // However, if it's still marked SENDING, then it must have failed to go out.
@@ -140,14 +154,19 @@ export async function handleIncomingMessages() {
       if (process.env.DEBUG_SCALING) {
         console.log('entering handleIncomingMessages. round: ', ++i)
       }
-      const countPendingMessagePart = await r.knex('pending_message_part')
-      .count('id AS total').then(total => {
-        let totalCount = 0
-        totalCount = total[0].total
-        return totalCount
-      })
+      const countPendingMessagePart = await r
+        .knex('pending_message_part')
+        .count('id AS total')
+        .then(total => {
+          let totalCount = 0
+          totalCount = total[0].total
+          return totalCount
+        })
       if (process.env.DEBUG_SCALING) {
-        console.log('counting handleIncomingMessages. count: ', countPendingMessagePart)
+        console.log(
+          'counting handleIncomingMessages. count: ',
+          countPendingMessagePart
+        )
       }
       await sleep(500)
       if (countPendingMessagePart > 0) {
@@ -169,7 +188,11 @@ export async function runDatabaseMigrations(event, dispatcher, eventCallback) {
   }
 }
 
-export async function loadContactsFromDataWarehouseFragmentJob(event, dispatcher, eventCallback) {
+export async function loadContactsFromDataWarehouseFragmentJob(
+  event,
+  dispatcher,
+  eventCallback
+) {
   const eventAsJob = event
   console.log('LAMBDA INVOCATION job-processes', event)
   try {
@@ -191,7 +214,7 @@ const processMap = {
   messageSender56,
   messageSender789,
   handleIncomingMessages,
-  fixOrgless
+  fixOrgless,
 }
 
 // if process.env.JOBS_SAME_PROCESS then we don't need to run
@@ -201,13 +224,14 @@ const syncProcessMap = {
   handleIncomingMessages,
   checkMessageQueue,
   fixOrgless,
-  clearOldJobs
+  clearOldJobs,
 }
 
 const JOBS_SAME_PROCESS = !!process.env.JOBS_SAME_PROCESS
 
 export async function dispatchProcesses(event, dispatcher, eventCallback) {
-  const toDispatch = event.processes || (JOBS_SAME_PROCESS ? syncProcessMap : processMap)
+  const toDispatch =
+    event.processes || (JOBS_SAME_PROCESS ? syncProcessMap : processMap)
   for (let p in toDispatch) {
     if (p in processMap) {
       // / not using dispatcher, but another interesting model would be

@@ -10,23 +10,23 @@ import Tags from './Tags'
 
 const styles = StyleSheet.create({
   tagButton: {
-    marginRight: '10px'
-  }
+    marginRight: '10px',
+  },
 })
 
 const inlineStyles = {
   toolbar: {
-    backgroundColor: grey100
+    backgroundColor: grey100,
   },
   cellToolbarTitle: {
-    fontSize: '1em'
+    fontSize: '1em',
   },
   locationToolbarTitle: {
-    fontSize: '1em'
+    fontSize: '1em',
   },
   timeToolbarTitle: {
-    fontSize: '1em'
-  }
+    fontSize: '1em',
+  },
 }
 
 const ContactToolbar = function ContactToolbar(props) {
@@ -61,33 +61,37 @@ const ContactToolbar = function ContactToolbar(props) {
   }
   formattedLocation = `${formattedLocation} ${state}`
 
-  const dstReferenceTimezone = props.campaign.overrideOrganizationTextingHours ?
-    props.campaign.timezone :
-    getProcessEnvDstReferenceTimezone()
+  const dstReferenceTimezone = props.campaign.overrideOrganizationTextingHours
+    ? props.campaign.timezone
+    : getProcessEnvDstReferenceTimezone()
 
-  const formattedLocalTime = getLocalTime(offset, hasDST, dstReferenceTimezone).format('LT') // format('h:mm a')
+  const formattedLocalTime = getLocalTime(
+    offset,
+    hasDST,
+    dstReferenceTimezone
+  ).format('LT') // format('h:mm a')
   return (
     <div>
-      <Toolbar
-        style={inlineStyles.toolbar}
-      >
+      <Toolbar style={inlineStyles.toolbar}>
         <ToolbarGroup>
           <ToolbarTitle text={campaignContact.firstName} />
-          <ToolbarTitle
-            style={inlineStyles.cellToolbarTitle}
-          />
+          <ToolbarTitle style={inlineStyles.cellToolbarTitle} />
           {location ? (
             <ToolbarTitle
               style={inlineStyles.timeToolbarTitle}
               text={formattedLocalTime}
-            />) : ''
-          }
+            />
+          ) : (
+            ''
+          )}
           {location ? (
             <ToolbarTitle
               style={inlineStyles.locationToolbarTitle}
               text={formattedLocation}
-            />) : ''
-          }
+            />
+          ) : (
+            ''
+          )}
           {rightToolbarIcon}
         </ToolbarGroup>
         <ToolbarGroup>
@@ -112,7 +116,7 @@ ContactToolbar.propTypes = {
   campaignContact: PropTypes.object, // contacts for current assignment
   rightToolbarIcon: PropTypes.element,
   campaign: PropTypes.object,
-  assignment: PropTypes.object
+  assignment: PropTypes.object,
 }
 
 export default ContactToolbar

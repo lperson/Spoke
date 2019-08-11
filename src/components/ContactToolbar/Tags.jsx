@@ -14,10 +14,10 @@ import Theme from '../../styles/theme'
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   conversationLink: {
-    paddingTop: '25px'
+    paddingTop: '25px',
   },
   button: {
     backgroundColor: 'blue',
@@ -27,26 +27,26 @@ const styles = StyleSheet.create({
     height: '28px',
     paddingTop: '2px',
     marginTop: '3px',
-    marginRight: '10px'
-  }
+    marginRight: '10px',
+  },
 })
 
-
 class Tags extends React.Component {
-
   constructor(props) {
     super(props)
 
     this.state = {
-      open: false
+      open: false,
     }
   }
 
-  dialogActions = <FlatButton
-    label='Close'
-    primary
-    onClick={() => this.handleCloseDialog()}
-  />
+  dialogActions = (
+    <FlatButton
+      label="Close"
+      primary
+      onClick={() => this.handleCloseDialog()}
+    />
+  )
 
   handleCloseDialog = () => {
     this.setState({ open: false })
@@ -62,34 +62,33 @@ class Tags extends React.Component {
       onTouchTap={this.handleOpenDialog}
       style
     >
-      <FlagIcon
-        color='white'
-      />
+      <FlagIcon color="white" />
     </FlatButton>
   )
 
   renderDialog = () => (
     <Dialog
-      title='Tags'
+      title="Tags"
       open={this.state.open}
       actions={this.dialogActions}
       modal
     >
-      <div
-        className={css(styles.container)}
-      >
+      <div className={css(styles.container)}>
         <List>
-          {this.props.conversations.conversations.conversations[0].contact.tags.map((tag, index) =>
-            (<ListItem
-              key={index}
-            >
-              <span style={Theme.text.body}>
-                {`${tag.tag} `}
-              </span>
-              <span style={Object.assign({}, Theme.text.body, { fontSize: Theme.text.body.fontSize * 0.8, fontStyle: 'italic' })}>
-                {`${moment(tag.createdAt).format('lll')}`}
-              </span>
-            </ListItem>)
+          {this.props.conversations.conversations.conversations[0].contact.tags.map(
+            (tag, index) => (
+              <ListItem key={index}>
+                <span style={Theme.text.body}>{`${tag.tag} `}</span>
+                <span
+                  style={Object.assign({}, Theme.text.body, {
+                    fontSize: Theme.text.body.fontSize * 0.8,
+                    fontStyle: 'italic',
+                  })}
+                >
+                  {`${moment(tag.createdAt).format('lll')}`}
+                </span>
+              </ListItem>
+            )
           )}
         </List>
       </div>
@@ -109,9 +108,8 @@ Tags.propTypes = {
   campaign: PropTypes.object,
   campaignContact: PropTypes.object,
   assignment: PropTypes.object,
-  conversations: PropTypes.object
+  conversations: PropTypes.object,
 }
-
 
 const mapQueriesToProps = ({ ownProps }) => ({
   conversations: {
@@ -152,10 +150,10 @@ const mapQueriesToProps = ({ ownProps }) => ({
     variables: {
       organizationId: ownProps.campaign.organization.id,
       cursor: { offset: 0, limit: 1 },
-      contactsFilter: { contactId: ownProps.campaignContact.id }
+      contactsFilter: { contactId: ownProps.campaignContact.id },
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
 export default loadData(Tags, { mapQueriesToProps })

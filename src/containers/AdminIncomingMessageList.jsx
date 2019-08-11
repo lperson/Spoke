@@ -3,7 +3,9 @@ import React, { Component } from 'react'
 import _ from 'lodash'
 
 import IncomingMessageActions from '../components/IncomingMessageActions'
-import IncomingMessageFilter, { ALL_CAMPAIGNS } from '../components/IncomingMessageFilter'
+import IncomingMessageFilter, {
+  ALL_CAMPAIGNS,
+} from '../components/IncomingMessageFilter'
 import IncomingMessageList from '../components/IncomingMessageList'
 import LoadingIndicator from '../components/LoadingIndicator'
 import PaginatedCampaignsRetriever from './PaginatedCampaignsRetriever'
@@ -14,7 +16,9 @@ import wrapMutations from './hoc/wrap-mutations'
 import PaginatedUsersRetriever from './PaginatedUsersRetriever'
 import { ANY_TAG_FILTER } from '../lib/tags'
 
-const CONVERSATION_LIST_ROW_SIZES = (typeof window !== 'undefined' && window.CONVERSATION_LIST_ROW_SIZES && JSON.parse(window.CONVERSATION_LIST_ROW_SIZES)) || [10, 30, 50, 100]
+const CONVERSATION_LIST_ROW_SIZES = (typeof window !== 'undefined' &&
+  window.CONVERSATION_LIST_ROW_SIZES &&
+  JSON.parse(window.CONVERSATION_LIST_ROW_SIZES)) || [10, 30, 50, 100]
 const INITIAL_PAGE_SIZE = CONVERSATION_LIST_ROW_SIZES[0]
 
 function getCampaignsFilterForCampaignArchiveStatus(
@@ -56,7 +60,7 @@ function getContactsFilterForConversationOptOutStatus(
 }
 
 export class AdminIncomingMessageList extends Component {
-  static tagsFilterStateFromTagsFilter = (tagsFilter) => {
+  static tagsFilterStateFromTagsFilter = tagsFilter => {
     let newTagsFilter = null
     if (tagsFilter.anyTag) {
       newTagsFilter = ['*']
@@ -64,7 +68,7 @@ export class AdminIncomingMessageList extends Component {
       newTagsFilter = []
     } else if (!tagsFilter.ignoreTags) {
       newTagsFilter = Object.values(tagsFilter.selectedTags).map(
-        (tagFilter) => tagFilter.value
+        tagFilter => tagFilter.value
       )
     }
 
@@ -81,7 +85,9 @@ export class AdminIncomingMessageList extends Component {
       contactsFilter: {
         isOptedOut: false,
         includeResolvedTags: true,
-        tags: AdminIncomingMessageList.tagsFilterStateFromTagsFilter(ANY_TAG_FILTER)
+        tags: AdminIncomingMessageList.tagsFilterStateFromTagsFilter(
+          ANY_TAG_FILTER
+        ),
       },
       assignmentsFilter: {},
       needsRender: false,
@@ -94,7 +100,7 @@ export class AdminIncomingMessageList extends Component {
       includeActiveCampaigns: true,
       includeNotOptedOutConversations: true,
       includeOptedOutConversations: false,
-      clearSelectedMessages: false
+      clearSelectedMessages: false,
     }
   }
 
@@ -112,15 +118,14 @@ export class AdminIncomingMessageList extends Component {
 
   componentDidUpdate = () => {
     if (this.state.clearSelectedMessages) {
-      this.setState(
-        {
-          clearSelectedMessages: false,
-          needsRender: true
-        })
+      this.setState({
+        clearSelectedMessages: false,
+        needsRender: true,
+      })
     }
   }
 
-  handleCampaignChanged = async (campaignIds) => {
+  handleCampaignChanged = async campaignIds => {
     const campaignsFilter = getCampaignsFilterForCampaignArchiveStatus(
       this.state.includeActiveCampaigns,
       this.state.includeArchivedCampaigns
@@ -132,11 +137,11 @@ export class AdminIncomingMessageList extends Component {
     await this.setState({
       clearSelectedMessages: true,
       campaignsFilter,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handleTexterChanged = async (texterId) => {
+  handleTexterChanged = async texterId => {
     const assignmentsFilter = {}
     if (texterId >= 0) {
       assignmentsFilter.texterId = texterId
@@ -144,39 +149,41 @@ export class AdminIncomingMessageList extends Component {
     await this.setState({
       clearSelectedMessages: true,
       assignmentsFilter,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handleMessageFilterChange = async (messagesFilter) => {
+  handleMessageFilterChange = async messagesFilter => {
     const contactsFilter = {
       ...this.state.contactsFilter,
-      messageStatus: messagesFilter
+      messageStatus: messagesFilter,
     }
     await this.setState({
       clearSelectedMessages: true,
       contactsFilter,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handleTagsFilterChanged = (tagsFilter) => {
-    const newTagsFilter = AdminIncomingMessageList.tagsFilterStateFromTagsFilter(tagsFilter)
+  handleTagsFilterChanged = tagsFilter => {
+    const newTagsFilter = AdminIncomingMessageList.tagsFilterStateFromTagsFilter(
+      tagsFilter
+    )
 
     const contactsFilter = {
       ...this.state.contactsFilter,
-      tags: newTagsFilter || undefined
+      tags: newTagsFilter || undefined,
     }
 
     this.setState({
       clearSelectedMessages: true,
       contactsFilter,
       tagsFilter,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handleReassignRequested = async (newTexterUserId) => {
+  handleReassignRequested = async newTexterUserId => {
     await this.props.mutations.reassignCampaignContacts(
       this.props.params.organizationId,
       this.state.campaignIdsContactIds,
@@ -185,11 +192,11 @@ export class AdminIncomingMessageList extends Component {
     this.setState({
       utc: Date.now().toString(),
       clearSelectedMessages: true,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handleReassignAllMatchingRequested = async (newTexterUserId) => {
+  handleReassignAllMatchingRequested = async newTexterUserId => {
     await this.props.mutations.bulkReassignCampaignContacts(
       this.props.params.organizationId,
       this.state.campaignsFilter || {},
@@ -200,38 +207,38 @@ export class AdminIncomingMessageList extends Component {
     this.setState({
       utc: Date.now().toString(),
       clearSelectedMessages: true,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handlePageChange = async (page) => {
+  handlePageChange = async page => {
     await this.setState({
       page,
-      needsRender: true
+      needsRender: true,
     })
   }
 
-  handlePageSizeChange = async (pageSize) => {
+  handlePageSizeChange = async pageSize => {
     await this.setState({ needsRender: true, pageSize })
   }
 
-  handleRowSelection = async (data) => {
+  handleRowSelection = async data => {
     console.log(`*** SELECTED CONVERSATIONS *** ${data.length}`)
     await this.setState({
       campaignIdsContactIds: data,
-      needsRender: false
+      needsRender: false,
     })
   }
 
-  handleCampaignsReceived = async (campaigns) => {
+  handleCampaignsReceived = async campaigns => {
     this.setState({ campaigns, needsRender: true })
   }
 
-  handleCampaignTextersReceived = async (campaignTexters) => {
+  handleCampaignTextersReceived = async campaignTexters => {
     this.setState({ campaignTexters, needsRender: true })
   }
 
-  handleReassignmentTextersReceived = async (reassignmentTexters) => {
+  handleReassignmentTextersReceived = async reassignmentTexters => {
     this.setState({ reassignmentTexters, needsRender: true })
   }
 
@@ -250,14 +257,14 @@ export class AdminIncomingMessageList extends Component {
 
     const contactsFilter = {
       ...this.state.contactsFilter,
-      ...contactsFilterUpdate
+      ...contactsFilterUpdate,
     }
-    
+
     this.setState({
       clearSelectedMessages: true,
       contactsFilter,
       includeNotOptedOutConversations: !this.state
-        .includeNotOptedOutConversations
+        .includeNotOptedOutConversations,
     })
   }
 
@@ -273,14 +280,14 @@ export class AdminIncomingMessageList extends Component {
 
     const contactsFilter = {
       ...this.state.contactsFilter,
-      ...contactsFilterUpdate
+      ...contactsFilterUpdate,
     }
 
     this.setState({
       clearSelectedMessages: true,
       contactsFilter,
       includeNotOptedOutConversations,
-      includeOptedOutConversations: !this.state.includeOptedOutConversations
+      includeOptedOutConversations: !this.state.includeOptedOutConversations,
     })
   }
 
@@ -299,7 +306,7 @@ export class AdminIncomingMessageList extends Component {
     this.setState({
       clearSelectedMessages: true,
       campaignsFilter,
-      includeActiveCampaigns: !this.state.includeActiveCampaigns
+      includeActiveCampaigns: !this.state.includeActiveCampaigns,
     })
   }
 
@@ -316,13 +323,14 @@ export class AdminIncomingMessageList extends Component {
       clearSelectedMessages: true,
       campaignsFilter,
       includeActiveCampaigns,
-      includeArchivedCampaigns: !this.state.includeArchivedCampaigns
+      includeArchivedCampaigns: !this.state.includeArchivedCampaigns,
     })
   }
 
-  getSelectedCampaignContactIds = () => this.state.campaignIdsContactIds.map(contact => contact.campaignContactId)
+  getSelectedCampaignContactIds = () =>
+    this.state.campaignIdsContactIds.map(contact => contact.campaignContactId)
 
-  handleAssignTags = async (tags) => {
+  handleAssignTags = async tags => {
     const campaignContactIds = this.getSelectedCampaignContactIds()
     await this.props.mutations.addTags(campaignContactIds, tags, '')
     this.setState({
@@ -332,7 +340,7 @@ export class AdminIncomingMessageList extends Component {
     })
   }
 
-  handleRemoveTags = async (tags) => {
+  handleRemoveTags = async tags => {
     const campaignContactIds = this.getSelectedCampaignContactIds()
     await this.props.mutations.resolveTags(campaignContactIds, tags)
     this.setState({
@@ -346,20 +354,20 @@ export class AdminIncomingMessageList extends Component {
     this.setState({
       utc: Date.now().toString(),
       needsRender: true,
-      clearSelectedMessages
+      clearSelectedMessages,
     })
   }
 
-  conversationCountChanged = (conversationCount) => {
+  conversationCountChanged = conversationCount => {
     this.setState({
-      conversationCount
+      conversationCount,
     })
   }
 
   render() {
     const cursor = {
       offset: this.state.page * this.state.pageSize,
-      limit: this.state.pageSize
+      limit: this.state.pageSize,
     }
     return (
       <div>
@@ -415,7 +423,9 @@ export class AdminIncomingMessageList extends Component {
             <IncomingMessageActions
               people={this.state.reassignmentTexters}
               onReassignRequested={this.handleReassignRequested}
-              onReassignAllMatchingRequested={this.handleReassignAllMatchingRequested}
+              onReassignAllMatchingRequested={
+                this.handleReassignAllMatchingRequested
+              }
               conversationCount={this.state.conversationCount}
               tagsFilter={this.state.tagsFilter}
               onAssignTags={this.handleAssignTags}
@@ -440,7 +450,7 @@ export class AdminIncomingMessageList extends Component {
               toolbarBottom
             />
           </div>
-          )}
+        )}
       </div>
     )
   }
@@ -462,10 +472,10 @@ const mapQueriesToProps = ({ ownProps }) => ({
       }
     `,
     variables: {
-      organizationId: ownProps.params.organizationId
+      organizationId: ownProps.params.organizationId,
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
 const mapMutationsToProps = () => ({
@@ -490,7 +500,7 @@ const mapMutationsToProps = () => ({
         }
       }
     `,
-    variables: { organizationId, campaignIdsContactIds, newTexterUserId }
+    variables: { organizationId, campaignIdsContactIds, newTexterUserId },
   }),
   bulkReassignCampaignContacts: (
     organizationId,
@@ -500,38 +510,52 @@ const mapMutationsToProps = () => ({
     newTexterUserId
   ) => ({
     mutation: gql`
-        mutation bulkReassignCampaignContacts(
+      mutation bulkReassignCampaignContacts(
         $organizationId: String!
         $contactsFilter: ContactsFilter
         $campaignsFilter: CampaignsFilter
         $assignmentsFilter: AssignmentsFilter
         $newTexterUserId: String!
+      ) {
+        bulkReassignCampaignContacts(
+          organizationId: $organizationId
+          contactsFilter: $contactsFilter
+          campaignsFilter: $campaignsFilter
+          assignmentsFilter: $assignmentsFilter
+          newTexterUserId: $newTexterUserId
         ) {
-            bulkReassignCampaignContacts(
-                organizationId: $organizationId
-                contactsFilter: $contactsFilter,
-                campaignsFilter: $campaignsFilter,
-                assignmentsFilter: $assignmentsFilter,
-                newTexterUserId: $newTexterUserId
-            ) {
-                campaignId
-                assignmentId
-            }
+          campaignId
+          assignmentId
         }
+      }
     `,
-    variables: { organizationId, campaignsFilter, assignmentsFilter, contactsFilter, newTexterUserId }
+    variables: {
+      organizationId,
+      campaignsFilter,
+      assignmentsFilter,
+      contactsFilter,
+      newTexterUserId,
+    },
   }),
   addTags: (campaignContactIds, tags, comment) => ({
     mutation: gql`
-      mutation addTags($campaignContactIds: [String]!, $tags: [String]!, $comment: String) {
-        addTagsToCampaignContacts(campaignContactIds: $campaignContactIds, tags: $tags, comment: $comment)
+      mutation addTags(
+        $campaignContactIds: [String]!
+        $tags: [String]!
+        $comment: String
+      ) {
+        addTagsToCampaignContacts(
+          campaignContactIds: $campaignContactIds
+          tags: $tags
+          comment: $comment
+        )
       }
     `,
     variables: {
       campaignContactIds,
       tags,
-      comment
-    }
+      comment,
+    },
   }),
   resolveTags: (campaignContactIds, tags) => ({
     mutation: gql`
@@ -541,19 +565,19 @@ const mapMutationsToProps = () => ({
     `,
     variables: {
       campaignContactIds,
-      tags
-    }
-  })
+      tags,
+    },
+  }),
 })
 
 AdminIncomingMessageList.propTypes = {
   conversations: PropTypes.object,
   mutations: PropTypes.object,
   params: PropTypes.object,
-  organization: PropTypes.object
+  organization: PropTypes.object,
 }
 
 export default loadData(withRouter(wrapMutations(AdminIncomingMessageList)), {
   mapQueriesToProps,
-  mapMutationsToProps
+  mapMutationsToProps,
 })

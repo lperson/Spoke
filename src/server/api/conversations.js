@@ -20,26 +20,31 @@ function getConversationsJoinsAndWhereClause(
   query = buildCampaignQuery(query, organizationId, campaignsFilter)
 
   if (assignmentsFilter) {
-    if ('texterId' in assignmentsFilter && assignmentsFilter.texterId !== null) {
+    if (
+      'texterId' in assignmentsFilter &&
+      assignmentsFilter.texterId !== null
+    ) {
       query = query.where({ 'assignment.user_id': assignmentsFilter.texterId })
     }
   }
 
   query = addWhereClauseForContactsFilterMessageStatusIrrespectiveOfPastDue(
     query,
-    contactsFilter && contactsFilter.messageStatus)
+    contactsFilter && contactsFilter.messageStatus
+  )
 
   if (contactsFilter) {
     if ('contactId' in contactsFilter) {
       query = query.where({
-        'campaign_contact.id': contactsFilter.contactId
+        'campaign_contact.id': contactsFilter.contactId,
       })
     }
 
     if ('isOptedOut' in contactsFilter) {
-      const subQuery = (r.knex.select('cell')
+      const subQuery = r.knex
+        .select('cell')
         .from('opt_out')
-        .whereRaw('opt_out.cell=campaign_contact.cell'))
+        .whereRaw('opt_out.cell=campaign_contact.cell')
       if (contactsFilter.isOptedOut) {
         query = query.whereExists(subQuery)
       } else {
@@ -51,19 +56,19 @@ function getConversationsJoinsAndWhereClause(
       if (contactsFilter.tags.length === 0) {
         query.where({ has_unresolved_tags: false })
       } else {
-        let subQuery = r.knex.select('tag')
+        let subQuery = r.knex
+          .select('tag')
           .from('tag')
           .whereRaw('tag.campaign_contact_id=campaign_contact.id')
           .whereNull('resolved_at')
 
-
-        if (!(contactsFilter.tags.length === 1 && contactsFilter.tags[0] === '*')) {
+        if (
+          !(contactsFilter.tags.length === 1 && contactsFilter.tags[0] === '*')
+        ) {
           subQuery = subQuery.whereIn('tag.tag', contactsFilter.tags)
         }
 
-        query = query
-          .where({ has_unresolved_tags: true })
-          .whereExists(subQuery)
+        query = query.where({ has_unresolved_tags: true }).whereExists(subQuery)
       }
     }
   }
@@ -97,7 +102,7 @@ export async function getConversations(
   includeTags
 ) {
   /* Query #1 == get campaign_contact.id for all the conversations matching
-  * the criteria with offset and limit. */
+   * the criteria with offset and limit. */
   let offsetLimitQuery = r.knex.select('campaign_contact.id as cc_id')
 
   offsetLimitQuery = getConversationsJoinsAndWhereClause(
@@ -114,7 +119,7 @@ export async function getConversations(
   offsetLimitQuery = offsetLimitQuery.limit(cursor.limit).offset(cursor.offset)
 
   const ccIdRows = await offsetLimitQuery
-  const ccIds = ccIdRows.map((ccIdRow) => ccIdRow.cc_id)
+  const ccIds = ccIdRows.map(ccIdRow => ccIdRow.cc_id)
 
   const fieldsArray = [
     'campaign_contact.id as cc_id',
@@ -139,14 +144,12 @@ export async function getConversations(
     'message.user_number',
     'message.contact_number',
     'message.created_at',
-    'message.is_from_contact'
+    'message.is_from_contact',
   ]
 
   /* Query #2 -- get all the columns we need, including messages, using the
-  * cc_ids from Query #1 to scope the results to limit, offset */
-  let query = r.knex.select(
-    ...fieldsArray
-  )
+   * cc_ids from Query #1 to scope the results to limit, offset */
+  let query = r.knex.select(...fieldsArray)
 
   query = getConversationsJoinsAndWhereClause(
     query,
@@ -167,7 +170,7 @@ export async function getConversations(
   query = query
     .leftJoin('opt_out', table => {
       table
-        .on('opt_out.organization_id', '=',  'campaign.organization_id')
+        .on('opt_out.organization_id', '=', 'campaign.organization_id')
         .andOn('campaign_contact.cell', 'opt_out.cell')
     })
     .orderBy('campaign_contact.updated_at')
@@ -191,10 +194,15 @@ export async function getConversations(
         'creating_user.last_name as creating_user_last_name',
         'resolving_user.id as resolving_user_id',
         'resolving_user.first_name as resolving_user_first_name',
-        'resolving_user.last_name as resolving_user_last_name')
+        'resolving_user.last_name as resolving_user_last_name'
+      )
       .from('tag')
       .join('user as creating_user', 'creating_user.id', 'tag.created_by')
-      .leftJoin('user as resolving_user', 'resolving_user.id', 'tag.resolved_by')
+      .leftJoin(
+        'user as resolving_user',
+        'resolving_user.id',
+        'tag.resolved_by'
+      )
       .whereIn('campaign_contact_id', ccIds)
       .orderBy('tag.created_at')
 
@@ -210,13 +218,13 @@ export async function getConversations(
       const createdBy = {
         id: tagRow.creating_user_id,
         first_name: tagRow.creating_user_first_name,
-        last_name: tagRow.creating_user_last_name
+        last_name: tagRow.creating_user_last_name,
       }
       const resolvedAt = tagRow.resolved_at
       const resolvedBy = {
         id: tagRow.resolving_user_id,
         first_name: tagRow.resolving_user_first_name,
-        last_name: tagRow.resolving_user_last_name
+        last_name: tagRow.resolving_user_last_name,
       }
       tags[ccId] = tags[ccId] || []
       tags[ccId].push({ tag, createdAt, createdBy, resolvedAt, resolvedBy })
@@ -224,15 +232,15 @@ export async function getConversations(
   }
 
   /* collapse the rows to produce an array of objects, with each object
-  * containing the fields for one conversation, each having an array of
-  * message objects */
+   * containing the fields for one conversation, each having an array of
+   * message objects */
   const messageFields = [
     'mess_id',
     'text',
     'user_number',
     'contact_number',
     'created_at',
-    'is_from_contact'
+    'is_from_contact',
   ]
 
   let ccId = undefined
@@ -249,12 +257,14 @@ export async function getConversations(
       conversations.push(conversation)
     }
     conversation.messages.push(
-      mapQueryFieldsToResolverFields(_.pick(conversationRow, messageFields), { mess_id: 'id' })
+      mapQueryFieldsToResolverFields(_.pick(conversationRow, messageFields), {
+        mess_id: 'id',
+      })
     )
   }
 
   /* Query #3 -- get the count of all conversations matching the criteria.
-  * We need this to show total number of conversations to support paging */
+   * We need this to show total number of conversations to support paging */
   const countQuery = r.knex.count('*')
   const conversationsCountArray = await getConversationsJoinsAndWhereClause(
     countQuery,
@@ -266,12 +276,12 @@ export async function getConversations(
   const pageInfo = {
     limit: cursor.limit,
     offset: cursor.offset,
-    total: conversationsCountArray[0].count
+    total: conversationsCountArray[0].count,
   }
 
   return {
     conversations,
-    pageInfo
+    pageInfo,
   }
 }
 
@@ -279,12 +289,12 @@ export async function getCampaignIdMessageIdsAndCampaignIdContactIdsMaps(
   organizationId,
   campaignsFilter,
   assignmentsFilter,
-  contactsFilter,
+  contactsFilter
 ) {
   let query = r.knex.select(
     'campaign_contact.id as cc_id',
     'campaign.id as cmp_id',
-    'message.id as mess_id',
+    'message.id as mess_id'
   )
 
   query = getConversationsJoinsAndWhereClause(
@@ -301,8 +311,7 @@ export async function getCampaignIdMessageIdsAndCampaignIdContactIdsMaps(
       .andOn('message.contact_number', '=', 'campaign_contact.cell')
   })
 
-  query = query
-    .orderBy('cc_id')
+  query = query.orderBy('cc_id')
 
   const conversationRows = await query
 
@@ -327,18 +336,23 @@ export async function getCampaignIdMessageIdsAndCampaignIdContactIdsMaps(
     }
 
     if (conversationRow.mess_id) {
-      campaignIdMessagesIdsMap.get(conversationRow.cmp_id).push(conversationRow.mess_id)
-
+      campaignIdMessagesIdsMap
+        .get(conversationRow.cmp_id)
+        .push(conversationRow.mess_id)
     }
   }
 
   return {
     campaignIdContactIdsMap,
-    campaignIdMessagesIdsMap
+    campaignIdMessagesIdsMap,
   }
 }
 
-export async function reassignConversations(campaignIdContactIdsMap, campaignIdMessagesIdsMap, newTexterUserId) {
+export async function reassignConversations(
+  campaignIdContactIdsMap,
+  campaignIdMessagesIdsMap,
+  newTexterUserId
+) {
   // ensure existence of assignments
   const campaignIdAssignmentIdMap = new Map()
   for (const [campaignId, _] of campaignIdContactIdsMap) {
@@ -352,7 +366,7 @@ export async function reassignConversations(campaignIdContactIdsMap, campaignIdM
       assignment = await Assignment.save({
         user_id: newTexterUserId,
         campaign_id: campaignId,
-        max_contacts: parseInt(process.env.MAX_CONTACTS_PER_TEXTER || 0, 10)
+        max_contacts: parseInt(process.env.MAX_CONTACTS_PER_TEXTER || 0, 10),
       })
     }
     campaignIdAssignmentIdMap.set(campaignId, assignment.id)
@@ -371,12 +385,12 @@ export async function reassignConversations(campaignIdContactIdsMap, campaignIdM
         .where('campaign_id', campaignId)
         .whereIn('id', campaignContactIds)
         .update({
-          assignment_id: assignmentId
+          assignment_id: assignmentId,
         })
 
       returnCampaignIdAssignmentIds.push({
         campaignId,
-        assignmentId: assignmentId.toString()
+        assignmentId: assignmentId.toString(),
       })
     }
     for (const [campaignId, messageIds] of campaignIdMessagesIdsMap) {
@@ -391,7 +405,7 @@ export async function reassignConversations(campaignIdContactIdsMap, campaignIdM
           })
         )
         .update({
-          assignment_id: assignmentId
+          assignment_id: assignmentId,
         })
     }
   } catch (error) {
@@ -412,14 +426,14 @@ export const resolvers = {
       } else {
         return null
       }
-    }
+    },
   },
   Conversation: {
     texter: queryResult => {
       return mapQueryFieldsToResolverFields(queryResult, {
         u_id: 'id',
         u_first_name: 'first_name',
-        u_last_name: 'last_name'
+        u_last_name: 'last_name',
       })
     },
     contact: queryResult => {
@@ -427,11 +441,11 @@ export const resolvers = {
         cc_id: 'id',
         cc_first_name: 'first_name',
         cc_last_name: 'last_name',
-        opt_out_cell: 'opt_out_cell'
+        opt_out_cell: 'opt_out_cell',
       })
     },
     campaign: queryResult => {
       return mapQueryFieldsToResolverFields(queryResult, { cmp_id: 'id' })
-    }
-  }
+    },
+  },
 }

@@ -12,22 +12,22 @@ const styles = StyleSheet.create({
     color: theme.colors.red,
     marginRight: 'auto',
     marginLeft: 'auto',
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 })
 export default class GSForm extends React.Component {
   static propTypes = {
     value: PropTypes.object,
     defaultValue: PropTypes.object,
     onChange: PropTypes.func,
-    children: PropTypes.array
+    children: PropTypes.array,
   }
 
   state = {
     formErrors: null,
     isSubmitting: false,
     model: null,
-    globalErrorMessage: null
+    globalErrorMessage: null,
   }
 
   handleFormError(err) {
@@ -37,7 +37,10 @@ export default class GSForm extends React.Component {
       this.setState({ globalErrorMessage: err.message })
     } else {
       log.error(err)
-      this.setState({ globalErrorMessage: 'Oops! Your form submission did not work. Contact your administrator.' })
+      this.setState({
+        globalErrorMessage:
+          'Oops! Your form submission did not work. Contact your administrator.',
+      })
     }
   }
 
@@ -46,7 +49,7 @@ export default class GSForm extends React.Component {
   }
 
   renderChildren(children) {
-    return React.Children.map(children, (child) => {
+    return React.Children.map(children, child => {
       if (child === null) {
         return child
       } else if (child.type === Form.Field) {
@@ -54,22 +57,24 @@ export default class GSForm extends React.Component {
         let error = this.state.formErrors ? this.state.formErrors[name] : null
         let clonedElement = child
         if (error) {
-          error = error[0] ? error[0].message.replace(name, child.props.label) : null
+          error = error[0]
+            ? error[0].message.replace(name, child.props.label)
+            : null
           clonedElement = React.cloneElement(child, {
-            errorText: error
+            errorText: error,
           })
         }
         return React.cloneElement(clonedElement, {
-          events: ['onBlur']
+          events: ['onBlur'],
         })
       } else if (child.type === Form.Button) {
         return React.cloneElement(child, {
           component: GSSubmitButton,
-          isSubmitting: this.state.isSubmitting
+          isSubmitting: this.state.isSubmitting,
         })
       } else if (child.props && child.props.children) {
         return React.cloneElement(child, {
-          children: this.renderChildren(child.props.children)
+          children: this.renderChildren(child.props.children),
         })
       }
       return child
@@ -91,7 +96,7 @@ export default class GSForm extends React.Component {
   render() {
     return (
       <Form
-        ref='form'
+        ref="form"
         value={this.props.value || this.state.model || this.props.defaultValue}
         onChange={model => {
           this.setState({ model })
@@ -99,14 +104,14 @@ export default class GSForm extends React.Component {
             this.props.onChange(model)
           }
         }}
-        onError={(errors) => {
+        onError={errors => {
           this.setState({ formErrors: errors })
         }}
         {...this.props}
-        onSubmit={async (formValues) => {
+        onSubmit={async formValues => {
           this.setState({
             isSubmitting: true,
-            globalErrorMessage: null
+            globalErrorMessage: null,
           })
           if (this.props.onSubmit) {
             try {
@@ -126,5 +131,5 @@ export default class GSForm extends React.Component {
 }
 
 GSForm.propTypes = {
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 }

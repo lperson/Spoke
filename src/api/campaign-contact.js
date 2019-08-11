@@ -48,8 +48,7 @@ export const schema = gql`
     interactionSteps: [InteractionStep]
     messageStatus: String
     assignmentId: String
-    tags: [Tag],
+    tags: [Tag]
     hasUnresolvedTags: Boolean
   }
 `
-

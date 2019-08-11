@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { shallow } from 'enzyme';
+import { shallow } from 'enzyme'
 import TexterFaqs from '../../src/components/TexterFaqs'
 
 describe('FAQs component', () => {
@@ -8,12 +8,10 @@ describe('FAQs component', () => {
   const faq = [
     {
       question: 'q1',
-      answer: 'a2'
-    }
+      answer: 'a2',
+    },
   ]
-  const wrapper = shallow(
-    <TexterFaqs faqs={faq} />
-  )
+  const wrapper = shallow(<TexterFaqs faqs={faq} />)
 
   // when
   test('Renders question and answer', () => {

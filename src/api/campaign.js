@@ -43,7 +43,7 @@ export const schema = gql`
     hasUnsentInitialMessages: Boolean
     customFields: [String]
     cannedResponses(userId: String): [CannedResponse]
-    stats: CampaignStats,
+    stats: CampaignStats
     pendingJobs: [JobRequest]
     datawarehouseAvailable: Boolean
     useDynamicAssignment: Boolean

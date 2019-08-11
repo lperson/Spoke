@@ -27,29 +27,63 @@ export const main = {
     })
 
     it('changes user details', async () => {
-      await wait.andType(driver, pom.people.edit.firstName, user.given_name_changed, { clear: false })
-      await wait.andType(driver, pom.people.edit.lastName, user.family_name_changed, { clear: false })
-      await wait.andType(driver, pom.people.edit.email, user.email_changed, { clear: false })
-      await wait.andType(driver, pom.people.edit.cell, user.cell_changed, { clear: false })
+      await wait.andType(
+        driver,
+        pom.people.edit.firstName,
+        user.given_name_changed,
+        { clear: false }
+      )
+      await wait.andType(
+        driver,
+        pom.people.edit.lastName,
+        user.family_name_changed,
+        { clear: false }
+      )
+      await wait.andType(driver, pom.people.edit.email, user.email_changed, {
+        clear: false,
+      })
+      await wait.andType(driver, pom.people.edit.cell, user.cell_changed, {
+        clear: false,
+      })
       // Save
       await wait.andClick(driver, pom.people.edit.save)
       // Verify edits
-      expect(await wait.andGetValue(driver, pom.people.edit.firstName)).toBe(user.given_name_changed)
-      expect(await wait.andGetValue(driver, pom.people.edit.lastName)).toBe(user.family_name_changed)
-      expect(await wait.andGetValue(driver, pom.people.edit.email)).toBe(user.email_changed)
+      expect(await wait.andGetValue(driver, pom.people.edit.firstName)).toBe(
+        user.given_name_changed
+      )
+      expect(await wait.andGetValue(driver, pom.people.edit.lastName)).toBe(
+        user.family_name_changed
+      )
+      expect(await wait.andGetValue(driver, pom.people.edit.email)).toBe(
+        user.email_changed
+      )
     })
 
     it('reverts user details back to original settings', async () => {
-      await wait.andType(driver, pom.people.edit.firstName, user.given_name, { clear: false })
-      await wait.andType(driver, pom.people.edit.lastName, user.family_name, { clear: false })
-      await wait.andType(driver, pom.people.edit.email, user.email, { clear: false })
-      await wait.andType(driver, pom.people.edit.cell, user.cell, { clear: false })
+      await wait.andType(driver, pom.people.edit.firstName, user.given_name, {
+        clear: false,
+      })
+      await wait.andType(driver, pom.people.edit.lastName, user.family_name, {
+        clear: false,
+      })
+      await wait.andType(driver, pom.people.edit.email, user.email, {
+        clear: false,
+      })
+      await wait.andType(driver, pom.people.edit.cell, user.cell, {
+        clear: false,
+      })
       // Save
       await wait.andClick(driver, pom.people.edit.save)
       // Verify edits
-      expect(await wait.andGetValue(driver, pom.people.edit.firstName)).toBe(user.given_name)
-      expect(await wait.andGetValue(driver, pom.people.edit.lastName)).toBe(user.family_name)
-      expect(await wait.andGetValue(driver, pom.people.edit.email)).toBe(user.email)
+      expect(await wait.andGetValue(driver, pom.people.edit.firstName)).toBe(
+        user.given_name
+      )
+      expect(await wait.andGetValue(driver, pom.people.edit.lastName)).toBe(
+        user.family_name
+      )
+      expect(await wait.andGetValue(driver, pom.people.edit.email)).toBe(
+        user.email
+      )
     })
   },
   logOutUser(driver) {
@@ -66,5 +100,5 @@ export const main = {
       const re = /http[s]*:\/\/[^\/]+[\/]*$/g
       await driver.wait(until.urlMatches(re))
     })
-  }
+  },
 }

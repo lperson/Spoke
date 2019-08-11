@@ -12,15 +12,13 @@ const ConversationLink = ({ conversation, organizationId, text }) => {
 
   const url = `${baseUrl}/app/${organizationId}/todos/${assignmentId}/review/${campaignContactId}`
 
-  return (
-    <DisplayLink url={url} textContent={text} />
-  )
+  return <DisplayLink url={url} textContent={text} />
 }
 
 ConversationLink.propTypes = {
   text: PropTypes.string,
   organizationId: PropTypes.string,
-  conversation: PropTypes.object
+  conversation: PropTypes.object,
 }
 
 export default ConversationLink

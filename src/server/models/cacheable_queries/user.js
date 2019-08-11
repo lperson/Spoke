@@ -26,10 +26,12 @@ currentEditors(campaign, user) -> string
 userOrgsWithRole(role, user.id) -> organization list
 */
 
-const userRoleKey = (userId) => `${process.env.CACHE_PREFIX || ''}texterroles-${userId}`
-const userAuthKey = (authId) => `${process.env.CACHE_PREFIX || ''}texterauth-${authId}`
+const userRoleKey = userId =>
+  `${process.env.CACHE_PREFIX || ''}texterroles-${userId}`
+const userAuthKey = authId =>
+  `${process.env.CACHE_PREFIX || ''}texterauth-${authId}`
 
-const getHighestRolesPerOrg = (userOrgs) => {
+const getHighestRolesPerOrg = userOrgs => {
   const highestRolesPerOrg = {}
   userOrgs.forEach(userOrg => {
     const orgId = userOrg.organization_id
@@ -37,9 +39,7 @@ const getHighestRolesPerOrg = (userOrgs) => {
     const orgName = userOrg.name
 
     if (highestRolesPerOrg[orgId]) {
-      if (isRoleGreater(
-        orgRole, highestRolesPerOrg[orgId].role
-      )) {
+      if (isRoleGreater(orgRole, highestRolesPerOrg[orgId].role)) {
         highestRolesPerOrg[orgId].role = orgRole
       }
     } else {
@@ -49,23 +49,36 @@ const getHighestRolesPerOrg = (userOrgs) => {
   return highestRolesPerOrg
 }
 
-const dbLoadUserRoles = async (userId) => {
-  const userOrgs = await r.knex('user_organization')
+const dbLoadUserRoles = async userId => {
+  const userOrgs = await r
+    .knex('user_organization')
     .where('user_id', userId)
-    .join('organization', 'user_organization.organization_id', 'organization.id')
-    .select('user_organization.role', 'user_organization.organization_id', 'organization.name')
+    .join(
+      'organization',
+      'user_organization.organization_id',
+      'organization.id'
+    )
+    .select(
+      'user_organization.role',
+      'user_organization.organization_id',
+      'organization.name'
+    )
 
   const highestRolesPerOrg = getHighestRolesPerOrg(userOrgs)
   if (r.redis) {
     // delete keys first
     // pass all values to hset instead of looping
     const key = userRoleKey(userId)
-    const mappedHighestRoles = Object.values(highestRolesPerOrg).reduce((acc, orgRole) => {
-      acc.push(orgRole.id, `${orgRole.role}:${orgRole.name}`)
-      return acc
-    }, [])
+    const mappedHighestRoles = Object.values(highestRolesPerOrg).reduce(
+      (acc, orgRole) => {
+        acc.push(orgRole.id, `${orgRole.role}:${orgRole.name}`)
+        return acc
+      },
+      []
+    )
     if (mappedHighestRoles.length) {
-      await r.redis.multi()
+      await r.redis
+        .multi()
         .del(key)
         .hmset(key, ...mappedHighestRoles)
         .execAsync()
@@ -77,7 +90,7 @@ const dbLoadUserRoles = async (userId) => {
   return highestRolesPerOrg
 }
 
-const loadUserRoles = async (userId) => {
+const loadUserRoles = async userId => {
   if (r.redis) {
     const roles = await r.redis.hgetallAsync(userRoleKey(userId))
     if (roles) {
@@ -93,14 +106,16 @@ const loadUserRoles = async (userId) => {
 }
 
 const dbLoadUserAuth = async (field, val) => {
-  const userAuth = await r.knex('user')
+  const userAuth = await r
+    .knex('user')
     .where(field, val)
     .select('*')
     .first()
 
   if (r.redis && userAuth) {
     const authKey = userAuthKey(val)
-    await r.redis.multi()
+    await r.redis
+      .multi()
       .set(authKey, JSON.stringify(userAuth))
       .expire(authKey, 43200)
       .execAsync()
@@ -110,13 +125,13 @@ const dbLoadUserAuth = async (field, val) => {
 }
 
 const userOrgs = async (userId, role) => {
-  const acceptableRoles = (role
-                           ? ROLE_HIERARCHY.slice(ROLE_HIERARCHY.indexOf(role))
-                           : [...ROLE_HIERARCHY])
+  const acceptableRoles = role
+    ? ROLE_HIERARCHY.slice(ROLE_HIERARCHY.indexOf(role))
+    : [...ROLE_HIERARCHY]
   const orgRoles = await loadUserRoles(userId)
-  const matchedOrgs = Object.keys(orgRoles).filter(orgId => (
-    acceptableRoles.indexOf(orgRoles[orgId].role) !== -1
-  ))
+  const matchedOrgs = Object.keys(orgRoles).filter(
+    orgId => acceptableRoles.indexOf(orgRoles[orgId].role) !== -1
+  )
   return matchedOrgs.map(orgId => orgRoles[orgId])
 }
 
@@ -124,7 +139,9 @@ const orgRoles = async (userId, orgId) => {
   const orgRolesDict = await loadUserRoles(userId)
   if (orgId in orgRolesDict) {
     return ROLE_HIERARCHY.slice(
-      0, 1 + ROLE_HIERARCHY.indexOf(orgRolesDict[orgId].role))
+      0,
+      1 + ROLE_HIERARCHY.indexOf(orgRolesDict[orgId].role)
+    )
   }
   return []
 }
@@ -145,14 +162,16 @@ const userOrgHighestRole = async (userId, orgId) => {
   }
   if (!highestRole) {
     // regular DB approach
-    const roles = await r.knex('user_organization')
+    const roles = await r
+      .knex('user_organization')
       .select('role')
-      .where({ user_id: userId,
-               organization_id: orgId })
+      .where({ user_id: userId, organization_id: orgId })
     if (roles.length) {
       highestRole = roles
         .map(ri => ri.role)
-        .sort((a, b) => ROLE_HIERARCHY.indexOf(b) - ROLE_HIERARCHY.indexOf(a))[0]
+        .sort(
+          (a, b) => ROLE_HIERARCHY.indexOf(b) - ROLE_HIERARCHY.indexOf(a)
+        )[0]
     }
   }
   return highestRole
@@ -168,7 +187,6 @@ const userHasRole = async (user, orgId, role) => {
   }
   return Boolean(highestRole && acceptableRoles.indexOf(highestRole) >= 0)
 }
-
 
 const userLoggedIn = async (field, val) => {
   if (field !== 'id' && field !== 'auth0_id') {
@@ -188,12 +206,12 @@ const userLoggedIn = async (field, val) => {
   }
   if (user) {
     // This will be per-request, and can cache through multiple tests
-    user.orgRoleCache = new DataLoader(async (keys) => (
-      keys.map(async (key) => {
+    user.orgRoleCache = new DataLoader(async keys =>
+      keys.map(async key => {
         const [userId, orgId] = key.split(':')
         return await userOrgHighestRole(userId, orgId)
       })
-    ))
+    )
   }
   return user
 }
@@ -211,7 +229,7 @@ const userCache = {
         await r.redis.delAsync(userAuthKey(authId))
       }
     }
-  }
+  },
 }
 
 export default userCache

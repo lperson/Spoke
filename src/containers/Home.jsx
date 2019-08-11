@@ -11,35 +11,35 @@ const styles = StyleSheet.create({
   container: {
     marginTop: '5vh',
     textAlign: 'center',
-    color: theme.colors.lightGray
+    color: theme.colors.lightGray,
   },
   content: {
-    ...theme.layouts.greenBox
+    ...theme.layouts.greenBox,
   },
   bigHeader: {
     ...theme.text.header,
-    fontSize: 40
+    fontSize: 40,
   },
   logoDiv: {
-    ...theme.components.logoDiv
+    ...theme.components.logoDiv,
   },
   logoImg: {
     width: 120,
-    ...theme.components.logoImg
+    ...theme.components.logoImg,
   },
   header: {
     ...theme.text.header,
     marginBottom: 15,
-    color: theme.colors.white
+    color: theme.colors.white,
   },
   link_dark_bg: {
-    ...theme.text.link_dark_bg
-  }
+    ...theme.text.link_dark_bg,
+  },
 })
 
 class Home extends React.Component {
   state = {
-    orgLessUser: false
+    orgLessUser: false,
   }
 
   componentWillMount() {
@@ -60,18 +60,23 @@ class Home extends React.Component {
   }
 
   // not sure if we need this anymore -- only for new organizations
-  handleOrgInviteClick = async (e) => {
-    if (!window.SUPPRESS_SELF_INVITE || window.SUPPRESS_SELF_INVITE === 'undefined') {
+  handleOrgInviteClick = async e => {
+    if (
+      !window.SUPPRESS_SELF_INVITE ||
+      window.SUPPRESS_SELF_INVITE === 'undefined'
+    ) {
       e.preventDefault()
       const newInvite = await this.props.mutations.createInvite({
-        is_valid: true
+        is_valid: true,
       })
       if (newInvite.errors) {
         alert('There was an error creating your invite')
         throw new Error(newInvite.errors)
       } else {
         // alert(newInvite.data.createInvite.id)
-        this.props.router.push(`/login?nextUrl=/invite/${newInvite.data.createInvite.hash}`)
+        this.props.router.push(
+          `/login?nextUrl=/invite/${newInvite.data.createInvite.hash}`
+        )
       }
     }
   }
@@ -84,7 +89,9 @@ class Home extends React.Component {
             You currently aren't part of any organization!
           </div>
           <div>
-            If you got sent a link by somebody to start texting, ask that person to send you the link to join their organization. Then, come back here and start texting!
+            If you got sent a link by somebody to start texting, ask that person
+            to send you the link to join their organization. Then, come back
+            here and start texting!
           </div>
         </div>
       )
@@ -92,10 +99,17 @@ class Home extends React.Component {
     return (
       <div>
         <div className={css(styles.header)}>
-        Spoke is a new way to run campaigns using text messaging.
+          Spoke is a new way to run campaigns using text messaging.
         </div>
         <div>
-          <a id='login' className={css(styles.link_dark_bg)} href='/login' onClick={this.handleOrgInviteClick}>Login and get started</a>
+          <a
+            id="login"
+            className={css(styles.link_dark_bg)}
+            href="/login"
+            onClick={this.handleOrgInviteClick}
+          >
+            Login and get started
+          </a>
         </div>
       </div>
     )
@@ -106,13 +120,11 @@ class Home extends React.Component {
       <div className={css(styles.container)}>
         <div className={css(styles.logoDiv)}>
           <img
-            src='https://s3-us-west-1.amazonaws.com/spoke-public/spoke_logo.svg'
+            src="https://s3-us-west-1.amazonaws.com/spoke-public/spoke_logo.svg"
             className={css(styles.logoImg)}
           />
         </div>
-        <div className={css(styles.content)}>
-          {this.renderContent()}
-        </div>
+        <div className={css(styles.content)}>{this.renderContent()}</div>
       </div>
     )
   }
@@ -121,41 +133,47 @@ class Home extends React.Component {
 Home.propTypes = {
   mutations: PropTypes.object,
   router: PropTypes.object,
-  data: PropTypes.object
+  data: PropTypes.object,
 }
 
 const mapQueriesToProps = () => ({
   data: {
-    query: gql` query getCurrentUser {
-      currentUser {
-        id
-        adminOrganizations:organizations(role:"ADMIN") {
+    query: gql`
+      query getCurrentUser {
+        currentUser {
           id
-        }
-        ownerOrganizations:organizations(role:"OWNER") {
-          id
-        }
-        texterOrganizations:organizations(role:"TEXTER") {
-          id
-        }
-        suspendedOrganizations:organizations(role:"SUSPENDED") {
-          id
+          adminOrganizations: organizations(role: "ADMIN") {
+            id
+          }
+          ownerOrganizations: organizations(role: "OWNER") {
+            id
+          }
+          texterOrganizations: organizations(role: "TEXTER") {
+            id
+          }
+          suspendedOrganizations: organizations(role: "SUSPENDED") {
+            id
+          }
         }
       }
-    }`
-  }
+    `,
+  },
 })
 
 const mapMutationsToProps = () => ({
-  createInvite: (invite) => ({
+  createInvite: invite => ({
     mutation: gql`
-        mutation createInvite($invite: InviteInput!) {
-          createInvite(invite: $invite) {
-            hash
-          }
-        }`,
-    variables: { invite }
-  })
+      mutation createInvite($invite: InviteInput!) {
+        createInvite(invite: $invite) {
+          hash
+        }
+      }
+    `,
+    variables: { invite },
+  }),
 })
 
-export default loadData(wrapMutations(withRouter(Home)), { mapQueriesToProps, mapMutationsToProps })
+export default loadData(wrapMutations(withRouter(Home)), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

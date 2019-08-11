@@ -29,49 +29,54 @@ const INITIAL_ROW_SIZE = ROW_SIZES[0]
 ROW_SIZES.sort((a, b) => a - b)
 
 export class CampaignList extends React.Component {
-
   constructor(props) {
     super(props)
 
     this.state = {
       page: 0,
-      pageSize: INITIAL_ROW_SIZE
+      pageSize: INITIAL_ROW_SIZE,
     }
   }
 
   changePage = (pageDelta, pageSize) => {
-    const { limit, offset, total } = this.props.data.organization.campaigns.pageInfo
+    const {
+      limit,
+      offset,
+      total,
+    } = this.props.data.organization.campaigns.pageInfo
     const currentPage = Math.floor(offset / limit)
-    const pageSizeAdjustedCurrentPage = Math.floor(currentPage * limit / pageSize)
+    const pageSizeAdjustedCurrentPage = Math.floor(
+      (currentPage * limit) / pageSize
+    )
     const maxPage = Math.floor(total / pageSize)
     const newPage = Math.min(maxPage, pageSizeAdjustedCurrentPage + pageDelta)
     this.props.data.fetchMore({
       variables: {
         cursor: {
           offset: newPage * pageSize,
-          limit: pageSize
-        }
+          limit: pageSize,
+        },
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         const returnValue = {
           organization: {
             campaigns: {
-              campaigns: []
-            }
-          }
+              campaigns: [],
+            },
+          },
         }
 
         if (fetchMoreResult) {
           returnValue.organization = fetchMoreResult.data.organization
         }
         return returnValue
-      }
+      },
     })
     this.setState({
       cursor: {
         offset: newPage * pageSize,
-        limit: pageSize
-      }
+        limit: pageSize,
+      },
     })
   }
   handleNextPageClick = () => {
@@ -87,7 +92,7 @@ export class CampaignList extends React.Component {
     this.setState({ pageSize: value })
   }
 
-  renderRow = (campaign) => (
+  renderRow = campaign => (
     <Campaign
       campaign={campaign}
       adminPerms={this.props.adminPerms}
@@ -109,10 +114,7 @@ export class CampaignList extends React.Component {
     const displayPage = Math.floor(offset / limit) + 1
 
     return campaigns.length === 0 ? (
-      <Empty
-        title='No campaigns'
-        icon={<SpeakerNotesIcon />}
-      />
+      <Empty title="No campaigns" icon={<SpeakerNotesIcon />} />
     ) : (
       <PaginatedList
         rowSizeList={ROW_SIZES}
@@ -123,9 +125,9 @@ export class CampaignList extends React.Component {
         onPreviousPageClick={this.handlePreviousPageClick}
         onRowSizeChange={this.handleRowSizeChanged}
       >
-        {campaigns.map((campaign) => this.renderRow(campaign))}
+        {campaigns.map(campaign => this.renderRow(campaign))}
       </PaginatedList>
-      )
+    )
   }
 }
 
@@ -134,7 +136,7 @@ CampaignList.propTypes = {
     PropTypes.shape({
       dueBy: PropTypes.string,
       title: PropTypes.string,
-      description: PropTypes.string
+      description: PropTypes.string,
     })
   ),
   router: PropTypes.object,
@@ -149,22 +151,22 @@ CampaignList.propTypes = {
 }
 
 const mapMutationsToProps = () => ({
-  archiveCampaign: (campaignId) => ({
+  archiveCampaign: campaignId => ({
     mutation: gql`mutation archiveCampaign($campaignId: String!) {
           archiveCampaign(id: $campaignId) {
             ${campaignInfoFragment}
           }
         }`,
-    variables: { campaignId }
+    variables: { campaignId },
   }),
-  unarchiveCampaign: (campaignId) => ({
+  unarchiveCampaign: campaignId => ({
     mutation: gql`mutation unarchiveCampaign($campaignId: String!) {
         unarchiveCampaign(id: $campaignId) {
           ${campaignInfoFragment}
         }
       }`,
-    variables: { campaignId }
-  })
+    variables: { campaignId },
+  }),
 })
 
 const mapQueriesToProps = ({ ownProps }) => ({
@@ -198,12 +200,11 @@ const mapQueriesToProps = ({ ownProps }) => ({
       campaignsFilter: ownProps.campaignsFilter,
       sortBy: ownProps.sortBy,
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
-export default loadData(wrapMutations(
-  withRouter(CampaignList)), {
-    mapQueriesToProps,
-    mapMutationsToProps
-  })
+export default loadData(wrapMutations(withRouter(CampaignList)), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

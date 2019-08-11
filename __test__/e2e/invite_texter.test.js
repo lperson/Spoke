@@ -6,8 +6,12 @@ jasmine.getEnv().addReporter(selenium.reporter)
 
 describe('Invite Texter workflow', () => {
   // Instantiate browser(s)
-  const driverAdmin = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Invite Texter workflow - Admin' })
-  const driverTexter = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Invite Texter workflow - Texter' })
+  const driverAdmin = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Invite Texter workflow - Admin',
+  })
+  const driverTexter = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Invite Texter workflow - Texter',
+  })
   const CAMPAIGN = STRINGS.campaigns.userManagement
 
   beforeAll(() => {

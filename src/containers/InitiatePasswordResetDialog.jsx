@@ -9,12 +9,12 @@ import { StyleSheet, css } from 'aphrodite'
 
 const styles = StyleSheet.create({
   button: {
-    marginLeft: '30px'
+    marginLeft: '30px',
   },
   container: {
     display: 'flex',
-    flexDirection: 'column'
-  }
+    flexDirection: 'column',
+  },
 })
 
 class InitiatePasswordResetDialog extends React.Component {
@@ -23,23 +23,25 @@ class InitiatePasswordResetDialog extends React.Component {
 
     this.state = {
       alreadyInitiated: false,
-      open: false
+      open: false,
     }
   }
 
   actions = () => [
-    !this.state.alreadyInitiated && <RaisedButton
-      className={css(styles.button)}
-      label='Initate Password Reset'
-      onTouchTap={async () => this.initiatePasswordReset()}
-      primary
-    />,
+    !this.state.alreadyInitiated && (
+      <RaisedButton
+        className={css(styles.button)}
+        label="Initate Password Reset"
+        onTouchTap={async () => this.initiatePasswordReset()}
+        primary
+      />
+    ),
     <RaisedButton
       className={css(styles.button)}
-      label='Close'
+      label="Close"
       onTouchTap={async () => this.closeDialog()}
       secondary
-    />
+    />,
   ]
 
   initiatePasswordReset = async () => {
@@ -62,7 +64,7 @@ class InitiatePasswordResetDialog extends React.Component {
   closeDialog = () => {
     this.setState({
       open: false,
-      alreadyInitiated: false
+      alreadyInitiated: false,
     })
   }
 
@@ -82,23 +84,25 @@ class InitiatePasswordResetDialog extends React.Component {
   }
 
   render = () => {
-    return this.props.currentUser.loading ? null : (<span>
-      <RaisedButton
-        onTouchTap={this.openDialog}
-        label='Reset password'
-        variant='outlined'
-        disabled={this.props.disabled}
-      />
-      <Dialog
-        className={css(styles.container)}
-        open={this.state.open}
-        actions={this.actions()}
-        modal
-        title='Initiate Password Reset'
-      >
-        {this.text()}
-      </Dialog>
-    </span>)
+    return this.props.currentUser.loading ? null : (
+      <span>
+        <RaisedButton
+          onTouchTap={this.openDialog}
+          label="Reset password"
+          variant="outlined"
+          disabled={this.props.disabled}
+        />
+        <Dialog
+          className={css(styles.container)}
+          open={this.state.open}
+          actions={this.actions()}
+          modal
+          title="Initiate Password Reset"
+        >
+          {this.text()}
+        </Dialog>
+      </span>
+    )
   }
 }
 
@@ -107,22 +111,26 @@ InitiatePasswordResetDialog.propTypes = {
   organizationId: PropTypes.string,
   userId: PropTypes.string,
   mutations: PropTypes.object,
-  disabled: PropTypes.boolean
+  disabled: PropTypes.boolean,
 }
 
 const mapMutationsToProps = ({ ownProps }) => ({
   initiatePasswordReset: () => ({
-    mutation: gql`mutation initiatePasswordReset($organizationId: String!, $userId: String!) {
-      initiatePasswordReset(organizationId: $organizationId, userId: $userId)
-    }`,
+    mutation: gql`
+      mutation initiatePasswordReset(
+        $organizationId: String!
+        $userId: String!
+      ) {
+        initiatePasswordReset(organizationId: $organizationId, userId: $userId)
+      }
+    `,
     variables: {
       userId: ownProps.userId,
-      organizationId: ownProps.organizationId
-    }
-  })
+      organizationId: ownProps.organizationId,
+    },
+  }),
 })
 
 export default loadData(wrapMutations(InitiatePasswordResetDialog), {
-  mapMutationsToProps
+  mapMutationsToProps,
 })
-

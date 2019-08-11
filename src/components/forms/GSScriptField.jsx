@@ -10,8 +10,8 @@ import { dataTest } from '../../lib/attributes'
 
 const styles = {
   dialog: {
-    zIndex: 10001
-  }
+    zIndex: 10001,
+  },
 }
 
 export default class GSScriptField extends GSFormField {
@@ -19,22 +19,25 @@ export default class GSScriptField extends GSFormField {
     super(props)
     this.state = {
       open: false,
-      script: props.value
+      script: props.value,
     }
   }
 
-  handleOpenDialog = (event) => {
+  handleOpenDialog = event => {
     event.stopPropagation()
     event.preventDefault()
-    this.setState({
-      open: true
-    }, () => this.refs.dialogScriptInput.focus())
+    this.setState(
+      {
+        open: true,
+      },
+      () => this.refs.dialogScriptInput.focus()
+    )
   }
 
   handleCloseDialog = () => {
     this.setState({
       open: false,
-      script: this.props.value
+      script: this.props.value,
     })
   }
 
@@ -55,15 +58,15 @@ export default class GSScriptField extends GSFormField {
         actions={[
           <FlatButton
             {...dataTest('scriptCancel')}
-            label='Cancel'
+            label="Cancel"
             onTouchTap={this.handleCloseDialog}
           />,
           <RaisedButton
             {...dataTest('scriptDone')}
-            label='Done'
+            label="Done"
             onTouchTap={this.handleSaveScript}
             primary
-          />
+          />,
         ]}
         modal
         open={open}
@@ -71,11 +74,11 @@ export default class GSScriptField extends GSFormField {
       >
         <ScriptEditor
           expandable
-          ref='dialogScriptInput'
+          ref="dialogScriptInput"
           scriptText={this.state.script}
           sampleContact={sampleContact}
           scriptFields={scriptFields}
-          onChange={(val) => this.setState({ script: val })}
+          onChange={val => this.setState({ script: val })}
         />
       </Dialog>
     )
@@ -86,12 +89,12 @@ export default class GSScriptField extends GSFormField {
       <div>
         <TextField
           multiLine
-          onTouchTap={(event) => {
+          onTouchTap={event => {
             this.handleOpenDialog(event)
           }}
           floatingLabelText={this.floatingLabelText()}
           floatingLabelStyle={{
-            zIndex: 0
+            zIndex: 0,
           }}
           {...this.props}
         />

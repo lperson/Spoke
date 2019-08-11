@@ -7,7 +7,7 @@ export const TAGS = {
   2: { key: 2, value: 'HELP NEEDED', display: 'HELP NEEDED' },
   3: { key: 3, value: 'VOTER SUPPRESSION', display: 'VOTER SUPPRESSION' },
   4: { key: 4, value: '911', display: '911' },
-  5: { key: 5, value: 'LANGUAGE BARRIER', display: 'LANGUAGE BARRIER' }
+  5: { key: 5, value: 'LANGUAGE BARRIER', display: 'LANGUAGE BARRIER' },
 }
 
 export const TAG_META_FILTERS = {}
@@ -20,7 +20,7 @@ const makeTagMetafilter = (ignoreTags, anyTag, noTag, tagItem) => {
     ignoreTags,
     anyTag,
     noTag,
-    selectedTags: {}
+    selectedTags: {},
   }
 
   if (tagItem) {
@@ -30,7 +30,12 @@ const makeTagMetafilter = (ignoreTags, anyTag, noTag, tagItem) => {
   return filter
 }
 
-export const IGNORE_TAGS_FILTER = makeTagMetafilter(true, false, false, IGNORE_TAGS)
+export const IGNORE_TAGS_FILTER = makeTagMetafilter(
+  true,
+  false,
+  false,
+  IGNORE_TAGS
+)
 export const ANY_TAG_FILTER = makeTagMetafilter(false, true, false, ANY_TAG)
 export const NO_TAG_FILTER = makeTagMetafilter(false, false, true, NO_TAG)
 export const EMPTY_TAG_FILTER = makeTagMetafilter(false, false, false, null)

@@ -9,13 +9,13 @@ import { dataTest } from '../lib/attributes'
 
 const styles = StyleSheet.create({
   buttonRow: {
-    marginTop: 5
-  }
+    marginTop: 5,
+  },
 })
 
 // THIS IS A COPY/PASTE FROM CANNED RESPONSE FORM BECAUSE I CANT MAKE FORM.CONTEXT WORK
 class CannedResponseForm extends React.Component {
-  handleSave = (formValues) => {
+  handleSave = formValues => {
     const { onSaveCannedResponse } = this.props
     onSaveCannedResponse(formValues)
   }
@@ -23,48 +23,44 @@ class CannedResponseForm extends React.Component {
   render() {
     const modelSchema = yup.object({
       title: yup.string().required(),
-      text: yup.string().required()
+      text: yup.string().required(),
     })
 
     const { customFields } = this.props
     return (
       <div>
-        <GSForm
-          ref='form'
-          schema={modelSchema}
-          onSubmit={this.handleSave}
-        >
+        <GSForm ref="form" schema={modelSchema} onSubmit={this.handleSave}>
           <Form.Field
             {...dataTest('title')}
-            name='title'
+            name="title"
             autoFocus
             fullWidth
-            label='Title'
+            label="Title"
           />
           <Form.Field
             {...dataTest('editorResponse')}
             customFields={customFields}
-            name='text'
-            type='script'
-            label='Script'
+            name="text"
+            type="script"
+            label="Script"
             multiLine
             fullWidth
           />
           <div className={css(styles.buttonRow)}>
             <Form.Button
               {...dataTest('addResponse')}
-              type='submit'
-              label='Add Response'
+              type="submit"
+              label="Add Response"
               style={{
-                display: 'inline-block'
+                display: 'inline-block',
               }}
             />
             <FlatButton
-              label='Cancel'
+              label="Cancel"
               onTouchTap={() => this.setState({ showForm: false })}
               style={{
                 marginLeft: 5,
-                display: 'inline-block'
+                display: 'inline-block',
               }}
             />
           </div>
@@ -76,8 +72,7 @@ class CannedResponseForm extends React.Component {
 
 CannedResponseForm.propTypes = {
   onSaveCannedResponse: type.func,
-  customFields: type.array
+  customFields: type.array,
 }
-
 
 export default CannedResponseForm

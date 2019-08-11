@@ -1,6 +1,11 @@
 import zlib from 'zlib'
 export { getFormattedPhoneNumber, getDisplayPhoneNumber } from './phone-format'
-export { getFormattedZip, zipToTimeZone, findZipRanges, getCommonZipRanges } from './zip-format'
+export {
+  getFormattedZip,
+  zipToTimeZone,
+  findZipRanges,
+  getCommonZipRanges,
+} from './zip-format'
 export {
   convertOffsetsToStrings,
   getLocalTime,
@@ -10,17 +15,11 @@ export {
   getContactTimezone,
   getUtcFromTimezoneAndHour,
   getUtcFromOffsetAndHour,
-  getSendBeforeTimeUtc
+  getSendBeforeTimeUtc,
 } from './timezones'
-export {
-  getProcessEnvTz
-} from './tz-helpers'
-export {
-  DstHelper
-} from './dst-helper'
-export {
-  isClient
-} from './is-client'
+export { getProcessEnvTz } from './tz-helpers'
+export { DstHelper } from './dst-helper'
+export { isClient } from './is-client'
 import { log } from './log'
 export { log }
 import Papa from 'papaparse'
@@ -34,40 +33,62 @@ export {
   interactionStepForId,
   getTopMostParent,
   getChildren,
-  makeTree
+  makeTree,
 } from './interaction-step-helpers'
 const requiredUploadFields = ['firstName', 'lastName', 'cell']
-const topLevelUploadFields = ['firstName', 'lastName', 'cell', 'zip', 'external_id']
+const topLevelUploadFields = [
+  'firstName',
+  'lastName',
+  'cell',
+  'zip',
+  'external_id',
+]
 
-export { ROLE_HIERARCHY, getHighestRole, hasRole, isRoleGreater } from './permissions'
+export {
+  ROLE_HIERARCHY,
+  getHighestRole,
+  hasRole,
+  isRoleGreater,
+} from './permissions'
 
 const getValidatedData = (data, optOuts) => {
-  const optOutCells = optOuts.map((optOut) => optOut.cell)
+  const optOutCells = optOuts.map(optOut => optOut.cell)
   let validatedData
   let result
   // For some reason destructuring is not working here
-  result = _.partition(data, (row) => !!row.cell)
+  result = _.partition(data, row => !!row.cell)
   validatedData = result[0]
   const missingCellRows = result[1]
 
-  validatedData = _.map(validatedData, (row) => _.extend(row, {
-    cell: getFormattedPhoneNumber(row.cell, process.env.PHONE_NUMBER_COUNTRY || 'US') }))
-  result = _.partition(validatedData, (row) => !!row.cell)
+  validatedData = _.map(validatedData, row =>
+    _.extend(row, {
+      cell: getFormattedPhoneNumber(
+        row.cell,
+        process.env.PHONE_NUMBER_COUNTRY || 'US'
+      ),
+    })
+  )
+  result = _.partition(validatedData, row => !!row.cell)
   validatedData = result[0]
   const invalidCellRows = result[1]
 
   const count = validatedData.length
-  validatedData = _.uniqBy(validatedData, (row) => row.cell)
-  const dupeCount = (count - validatedData.length)
+  validatedData = _.uniqBy(validatedData, row => row.cell)
+  const dupeCount = count - validatedData.length
 
-  result = _.partition(validatedData, (row) => optOutCells.indexOf(row.cell) === -1)
+  result = _.partition(
+    validatedData,
+    row => optOutCells.indexOf(row.cell) === -1
+  )
   validatedData = result[0]
   const optOutRows = result[1]
 
-  validatedData = _.map(validatedData, (row) => _.extend(row, {
-    zip: row.zip ? getFormattedZip(row.zip) : null
-  }))
-  const zipCount = validatedData.filter((row) => !!row.zip).length
+  validatedData = _.map(validatedData, row =>
+    _.extend(row, {
+      zip: row.zip ? getFormattedZip(row.zip) : null,
+    })
+  )
+  const zipCount = validatedData.filter(row => !!row.zip).length
 
   return {
     validatedData,
@@ -76,12 +97,12 @@ const getValidatedData = (data, optOuts) => {
       optOutCount: optOutRows.length,
       invalidCellCount: invalidCellRows.length,
       missingCellCount: missingCellRows.length,
-      zipCount
-    }
+      zipCount,
+    },
   }
 }
 
-export const gzip = (str) => (
+export const gzip = str =>
   new Promise((resolve, reject) => {
     zlib.gzip(str, (err, res) => {
       if (err) {
@@ -91,9 +112,8 @@ export const gzip = (str) => (
       }
     })
   })
-)
 
-export const gunzip = (buf) => (
+export const gunzip = buf =>
   new Promise((resolve, reject) => {
     zlib.gunzip(buf, (err, res) => {
       if (err) {
@@ -103,7 +123,6 @@ export const gunzip = (buf) => (
       }
     })
   })
-)
 
 export const parseCSV = (file, optOuts, callback) => {
   Papa.parse(file, {
@@ -124,21 +143,26 @@ export const parseCSV = (file, optOuts, callback) => {
         const error = `Missing fields: ${missingFields.join(', ')}`
         callback({ error })
       } else {
-        const { validationStats, validatedData } = getValidatedData(data, optOuts)
+        const { validationStats, validatedData } = getValidatedData(
+          data,
+          optOuts
+        )
 
-        const customFields = fields.filter((field) => topLevelUploadFields.indexOf(field) === -1)
+        const customFields = fields.filter(
+          field => topLevelUploadFields.indexOf(field) === -1
+        )
 
         callback({
           customFields,
           validationStats,
-          contacts: validatedData
+          contacts: validatedData,
         })
       }
-    }
+    },
   })
 }
 
-export const convertRowToContact = (row) => {
+export const convertRowToContact = row => {
   const customFields = row
   const contact = {}
   for (const field of topLevelUploadFields) {

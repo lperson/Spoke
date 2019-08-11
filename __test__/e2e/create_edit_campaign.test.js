@@ -6,7 +6,9 @@ jasmine.getEnv().addReporter(selenium.reporter)
 
 describe('Create and Edit Campaign', () => {
   // Instantiate browser(s)
-  const driver = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Create and Edit Campaign - Admin' })
+  const driver = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Create and Edit Campaign - Admin',
+  })
   const CAMPAIGN = STRINGS.campaigns.editCampaign
 
   beforeAll(() => {

@@ -13,5 +13,5 @@ export default {
   navigation,
   people,
   scriptEditor,
-  texter
+  texter,
 }

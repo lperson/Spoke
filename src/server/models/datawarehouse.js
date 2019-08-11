@@ -10,11 +10,9 @@ if (process.env.WAREHOUSE_DB_TYPE) {
       port: process.env.WAREHOUSE_DB_PORT,
       database: process.env.WAREHOUSE_DB_NAME,
       password: process.env.WAREHOUSE_DB_PASSWORD,
-      user: process.env.WAREHOUSE_DB_USER
-    }
+      user: process.env.WAREHOUSE_DB_USER,
+    },
   }
 }
 
-export default (process.env.WAREHOUSE_DB_TYPE
-                ? () => knex(config)
-                : null)
+export default process.env.WAREHOUSE_DB_TYPE ? () => knex(config) : null

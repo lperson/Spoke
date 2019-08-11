@@ -19,7 +19,7 @@ class AdminNavigation extends React.Component {
         showMenu={this.props.showMenu}
         sections={sections.map(section => ({
           ...section,
-          url: this.urlFromPath(section.path)
+          url: this.urlFromPath(section.path),
         }))}
         switchListItem={
           <ListItem
@@ -36,7 +36,7 @@ class AdminNavigation extends React.Component {
 }
 
 AdminNavigation.defaultProps = {
-  showMenu: true
+  showMenu: true,
 }
 
 AdminNavigation.propTypes = {
@@ -46,7 +46,7 @@ AdminNavigation.propTypes = {
   sections: PropTypes.array,
   params: PropTypes.object,
   onToggleMenu: PropTypes.func.isRequired,
-  showMenu: PropTypes.bool
+  showMenu: PropTypes.bool,
 }
 
 export default withRouter(AdminNavigation)

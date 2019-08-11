@@ -5,11 +5,11 @@ import CircularProgress from 'material-ui/CircularProgress'
 
 const styles = {
   button: {
-    marginTop: 15
-  }
+    marginTop: 15,
+  },
 }
 
-const GSSubmitButton = (props) => {
+const GSSubmitButton = props => {
   let icon = ''
   const extraProps = {}
   if (props.isSubmitting) {
@@ -19,7 +19,7 @@ const GSSubmitButton = (props) => {
         size={0.5}
         style={{
           verticalAlign: 'middle',
-          display: 'inline-block'
+          display: 'inline-block',
         }}
       />
     )
@@ -29,8 +29,8 @@ const GSSubmitButton = (props) => {
     <div style={styles.button} {...props}>
       <RaisedButton
         primary
-        type='submit'
-        value='submit'
+        type="submit"
+        value="submit"
         {...props}
         {...extraProps}
       />
@@ -40,7 +40,7 @@ const GSSubmitButton = (props) => {
 }
 
 GSSubmitButton.propTypes = {
-  isSubmitting: PropTypes.bool
+  isSubmitting: PropTypes.bool,
 }
 
 export default GSSubmitButton

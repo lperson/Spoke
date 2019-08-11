@@ -1,32 +1,32 @@
-import {getFormattedZip, zipToTimeZone} from "../../src/lib";
+import { getFormattedZip, zipToTimeZone } from '../../src/lib'
 
 describe('test getFormattedZip', () => {
   it('handles zip correctly', () => {
-    expect(getFormattedZip('12345')).toEqual('12345');
+    expect(getFormattedZip('12345')).toEqual('12345')
   })
 
   it('handles zip + 4 correctly', () => {
-    expect(getFormattedZip('12345-3456')).toEqual('12345');
+    expect(getFormattedZip('12345-3456')).toEqual('12345')
   })
 
   it('handles malformed zip correctly 1', () => {
-    expect(getFormattedZip('12345-abcd')).toEqual('12345');
+    expect(getFormattedZip('12345-abcd')).toEqual('12345')
   })
 
   it('handles malformed zip correctly 2', () => {
-    expect(getFormattedZip('a2345-abcd')).toBeFalsy();
+    expect(getFormattedZip('a2345-abcd')).toBeFalsy()
   })
 
   it('handles malformed zip correctly 3', () => {
-    expect(getFormattedZip('2345-abcd')).toBeFalsy();
+    expect(getFormattedZip('2345-abcd')).toBeFalsy()
   })
 
   function wrapper() {
-    getFormattedZip('11790', 'OZ');
+    getFormattedZip('11790', 'OZ')
   }
 
   it('handles not the USA correctly', () => {
-    expect(wrapper).toThrow(/OZ/);
+    expect(wrapper).toThrow(/OZ/)
   })
 })
 

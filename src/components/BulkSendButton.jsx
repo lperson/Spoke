@@ -10,14 +10,13 @@ import Dialog from 'material-ui/Dialog'
 const styles = StyleSheet.create({
   container: {
     display: 'inline-block',
-    marginLeft: 20
-  }
+    marginLeft: 20,
+  },
 })
 
 export default class BulkSendButton extends Component {
-
   state = {
-    isSending: false
+    isSending: false,
   }
 
   sendMessages = async () => {
@@ -34,7 +33,11 @@ export default class BulkSendButton extends Component {
       <div className={css(styles.container)}>
         <RaisedButton
           onTouchTap={this.sendMessages}
-          label={this.state.isSending ? 'Sending...' : `Send Bulk (${window.BULK_SEND_CHUNK_SIZE})`}
+          label={
+            this.state.isSending
+              ? 'Sending...'
+              : `Send Bulk (${window.BULK_SEND_CHUNK_SIZE})`
+          }
           disabled={this.state.isSending}
           primary
         />
@@ -47,5 +50,5 @@ BulkSendButton.propTypes = {
   assignment: PropTypes.object,
   onFinishContact: PropTypes.function,
   bulkSendMessages: PropTypes.function,
-  setDisabled: PropTypes.function
+  setDisabled: PropTypes.function,
 }

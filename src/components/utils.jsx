@@ -5,12 +5,6 @@ export function dataSourceItem(name, key) {
   return {
     text: name,
     rawValue: key,
-    value: (
-      <MenuItem
-        key={key}
-        primaryText={name}
-      />
-    )
+    value: <MenuItem key={key} primaryText={name} />,
   }
 }
-

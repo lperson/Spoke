@@ -11,103 +11,98 @@ import { TAGS, NO_TAG } from '../../lib/tags'
 const styles = StyleSheet.create({
   skipCard: {
     '@media(max-width: 320px)': {
-      padding: '2px 10px !important'
+      padding: '2px 10px !important',
     },
     zIndex: 2000,
     backgroundColor: 'white',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   inputFields: {
     display: 'flex',
     flexDirection: 'row',
-    width: '100%'
+    width: '100%',
   },
   tag: {
     width: '250px',
-    minWidth: '250px'
+    minWidth: '250px',
   },
   comment: {
     flexGrow: 1,
-    minWidth: '50%'
+    minWidth: '50%',
   },
   dialogActions: {
     marginTop: 20,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end'
-  }
+    justifyContent: 'flex-end',
+  },
 })
 
 const inlineStyles = {
   dialogButton: {
-    display: 'inline-block'
-  }
+    display: 'inline-block',
+  },
 }
 
-const skipButtonLabel = (tag) => (!!tag && tag !== NO_TAG.value ? 'Skip' : 'Skip without tag')
+const skipButtonLabel = tag =>
+  !!tag && tag !== NO_TAG.value ? 'Skip' : 'Skip without tag'
 
-const SkipDialog = (props) => props.open && (
-  <Card>
-    <CardTitle
-      className={css(styles.skipCard)}
-      title='Skip conversation'
-    />
-    <Divider />
-    <CardActions className={css(styles.skipCard)}>
-
-
-      <div
-        className={css(styles.skipCard)}
-      >
-        <div className={css(styles.inputFields)}>
-          <DropDownMenu
-            className={css(styles.tag)}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            autoWidth={false}
-            onChange={(event, key, value) => props.onTagChanged(value)}
-            value={props.tag || NO_TAG.value}
-          >
-            {[NO_TAG, ...Object.values(TAGS)].map((tag) => (<MenuItem
-              key={tag.value}
-              value={tag.value}
-              primaryText={tag.display}
-            />))}
-          </DropDownMenu>
-          {(props.tag && props.tag !== NO_TAG.value) && (<TextField
-            className={css(styles.comment)}
-            hintText='Enter an optional comment'
-            onChange={(event, value) => props.onSkipCommentChanged(value)}
-          />)}
+const SkipDialog = props =>
+  props.open && (
+    <Card>
+      <CardTitle className={css(styles.skipCard)} title="Skip conversation" />
+      <Divider />
+      <CardActions className={css(styles.skipCard)}>
+        <div className={css(styles.skipCard)}>
+          <div className={css(styles.inputFields)}>
+            <DropDownMenu
+              className={css(styles.tag)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              autoWidth={false}
+              onChange={(event, key, value) => props.onTagChanged(value)}
+              value={props.tag || NO_TAG.value}
+            >
+              {[NO_TAG, ...Object.values(TAGS)].map(tag => (
+                <MenuItem
+                  key={tag.value}
+                  value={tag.value}
+                  primaryText={tag.display}
+                />
+              ))}
+            </DropDownMenu>
+            {props.tag && props.tag !== NO_TAG.value && (
+              <TextField
+                className={css(styles.comment)}
+                hintText="Enter an optional comment"
+                onChange={(event, value) => props.onSkipCommentChanged(value)}
+              />
+            )}
+          </div>
+          <div className={css(styles.dialogActions)}>
+            <FlatButton
+              style={inlineStyles.dialogButton}
+              label="Cancel"
+              onTouchTap={props.onRequestClose}
+              secondary
+            />
+            <FlatButton
+              style={inlineStyles.dialogButton}
+              label={skipButtonLabel(props.tag)}
+              disabled={props.disabled}
+              onTouchTap={() => {
+                props.onRequestClose()
+                props.onSkip()
+              }}
+            />
+          </div>
         </div>
-        <div className={css(styles.dialogActions)}>
-          <FlatButton
-            style={inlineStyles.dialogButton}
-            label='Cancel'
-            onTouchTap={props.onRequestClose}
-            secondary
-          />
-          <FlatButton
-            style={inlineStyles.dialogButton}
-            label={skipButtonLabel(props.tag)}
-            disabled={props.disabled}
-            onTouchTap={() => {
-              props.onRequestClose()
-              props.onSkip()
-            }}
-          />
-        </div>
-      </div>
-    </CardActions>
-  </Card>
-)
-
+      </CardActions>
+    </Card>
+  )
 
 SkipDialog.propTypes = {
-  tag: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]),
+  tag: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   comment: PropTypes.string,
   open: PropTypes.bool,
   disabled: PropTypes.bool,
@@ -115,7 +110,7 @@ SkipDialog.propTypes = {
   onRequestOpen: PropTypes.func,
   onSkip: PropTypes.func,
   onTagChanged: PropTypes.func,
-  onSkipCommentChanged: PropTypes.func
+  onSkipCommentChanged: PropTypes.func,
 }
 
 export default SkipDialog

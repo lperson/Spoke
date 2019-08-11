@@ -1,4 +1,3 @@
-
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import _ from 'lodash'
@@ -20,8 +19,8 @@ const errorIcon = <ErrorIcon color={theme.colors.red} />
 
 const styles = StyleSheet.create({
   buttonDiv: {
-    marginTop: '10px'
-  }
+    marginTop: '10px',
+  },
 })
 
 export class AdminScriptImport extends Component {
@@ -30,7 +29,10 @@ export class AdminScriptImport extends Component {
     this.state = {}
   }
   startImport = async () => {
-    const res = await this.props.mutations.importCampaignScript(this.props.campaignData.campaign.id, this.state.url)
+    const res = await this.props.mutations.importCampaignScript(
+      this.props.campaignData.campaign.id,
+      this.state.url
+    )
     if (res.errors) {
       this.setState({ error: res.errors.message, importingScript: false })
     } else {
@@ -42,17 +44,18 @@ export class AdminScriptImport extends Component {
 
   handleUrlChange = (_eventId, newValue) => this.setState({ url: newValue })
 
-  pollDuringActiveJobs = async (jobId) => {
+  pollDuringActiveJobs = async jobId => {
     const fetchedPendingJobsData = await this.props.pendingJobsData.refetch()
     const pendingJobs = fetchedPendingJobsData.data.campaign.pendingJobs
-    const ourJob = _.find(pendingJobs, (pendingJob) => pendingJob.id === jobId.toString())
+    const ourJob = _.find(
+      pendingJobs,
+      pendingJob => pendingJob.id === jobId.toString()
+    )
     if (!ourJob || ourJob.resultMessage) {
-      this.setState(
-        {
-          importingScript: false,
-          error: !!ourJob && ourJob.resultMessage
-        }
-      )
+      this.setState({
+        importingScript: false,
+        error: !!ourJob && ourJob.resultMessage,
+      })
 
       if (!ourJob) {
         this.props.onSubmit()
@@ -64,32 +67,30 @@ export class AdminScriptImport extends Component {
     }, 1000)
   }
 
-  renderErrors = () => this.state.error && (
-    <List>
-      <ListItem
-        primaryText={this.state.error}
-        leftIcon={errorIcon}
-      />
-    </List>
-  )
+  renderErrors = () =>
+    this.state.error && (
+      <List>
+        <ListItem primaryText={this.state.error} leftIcon={errorIcon} />
+      </List>
+    )
 
   render() {
     return (
       <div>
         <CampaignFormSectionHeading
-          title='Script Import'
-          subtitle='You can import interactions and canned responses from a properly formatted Google Doc.'
+          title="Script Import"
+          subtitle="You can import interactions and canned responses from a properly formatted Google Doc."
         />
         <TextField
-          hintText='URL of the Google Doc'
-          floatingLabelText='Google Doc URL'
+          hintText="URL of the Google Doc"
+          floatingLabelText="Google Doc URL"
           style={{ width: '100%' }}
           onChange={this.handleUrlChange}
         />
         {this.renderErrors()}
         <div className={css(styles.buttonDiv)}>
           <RaisedButton
-            label='Import'
+            label="Import"
             disabled={this.state.importingScript}
             primary
             onTouchTap={this.startImport}
@@ -101,32 +102,31 @@ export class AdminScriptImport extends Component {
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
-  pendingJobsData: pendingJobsGql(ownProps.campaignData.campaign.id)
+  pendingJobsData: pendingJobsGql(ownProps.campaignData.campaign.id),
 })
-
 
 const mapMutationsToProps = () => ({
   importCampaignScript: (campaignId, url) => ({
     mutation: gql`
       mutation importCampaignScript($campaignId: String!, $url: String!) {
-        importCampaignScript(campaignId: $campaignId, url: $url) 
-      },
+        importCampaignScript(campaignId: $campaignId, url: $url)
+      }
     `,
     variables: {
       campaignId,
-      url
-    }
-  })
+      url,
+    },
+  }),
 })
 
 AdminScriptImport.propTypes = {
   onSubmit: type.func,
   campaignData: PropTypes.object,
   mutations: PropTypes.object,
-  pendingJobsData: PropTypes.object
+  pendingJobsData: PropTypes.object,
 }
 
 export default loadData(wrapMutations(AdminScriptImport), {
   mapQueriesToProps,
-  mapMutationsToProps
+  mapMutationsToProps,
 })

@@ -3,12 +3,7 @@ import React from 'react'
 import loadData from './hoc/load-data'
 import gql from 'graphql-tag'
 import Paper from 'material-ui/Paper'
-import {
-  Step,
-  Stepper,
-  StepLabel,
-  StepContent
-} from 'material-ui/Stepper'
+import { Step, Stepper, StepLabel, StepContent } from 'material-ui/Stepper'
 import FlatButton from 'material-ui/FlatButton'
 import RaisedButton from 'material-ui/RaisedButton'
 import Divider from 'material-ui/Divider'
@@ -16,33 +11,34 @@ import wrapMutations from './hoc/wrap-mutations'
 import { withRouter } from 'react-router'
 
 class Terms extends React.Component {
-
   handleTermsAgree = async () => {
     const { data, router, mutations, location } = this.props
     const userData = await mutations.userAgreeTerms(data.currentUser.id)
-    if (userData.data.userAgreeTerms.terms) { router.push(location.query.next) }
+    if (userData.data.userAgreeTerms.terms) {
+      router.push(location.query.next)
+    }
   }
 
   state = {
     finished: false,
-    stepIndex: 0
-  };
+    stepIndex: 0,
+  }
 
   handleNext = () => {
     const { stepIndex } = this.state
     this.setState({
       stepIndex: stepIndex + 1,
-      finished: stepIndex >= 2
+      finished: stepIndex >= 2,
     })
     if (stepIndex >= 2) this.handleTermsAgree()
-  };
+  }
 
   handlePrev = () => {
     const { stepIndex } = this.state
     if (stepIndex > 0) {
       this.setState({ stepIndex: stepIndex - 1 })
     }
-  };
+  }
 
   renderStepActions(step) {
     const { stepIndex } = this.state
@@ -59,7 +55,7 @@ class Terms extends React.Component {
         />
         {step > 0 && (
           <FlatButton
-            label='Back'
+            label="Back"
             disabled={stepIndex === 0}
             disableTouchRipple
             disableFocusRipple
@@ -78,30 +74,60 @@ class Terms extends React.Component {
         <Paper style={{ padding: 20, margin: 20 }}>
           <h2>Code Of Conduct</h2>
           <Divider />
-          <Stepper activeStep={stepIndex} orientation='vertical'>
+          <Stepper activeStep={stepIndex} orientation="vertical">
             <Step>
               <StepLabel>
-                <div style={{ marginLeft: '25px', paddingLeft: '21px', marginTop: '-46px' }}><u>Inappropriate Behaviour</u></div>
+                <div
+                  style={{
+                    marginLeft: '25px',
+                    paddingLeft: '21px',
+                    marginTop: '-46px',
+                  }}
+                >
+                  <u>Inappropriate Behaviour</u>
+                </div>
               </StepLabel>
               <StepContent>
                 <p>
-                  Occasionally someone might be rude or use inappropriate language to you — please don’t engage or respond in kind. We will make sure that person isn’t contacted again.
+                  Occasionally someone might be rude or use inappropriate
+                  language to you — please don’t engage or respond in kind. We
+                  will make sure that person isn’t contacted again.
                 </p>
                 {this.renderStepActions(0)}
               </StepContent>
             </Step>
             <Step>
               <StepLabel>
-                <div style={{ marginLeft: '25px', paddingLeft: '21px', marginTop: '-46px' }}><u>Commit to Reply</u></div>
+                <div
+                  style={{
+                    marginLeft: '25px',
+                    paddingLeft: '21px',
+                    marginTop: '-46px',
+                  }}
+                >
+                  <u>Commit to Reply</u>
+                </div>
               </StepLabel>
               <StepContent>
-                <p>Please commit to responding to people who reply to you. We're attempting to grow trust and understanding in our community and maintaining an open dialogue is key.</p>
+                <p>
+                  Please commit to responding to people who reply to you. We're
+                  attempting to grow trust and understanding in our community
+                  and maintaining an open dialogue is key.
+                </p>
                 {this.renderStepActions(1)}
               </StepContent>
             </Step>
             <Step>
               <StepLabel>
-                <div style={{ marginLeft: '25px', paddingLeft: '21px', marginTop: '-46px' }}><u>Retention</u></div>
+                <div
+                  style={{
+                    marginLeft: '25px',
+                    paddingLeft: '21px',
+                    marginTop: '-46px',
+                  }}
+                >
+                  <u>Retention</u>
+                </div>
               </StepLabel>
               <StepContent>
                 <p>
@@ -112,9 +138,7 @@ class Terms extends React.Component {
             </Step>
           </Stepper>
           {finished && (
-            <p style={{ margin: '20px 0', textAlign: 'center' }}>
-              Thanks!
-            </p>
+            <p style={{ margin: '20px 0', textAlign: 'center' }}>Thanks!</p>
           )}
         </Paper>
       </div>
@@ -125,33 +149,39 @@ class Terms extends React.Component {
 Terms.propTypes = {
   mutations: PropTypes.object,
   router: PropTypes.object,
-  data: PropTypes.object
+  data: PropTypes.object,
 }
 
 const mapQueriesToProps = () => ({
   data: {
-    query: gql` query getCurrentUser {
-      currentUser {
-        id,
-        terms
+    query: gql`
+      query getCurrentUser {
+        currentUser {
+          id
+          terms
+        }
       }
-    }`
-  }
+    `,
+  },
 })
 
-const mapMutationsToProps = (ownProps) => ({
-  userAgreeTerms: (userId) => ({
+const mapMutationsToProps = ownProps => ({
+  userAgreeTerms: userId => ({
     mutation: gql`
-        mutation userAgreeTerms($userId: String!) {
-          userAgreeTerms(userId: $userId) {
-            id
-            terms
-          }
-        }`,
+      mutation userAgreeTerms($userId: String!) {
+        userAgreeTerms(userId: $userId) {
+          id
+          terms
+        }
+      }
+    `,
     variables: {
-      userId
-    }
-  })
+      userId,
+    },
+  }),
 })
 
-export default loadData(wrapMutations(withRouter(Terms)), { mapQueriesToProps, mapMutationsToProps })
+export default loadData(wrapMutations(withRouter(Terms)), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

@@ -14,28 +14,28 @@ const styles = StyleSheet.create({
   infoContainer: {
     ...theme.layouts.greenBox,
     textAlign: 'left',
-    padding: 20
+    padding: 20,
   },
   header: {
     ...theme.text.header,
     color: theme.colors.white,
-    borderBottom: '1px solid white'
+    borderBottom: '1px solid white',
   },
   subtitle: {
     ...theme.text.body,
     color: theme.colors.darkGray,
-    backgroundColor: theme.colors.lightGray
+    backgroundColor: theme.colors.lightGray,
   },
   fromContactMessage: {
     ...theme.text.body,
     backgroundColor: theme.colors.lightGreen,
     textAlign: 'right',
-    padding: 5
+    padding: 5,
   },
   message: {
     ...theme.text.body,
     textAlign: 'left',
-    padding: 5
+    padding: 5,
   },
   formContainer: {
     width: '60%',
@@ -46,13 +46,13 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     paddingBottom: 15,
     marginLeft: 'auto',
-    marginRight: 'auto'
-  }
+    marginRight: 'auto',
+  },
 })
 
 class AdminReplySender extends React.Component {
   formSchema = yup.object({
-    message: yup.string().required()
+    message: yup.string().required(),
   })
 
   renderMessageSendingForm(contact) {
@@ -62,8 +62,14 @@ class AdminReplySender extends React.Component {
           {`${contact.firstName} ${contact.lastName}: ${contact.cell}`}
         </div>
         <div className={css(styles.subtitle)}>
-          {contact.messages.map((message) => (
-            <div className={message.isFromContact ? css(styles.fromContactMessage) : css(styles.message)}>
+          {contact.messages.map(message => (
+            <div
+              className={
+                message.isFromContact
+                  ? css(styles.fromContactMessage)
+                  : css(styles.message)
+              }
+            >
               {message.text}
             </div>
           ))}
@@ -71,22 +77,25 @@ class AdminReplySender extends React.Component {
         <div className={css(styles.formContainer)}>
           <GSForm
             schema={this.formSchema}
-            onSubmit={async (formValues) => {
-              await this.props.mutations.sendReply(contact.id, formValues.message)
+            onSubmit={async formValues => {
+              await this.props.mutations.sendReply(
+                contact.id,
+                formValues.message
+              )
             }}
           >
             <Form.Field
               {...dataTest('reply')}
-              name='message'
-              label='Reply'
-              hintText='Reply'
+              name="message"
+              label="Reply"
+              hintText="Reply"
               fullWidth
             />
             <Form.Button
               {...dataTest('send')}
-              type='submit'
-              label='Send'
-              name='submit'
+              type="submit"
+              label="Send"
+              name="submit"
               secondary
               fullWidth
             />
@@ -100,7 +109,7 @@ class AdminReplySender extends React.Component {
     const { data } = this.props
     return (
       <div>
-        {data.campaign.contacts.map((contact) => {
+        {data.campaign.contacts.map(contact => {
           if (contact.messageStatus === 'messaged') {
             return this.renderMessageSendingForm(contact)
           }
@@ -113,37 +122,38 @@ class AdminReplySender extends React.Component {
 
 AdminReplySender.propTypes = {
   mutations: PropTypes.object,
-  data: PropTypes.object
+  data: PropTypes.object,
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
   data: {
-    query: gql`query getCampaignMessages($campaignId: String!) {
-      campaign(id: $campaignId) {
-        id
-        contacts {
+    query: gql`
+      query getCampaignMessages($campaignId: String!) {
+        campaign(id: $campaignId) {
           id
-          firstName
-          lastName
-          cell
-          messageStatus
-          messages {
-            text
-            isFromContact
+          contacts {
+            id
+            firstName
+            lastName
+            cell
+            messageStatus
+            messages {
+              text
+              isFromContact
+            }
           }
         }
       }
-    }`,
+    `,
     variables: {
-      campaignId: ownProps.params.campaignId
-    }
-  }
+      campaignId: ownProps.params.campaignId,
+    },
+  },
 })
 
 const mapMutationsToProps = () => ({
-  sendReply: (contactId, message) =>
-    ({
-      mutation: gql`
+  sendReply: (contactId, message) => ({
+    mutation: gql`
       mutation sendReply($contactId: String!, $message: String!) {
         sendReply(id: $contactId, message: $message) {
           id
@@ -152,9 +162,13 @@ const mapMutationsToProps = () => ({
             isFromContact
           }
         }
-      }`,
-      variables: { contactId, message }
-    })
+      }
+    `,
+    variables: { contactId, message },
+  }),
 })
 
-export default loadData(wrapMutations(AdminReplySender), { mapQueriesToProps, mapMutationsToProps })
+export default loadData(wrapMutations(AdminReplySender), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

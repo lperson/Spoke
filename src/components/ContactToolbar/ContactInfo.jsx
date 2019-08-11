@@ -10,10 +10,10 @@ import ConversationLink from '../../components/ConversationLink'
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   conversationLink: {
-    paddingTop: '25px'
+    paddingTop: '25px',
   },
   button: {
     backgroundColor: 'blue',
@@ -22,26 +22,26 @@ const styles = StyleSheet.create({
     minHeight: '28px',
     height: '28px',
     paddingTop: '2px',
-    marginTop: '3px'
-  }
+    marginTop: '3px',
+  },
 })
 
-
 export default class ContactInfo extends React.Component {
-
   constructor(props) {
     super(props)
 
     this.state = {
-      open: false
+      open: false,
     }
   }
 
-  dialogActions = <FlatButton
-    label='Close'
-    primary
-    onClick={() => this.handleCloseDialog()}
-  />
+  dialogActions = (
+    <FlatButton
+      label="Close"
+      primary
+      onClick={() => this.handleCloseDialog()}
+    />
+  )
 
   handleCloseDialog = () => {
     this.setState({ open: false })
@@ -56,35 +56,34 @@ export default class ContactInfo extends React.Component {
       className={css(styles.button)}
       onTouchTap={this.handleOpenDialog}
     >
-      <ActionInfoOutline
-        color='white'
-      />
+      <ActionInfoOutline color="white" />
     </FlatButton>
   )
 
   renderDialog = () => (
     <Dialog
-      title='Conversation Information'
+      title="Conversation Information"
       open={this.state.open}
       actions={this.dialogActions}
       modal
     >
-      <div
-        className={css(styles.container)}
-      >
-        <span>Campaign: {this.props.campaign.id} {this.props.campaign.title}</span>
+      <div className={css(styles.container)}>
+        <span>
+          Campaign: {this.props.campaign.id} {this.props.campaign.title}
+        </span>
         <span>Texter: {this.props.assignment.texter.displayName}</span>
-        <span>Contact: {this.props.campaignContact.id} {this.props.campaignContact.firstName}</span>
-        <div
-          className={css(styles.conversationLink)}
-        >
+        <span>
+          Contact: {this.props.campaignContact.id}{' '}
+          {this.props.campaignContact.firstName}
+        </span>
+        <div className={css(styles.conversationLink)}>
           <ConversationLink
             organizationId={this.props.campaign.organization.id}
             conversation={{
               assignmentId: this.props.campaignContact.assignmentId,
-              campaignContactId: this.props.campaignContact.id
+              campaignContactId: this.props.campaignContact.id,
             }}
-            text='Conversation URL'
+            text="Conversation URL"
           />
         </div>
       </div>
@@ -103,6 +102,5 @@ ContactInfo.propTypes = {
   open: PropTypes.bool,
   campaign: PropTypes.object,
   campaignContact: PropTypes.object,
-  assignment: PropTypes.object
+  assignment: PropTypes.object,
 }
-

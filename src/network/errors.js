@@ -2,7 +2,7 @@ export function GraphQLRequestError(err) {
   this.name = this.constructor.name
   this.message = err.message
   this.status = err.status
-  this.stack = (new Error()).stack
+  this.stack = new Error().stack
 }
 GraphQLRequestError.prototype = Object.create(Error.prototype)
 GraphQLRequestError.prototype.constructor = GraphQLRequestError
@@ -21,12 +21,13 @@ export function graphQLErrorParser(response) {
     if (parsedError) {
       return {
         status: parsedError.status,
-        message: parsedError.message
+        message: parsedError.message,
       }
     }
     return {
       status: 500,
-      message: 'There was an error with your request. Try again in a little bit!'
+      message:
+        'There was an error with your request. Try again in a little bit!',
     }
   }
   return null

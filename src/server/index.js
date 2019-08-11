@@ -22,20 +22,22 @@ import { setupUserNotificationObservers } from './notifications'
 import { TwimlResponse } from 'twilio'
 import { existsSync } from 'fs'
 
-process.on('uncaughtException', (ex) => {
+process.on('uncaughtException', ex => {
   log.error(ex)
   process.exit(1)
 })
 const DEBUG = process.env.NODE_ENV === 'development'
 
-const loginCallbacks = passportSetup[process.env.PASSPORT_STRATEGY || global.PASSPORT_STRATEGY || 'auth0']()
+const loginCallbacks = passportSetup[
+  process.env.PASSPORT_STRATEGY || global.PASSPORT_STRATEGY || 'auth0'
+]()
 
 if (!process.env.SUPPRESS_SEED_CALLS) {
   seedZipCodes()
 }
 
 if (!process.env.SUPPRESS_DATABASE_AUTOCREATE) {
-  createTablesIfNecessary().then((didCreate) => {
+  createTablesIfNecessary().then(didCreate => {
     // seed above won't have succeeded if we needed to create first
     if (didCreate && !process.env.SUPPRESS_SEED_CALLS) {
       seedZipCodes()
@@ -58,22 +60,27 @@ app.enable('trust proxy')
 
 // Serve static assets
 if (existsSync(process.env.ASSETS_DIR)) {
-  app.use('/assets', express.static(process.env.ASSETS_DIR, {
-    maxAge: '180 days'
-  }))
+  app.use(
+    '/assets',
+    express.static(process.env.ASSETS_DIR, {
+      maxAge: '180 days',
+    })
+  )
 }
 
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use(cookieSession({
-  cookie: {
-    httpOnly: true,
-    secure: !DEBUG,
-    maxAge: null
-  },
-  secret: process.env.SESSION_SECRET || global.SESSION_SECRET
-}))
+app.use(
+  cookieSession({
+    cookie: {
+      httpOnly: true,
+      secure: !DEBUG,
+      maxAge: null,
+    },
+    secret: process.env.SESSION_SECRET || global.SESSION_SECRET,
+  })
+)
 app.use(passport.initialize())
 app.use(passport.session())
 
@@ -87,49 +94,62 @@ app.use((req, res, next) => {
   next()
 })
 
-app.post('/nexmo', wrap(async (req, res) => {
-  try {
-    const messageId = await nexmo.handleIncomingMessage(req.body)
-    res.send(messageId)
-  } catch (ex) {
-    log.error(ex)
+app.post(
+  '/nexmo',
+  wrap(async (req, res) => {
+    try {
+      const messageId = await nexmo.handleIncomingMessage(req.body)
+      res.send(messageId)
+    } catch (ex) {
+      log.error(ex)
+      res.send('done')
+    }
+  })
+)
+
+app.post(
+  '/twilio',
+  twilio.webhook(),
+  wrap(async (req, res) => {
+    try {
+      await twilio.handleIncomingMessage(req.body)
+    } catch (ex) {
+      log.error(ex)
+    }
+
+    const resp = new TwimlResponse()
+    res.writeHead(200, { 'Content-Type': 'text/xml' })
+    res.end(resp.toString())
+  })
+)
+
+app.post(
+  '/nexmo-message-report',
+  wrap(async (req, res) => {
+    try {
+      const body = req.body
+      await nexmo.handleDeliveryReport(body)
+    } catch (ex) {
+      log.error(ex)
+    }
     res.send('done')
-  }
-}))
+  })
+)
 
-app.post('/twilio', twilio.webhook(), wrap(async (req, res) => {
-  try {
-    await twilio.handleIncomingMessage(req.body)
-  } catch (ex) {
-    log.error(ex)
-  }
-
-  const resp = new TwimlResponse()
-  res.writeHead(200, { 'Content-Type': 'text/xml' })
-  res.end(resp.toString())
-}))
-
-app.post('/nexmo-message-report', wrap(async (req, res) => {
-  try {
-    const body = req.body
-    await nexmo.handleDeliveryReport(body)
-  } catch (ex) {
-    log.error(ex)
-  }
-  res.send('done')
-}))
-
-app.post('/twilio-message-report', wrap(async (req, res) => {
-  try {
-    const body = req.body
-    await twilio.handleDeliveryReport(body)
-  } catch (ex) {
-    log.error(ex)
-  }
-  const resp = new TwimlResponse()
-  res.writeHead(200, { 'Content-Type': 'text/xml' })
-  res.end(resp.toString())
-}))
+app.post(
+  '/twilio-message-report',
+  wrap(async (req, res) => {
+    try {
+      const body = req.body
+      await twilio.handleDeliveryReport(body)
+    } catch (ex) {
+      log.error(ex)
+    }
+    const resp = new TwimlResponse()
+    res.writeHead(200, { 'Content-Type': 'text/xml' })
+    res.end(resp.toString())
+  })
+)
 
 // const accountSid = process.env.TWILIO_API_KEY
 // const authToken = process.env.TWILIO_AUTH_TOKEN
@@ -147,35 +167,39 @@ if (loginCallbacks) {
 const executableSchema = makeExecutableSchema({
   typeDefs: schema,
   resolvers,
-  allowUndefinedInResolve: false
+  allowUndefinedInResolve: false,
 })
 addMockFunctionsToSchema({
   schema: executableSchema,
   mocks,
-  preserveResolvers: true
+  preserveResolvers: true,
 })
 
-app.use('/graphql', graphqlExpress((request) => ({
-  schema: executableSchema,
-  context: {
-    loaders: createLoaders(),
-    user: request.user,
-    awsContext: request.awsContext || null,
-    awsEvent: request.awsEvent || null,
-    remainingMilliseconds: () => (
-      (request.awsContext && request.awsContext.getRemainingTimeInMillis)
-      ? request.awsContext.getRemainingTimeInMillis()
-      : 5 * 60 * 1000 // default saying 5 min, no matter what
-    )
-  }
-})))
-app.get('/graphiql', graphiqlExpress({
-  endpointURL: '/graphql'
-}))
+app.use(
+  '/graphql',
+  graphqlExpress(request => ({
+    schema: executableSchema,
+    context: {
+      loaders: createLoaders(),
+      user: request.user,
+      awsContext: request.awsContext || null,
+      awsEvent: request.awsEvent || null,
+      remainingMilliseconds: () =>
+        request.awsContext && request.awsContext.getRemainingTimeInMillis
+          ? request.awsContext.getRemainingTimeInMillis()
+          : 5 * 60 * 1000, // default saying 5 min, no matter what
+    },
+  }))
+)
+app.get(
+  '/graphiql',
+  graphiqlExpress({
+    endpointURL: '/graphql',
+  })
+)
 
 // This middleware should be last. Return the React app only if no other route is hit.
 app.use(appRenderer)
-
 
 if (port) {
   app.listen(port, () => {

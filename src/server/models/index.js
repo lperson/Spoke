@@ -29,14 +29,14 @@ import { cacheableData } from './cacheable_queries'
 function createLoader(model, opts) {
   const idKey = (opts && opts.idKey) || 'id'
   const cacheObj = opts && opts.cacheObj
-  return new DataLoader(async (keys) => {
+  return new DataLoader(async keys => {
     if (cacheObj && cacheObj.load) {
-      return keys.map(async (key) => await cacheObj.load(key))
+      return keys.map(async key => await cacheObj.load(key))
     }
     const docs = await model.getAll(...keys, { index: idKey })
-    return keys.map((key) => (
-      docs.find((doc) => doc[idKey].toString() === key.toString())
-    ))
+    return keys.map(key =>
+      docs.find(doc => doc[idKey].toString() === key.toString())
+    )
   })
 }
 
@@ -55,25 +55,24 @@ const tableList = [
   'log',
   'message',
   'migrations',
-  'opt_out',  // good candidate
+  'opt_out', // good candidate
   'pending_message_part',
   'question_response',
   'tag',
   'user_cell',
   'user_organization',
-  'zip_code' // good candidate (or by contact)?
+  'zip_code', // good candidate (or by contact)?
 ]
 
 function createTablesIfNecessary() {
   // builds the database if we don't see the organization table
-  return thinky.k.schema.hasTable('organization').then(
-    (tableExists) => {
-      if (!tableExists) {
-        console.log('CREATING DATABASE SCHEMA')
-        createTables()
-        return true
-      }
-    })
+  return thinky.k.schema.hasTable('organization').then(tableExists => {
+    if (!tableExists) {
+      console.log('CREATING DATABASE SCHEMA')
+      createTables()
+      return true
+    }
+  })
 }
 
 function createTables() {
@@ -88,7 +87,9 @@ const createLoaders = () => ({
   assignment: createLoader(Assignment),
   campaign: createLoader(Campaign, { cacheObj: cacheableData.campaign }),
   invite: createLoader(Invite),
-  organization: createLoader(Organization, { cacheObj: cacheableData.organization }),
+  organization: createLoader(Organization, {
+    cacheObj: cacheableData.organization,
+  }),
   user: createLoader(User),
   interactionStep: createLoader(InteractionStep),
   campaignContact: createLoader(CampaignContact),
@@ -103,7 +104,7 @@ const createLoaders = () => ({
   tag: createLoader(Tag),
   questionResponse: createLoader(QuestionResponse),
   userCell: createLoader(UserCell),
-  userOrganization: createLoader(UserOrganization)
+  userOrganization: createLoader(UserOrganization),
 })
 
 const r = thinky.r
@@ -134,5 +135,5 @@ export {
   UserOrganization,
   User,
   ZipCode,
-  Log
+  Log,
 }

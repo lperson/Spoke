@@ -7,17 +7,18 @@ import React, { Component } from 'react'
 import theme from '../../styles/theme'
 import SelectedCampaigns from '../SelectedCampaigns'
 import CampaignFilter, { ALL_CAMPAIGNS } from './Filters/CampaignsFilter'
-import MessageStatusFilter, { MESSAGE_STATUSES } from './Filters/MessageStatusFilter'
+import MessageStatusFilter, {
+  MESSAGE_STATUSES,
+} from './Filters/MessageStatusFilter'
 import TexterFilter from './Filters/TexterFilter'
 import TagsSelector from '../TagsSelector'
-
 
 const inlineStyles = {
   containerOfContainers: {
     display: 'flex',
     flexDirection: 'column',
-    flexWrap: 'nowrap'
-  }
+    flexWrap: 'nowrap',
+  },
 }
 
 const styles = StyleSheet.create({
@@ -27,17 +28,17 @@ const styles = StyleSheet.create({
     alignContent: 'flex-start',
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   flexColumn: {
-    width: '30%'
+    width: '30%',
   },
   toggleFlexColumn: {
-    width: '30%'
+    width: '30%',
   },
   spacer: {
-    marginRight: '30px'
-  }
+    marginRight: '30px',
+  },
 })
 
 class IncomingMessageFilter extends Component {
@@ -49,10 +50,10 @@ class IncomingMessageFilter extends Component {
       messageFilter: [],
       campaignSearchText: '',
       texterSearchText: '',
-      tagsFilter: props.defaultTagsFilter
+      tagsFilter: props.defaultTagsFilter,
     }
   }
-  onTagsFilterChanged = (tagsFilter) => {
+  onTagsFilterChanged = tagsFilter => {
     this.setState({ tagsFilter })
     this.props.onTagsFilterChanged(tagsFilter)
   }
@@ -76,7 +77,9 @@ class IncomingMessageFilter extends Component {
   onCampaignSelected = (selection, index) => {
     let campaignId = undefined
     if (index === -1) {
-      const campaign = this.props.campaigns.find(cmpgn => cmpgn.title === selection)
+      const campaign = this.props.campaigns.find(
+        cmpgn => cmpgn.title === selection
+      )
       if (campaign) {
         campaignId = campaign.id
       }
@@ -84,7 +87,10 @@ class IncomingMessageFilter extends Component {
       campaignId = selection.value.key
     }
     if (campaignId) {
-      const selectedCampaigns = this.makeSelectedCampaignsArray(selection.rawValue, selection.text)
+      const selectedCampaigns = this.makeSelectedCampaignsArray(
+        selection.rawValue,
+        selection.text
+      )
       this.applySelectedCampaigns(selectedCampaigns)
     }
   }
@@ -106,19 +112,19 @@ class IncomingMessageFilter extends Component {
     }
   }
 
-  applySelectedCampaigns = (selectedCampaigns) => {
-    this.setState(
-      {
-        selectedCampaigns,
-        campaignSearchText: ''
-      }
-    )
+  applySelectedCampaigns = selectedCampaigns => {
+    this.setState({
+      selectedCampaigns,
+      campaignSearchText: '',
+    })
 
     this.fireCampaignChanged(selectedCampaigns)
   }
 
-  handleCampaignRemoved = (campaignId) => {
-    const selectedCampaigns = this.state.selectedCampaigns.filter(campaign => campaign.key !== campaignId)
+  handleCampaignRemoved = campaignId => {
+    const selectedCampaigns = this.state.selectedCampaigns.filter(
+      campaign => campaign.key !== campaignId
+    )
     this.applySelectedCampaigns(selectedCampaigns)
   }
 
@@ -126,34 +132,40 @@ class IncomingMessageFilter extends Component {
     this.applySelectedCampaigns([])
   }
 
-  fireCampaignChanged = (selectedCampaigns) => {
+  fireCampaignChanged = selectedCampaigns => {
     this.props.onCampaignChanged(this.selectedCampaignIds(selectedCampaigns))
   }
 
-  removeAllCampaignsFromCampaignsArray = (campaign) => campaign.key !== ALL_CAMPAIGNS
+  removeAllCampaignsFromCampaignsArray = campaign =>
+    campaign.key !== ALL_CAMPAIGNS
 
   makeSelectedCampaignsArray = (campaignId, campaignText) => {
     const selectedCampaign = { key: campaignId, text: campaignText }
     if (campaignId === ALL_CAMPAIGNS) {
       return []
     }
-    return _.concat(this.state.selectedCampaigns.filter(this.removeAllCampaignsFromCampaignsArray), selectedCampaign)
+    return _.concat(
+      this.state.selectedCampaigns.filter(
+        this.removeAllCampaignsFromCampaignsArray
+      ),
+      selectedCampaign
+    )
   }
 
-  selectedCampaignIds = (selectedCampaigns) => selectedCampaigns.map(campaign => parseInt(campaign.key, 10))
+  selectedCampaignIds = selectedCampaigns =>
+    selectedCampaigns.map(campaign => parseInt(campaign.key, 10))
 
-  campaignsNotAlreadySelected = (campaign) => {
-    return !this.selectedCampaignIds(this.state.selectedCampaigns).includes(parseInt(campaign.id, 10))
+  campaignsNotAlreadySelected = campaign => {
+    return !this.selectedCampaignIds(this.state.selectedCampaigns).includes(
+      parseInt(campaign.id, 10)
+    )
   }
 
   render() {
     return (
       <Card>
-        <CardHeader title='Message Filter' actAsExpander showExpandableButton />
-        <CardText
-          style={inlineStyles.containerOfContainers}
-          expandable
-        >
+        <CardHeader title="Message Filter" actAsExpander showExpandableButton />
+        <CardText style={inlineStyles.containerOfContainers} expandable>
           <div className={css(styles.container)}>
             <div className={css(styles.toggleFlexColumn)}>
               <Toggle
@@ -203,9 +215,8 @@ class IncomingMessageFilter extends Component {
                 campaigns={this.props.campaigns}
                 campaignsNotAlreadySelected={this.campaignsNotAlreadySelected}
                 onFocus={() => this.setState({ campaignSearchText: '' })}
-                onSearchTextUpdated={
-                  campaignSearchText =>
-                    this.setState({ campaignSearchText })
+                onSearchTextUpdated={campaignSearchText =>
+                  this.setState({ campaignSearchText })
                 }
                 campaignSearchText={this.state.campaignSearchText}
                 onCampaignSelected={this.onCampaignSelected}
@@ -216,9 +227,8 @@ class IncomingMessageFilter extends Component {
               <TexterFilter
                 texters={this.props.texters}
                 onFocus={() => this.setState({ texterSearchText: '' })}
-                onSearchTextUpdated={
-                  texterSearchText =>
-                    this.setState({ texterSearchText })
+                onSearchTextUpdated={texterSearchText =>
+                  this.setState({ texterSearchText })
                 }
                 texterSearchText={this.state.texterSearchText}
                 onTexterSelected={this.onTexterSelected}
@@ -233,7 +243,6 @@ class IncomingMessageFilter extends Component {
             />
           </div>
 
-
           <div className={css(styles.container)}>
             <SelectedCampaigns
               campaigns={this.state.selectedCampaigns}
@@ -242,7 +251,7 @@ class IncomingMessageFilter extends Component {
             />
           </div>
         </CardText>
-      </Card >
+      </Card>
     )
   }
 }
@@ -263,9 +272,9 @@ IncomingMessageFilter.propTypes = {
   onMessageFilterChanged: type.func.isRequired,
   onTagsFilterChanged: type.func.isRequired,
   assignmentsFilter: type.shape({
-    texterId: type.number
+    texterId: type.number,
   }).isRequired,
-  defaultTagsFilter: type.object
+  defaultTagsFilter: type.object,
 }
 
 export default IncomingMessageFilter

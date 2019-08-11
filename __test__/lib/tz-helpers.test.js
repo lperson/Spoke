@@ -1,4 +1,4 @@
-import {getProcessEnvDstReferenceTimezone} from "../../src/lib/tz-helpers";
+import { getProcessEnvDstReferenceTimezone } from '../../src/lib/tz-helpers'
 
 jest.unmock('../../src/lib/tz-helpers')
 
@@ -7,4 +7,3 @@ describe('test getProcessEnvDstReferenceTimezone', () => {
     expect(getProcessEnvDstReferenceTimezone()).toEqual('America/New_York')
   })
 })
-

@@ -10,7 +10,7 @@ const MAX_SEND_ATTEMPTS = 5
 if (process.env.NEXMO_API_KEY && process.env.NEXMO_API_SECRET) {
   nexmo = new Nexmo({
     apiKey: process.env.NEXMO_API_KEY,
-    apiSecret: process.env.NEXMO_API_SECRET
+    apiSecret: process.env.NEXMO_API_SECRET,
   })
 }
 
@@ -18,14 +18,16 @@ async function convertMessagePartsToMessage(messageParts) {
   const firstPart = messageParts[0]
   const userNumber = firstPart.user_number
   const contactNumber = firstPart.contact_number
-  const serviceMessages = messageParts.map((part) => JSON.parse(part.service_message))
+  const serviceMessages = messageParts.map(part =>
+    JSON.parse(part.service_message)
+  )
   const text = serviceMessages
-    .map((serviceMessage) => serviceMessage.text)
+    .map(serviceMessage => serviceMessage.text)
     .join('')
 
   const lastMessage = await getLastMessage({
     contactNumber,
-    service: 'nexmo'
+    service: 'nexmo',
   })
 
   return new Message({
@@ -37,22 +39,28 @@ async function convertMessagePartsToMessage(messageParts) {
     service_id: serviceMessages[0].service_id,
     assignment_id: lastMessage.assignment_id,
     service: 'nexmo',
-    send_status: 'DELIVERED'
+    send_status: 'DELIVERED',
   })
 }
 
 async function findNewCell() {
   if (!nexmo) {
-    return { numbers: [{ msisdn: getFormattedPhoneNumber(faker.phone.phoneNumber()) }] }
+    return {
+      numbers: [{ msisdn: getFormattedPhoneNumber(faker.phone.phoneNumber()) }],
+    }
   }
   return new Promise((resolve, reject) => {
-    nexmo.number.search('US', { features: 'VOICE,SMS', size: 1 }, (err, response) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(response)
+    nexmo.number.search(
+      'US',
+      { features: 'VOICE,SMS', size: 1 },
+      (err, response) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(response)
+        }
       }
-    })
+    )
   })
 }
 
@@ -62,7 +70,12 @@ async function rentNewCell() {
   }
   const newCell = await findNewCell()
 
-  if (newCell && newCell.numbers && newCell.numbers[0] && newCell.numbers[0].msisdn) {
+  if (
+    newCell &&
+    newCell.numbers &&
+    newCell.numbers[0] &&
+    newCell.numbers[0].msisdn
+  ) {
     return new Promise((resolve, reject) => {
       nexmo.number.buy('US', newCell.numbers[0].msisdn, (err, response) => {
         if (err) {
@@ -86,28 +99,30 @@ async function rentNewCell() {
 async function sendMessage(message, contact, trx) {
   if (!nexmo) {
     const options = trx ? { transaction: trx } : {}
-    await Message.get(message.id)
-      .update({ send_status: 'SENT' }, options)
+    await Message.get(message.id).update({ send_status: 'SENT' }, options)
     return 'test_message_uuid'
   }
 
   return new Promise((resolve, reject) => {
     // US numbers require that the + be removed when sending via nexmo
-    nexmo.message.sendSms(message.user_number.replace(/^\+/, ''),
+    nexmo.message.sendSms(
+      message.user_number.replace(/^\+/, ''),
       message.contact_number,
-      message.text, {
+      message.text,
+      {
         'status-report-req': 1,
-        'client-ref': message.id
-      }, (err, response) => {
+        'client-ref': message.id,
+      },
+      (err, response) => {
         const messageToSave = {
-          ...message
+          ...message,
         }
         let hasError = false
         if (err) {
           hasError = true
         }
         if (response) {
-          response.messages.forEach((serviceMessages) => {
+          response.messages.forEach(serviceMessages => {
             if (serviceMessages.status !== '0') {
               hasError = true
             }
@@ -126,20 +141,27 @@ async function sendMessage(message, contact, trx) {
             options.transaction = trx
           }
           Message.save(messageToSave, options)
-          // eslint-disable-next-line no-unused-vars
-          .then((_, newMessage) => {
-            reject(err || (response ? new Error(JSON.stringify(response)) : new Error('Encountered unknown error')))
-          })
+            // eslint-disable-next-line no-unused-vars
+            .then((_, newMessage) => {
+              reject(
+                err ||
+                  (response
+                    ? new Error(JSON.stringify(response))
+                    : new Error('Encountered unknown error'))
+              )
+            })
         } else {
           let options = { conflict: 'update' }
           if (trx) {
             options.transaction = trx
           }
-          Message.save({
-            ...messageToSave,
-            send_status: 'SENT'
-          }, options)
-          .then((saveError, newMessage) => {
+          Message.save(
+            {
+              ...messageToSave,
+              send_status: 'SENT',
+            },
+            options
+          ).then((saveError, newMessage) => {
             resolve(newMessage)
           })
         }
@@ -154,9 +176,11 @@ async function handleDeliveryReport(report) {
     message.service_response += JSON.stringify(report)
     if (report.status === 'delivered' || report.status === 'accepted') {
       message.send_status = 'DELIVERED'
-    } else if (report.status === 'expired' ||
+    } else if (
+      report.status === 'expired' ||
       report.status === 'failed' ||
-      report.status === 'rejected') {
+      report.status === 'rejected'
+    ) {
       message.send_status = 'ERROR'
     }
     Message.save(message, { conflict: 'update' })
@@ -164,10 +188,12 @@ async function handleDeliveryReport(report) {
 }
 
 async function handleIncomingMessage(message) {
-  if (!message.hasOwnProperty('to') ||
+  if (
+    !message.hasOwnProperty('to') ||
     !message.hasOwnProperty('msisdn') ||
     !message.hasOwnProperty('text') ||
-    !message.hasOwnProperty('messageId')) {
+    !message.hasOwnProperty('messageId')
+  ) {
     log.error(`This is not an incoming message: ${JSON.stringify(message)}`)
   }
 
@@ -178,7 +204,13 @@ async function handleIncomingMessage(message) {
 
   let parentId = ''
   if (isConcat) {
-    log.info(`Incoming message part (${message['concat-part']} of ${message['concat-total']} for ref ${message['concat-ref']}) from ${contactNumber} to ${userNumber}`)
+    log.info(
+      `Incoming message part (${message['concat-part']} of ${
+        message['concat-total']
+      } for ref ${
+        message['concat-ref']
+      }) from ${contactNumber} to ${userNumber}`
+    )
     parentId = message['concat-ref']
   } else {
     log.info(`Incoming message part from ${contactNumber} to ${userNumber}`)
@@ -190,7 +222,7 @@ async function handleIncomingMessage(message) {
     parent_id: parentId, // do we need this anymore, now we have service_id?
     service_message: JSON.stringify(message),
     user_number: userNumber,
-    contact_number: contactNumber
+    contact_number: contactNumber,
   })
 
   const part = await pendingMessagePart.save()
@@ -203,5 +235,5 @@ export default {
   rentNewCell,
   sendMessage,
   handleDeliveryReport,
-  handleIncomingMessage
+  handleIncomingMessage,
 }

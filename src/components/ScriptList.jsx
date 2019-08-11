@@ -21,8 +21,8 @@ import { log } from '../lib'
 
 const styles = {
   dialog: {
-    zIndex: 10001
-  }
+    zIndex: 10001,
+  },
 }
 
 class ScriptList extends React.Component {
@@ -30,20 +30,20 @@ class ScriptList extends React.Component {
     super(props)
     this.state = {
       script: props.script,
-      dialogOpen: false
+      dialogOpen: false,
     }
   }
 
   handleOpenDialog = () => {
     this.setState({
-      dialogOpen: true
+      dialogOpen: true,
     })
   }
 
   handleCloseDialog = () => {
     this.setState({
       dialogOpen: false,
-      script: null
+      script: null,
     })
   }
 
@@ -56,17 +56,16 @@ class ScriptList extends React.Component {
       customFields,
       campaignId,
       mutations,
-      texterId
+      texterId,
     } = this.props
     const { dialogOpen } = this.state
 
-
-    const onSaveCannedResponse = async (cannedResponse) => {
+    const onSaveCannedResponse = async cannedResponse => {
       try {
         const saveObject = {
           ...cannedResponse,
           campaignId,
-          userId: texterId
+          userId: texterId,
         }
         await mutations.createCannedResponse(saveObject)
         this.setState({ dialogOpen: false })
@@ -95,7 +94,7 @@ class ScriptList extends React.Component {
     // )
 
     const rightIconButton = null
-    const listItems = scripts.map((script) => (
+    const listItems = scripts.map(script => (
       <ListItem
         value={script.text}
         onTouchTap={() => onSelectCannedResponse(script)}
@@ -107,39 +106,37 @@ class ScriptList extends React.Component {
       />
     ))
 
-
-    const list = scripts.length === 0 ? null : (
-      <List>
-        <Subheader>{subheader}</Subheader>,
-        {listItems}
-        <Divider />
-      </List>
-    )
+    const list =
+      scripts.length === 0 ? null : (
+        <List>
+          <Subheader>{subheader}</Subheader>,{listItems}
+          <Divider />
+        </List>
+      )
 
     return (
       <div>
         {list}
         {showAddScriptButton ? (
           <FlatButton
-            label='Add new canned response'
+            label="Add new canned response"
             icon={<CreateIcon />}
             onTouchTap={this.handleOpenDialog}
           />
-        ) : ''}
+        ) : (
+          ''
+        )}
         <Form.Context>
           <Dialog
             style={styles.dialog}
             open={dialogOpen}
             actions={[
-              <FlatButton
-                label='Cancel'
-                onTouchTap={this.handleCloseDialog}
-              />,
+              <FlatButton label="Cancel" onTouchTap={this.handleCloseDialog} />,
               <Form.Button
-                type='submit'
+                type="submit"
                 component={GSSubmitButton}
-                label='Save'
-              />
+                label="Save"
+              />,
             ]}
             onRequestClose={this.handleCloseDialog}
           >
@@ -164,11 +161,11 @@ ScriptList.propTypes = {
   customFields: PropTypes.array,
   campaignId: PropTypes.number,
   mutations: PropTypes.object,
-  texterId: PropTypes.number
+  texterId: PropTypes.number,
 }
 
 const mapMutationsToProps = () => ({
-  createCannedResponse: (cannedResponse) => ({
+  createCannedResponse: cannedResponse => ({
     mutation: gql`
       mutation createCannedResponse($cannedResponse: CannedResponseInput!) {
         createCannedResponse(cannedResponse: $cannedResponse) {
@@ -176,10 +173,10 @@ const mapMutationsToProps = () => ({
         }
       }
     `,
-    variables: { cannedResponse }
-  })
+    variables: { cannedResponse },
+  }),
 })
 
 export default connect({
-  mapMutationsToProps
+  mapMutationsToProps,
 })(ScriptList)

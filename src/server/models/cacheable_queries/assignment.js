@@ -1,12 +1,10 @@
 import { r } from '../../models'
 
-export async function hasAssignment(userId, assignmentId) {
-}
+export async function hasAssignment(userId, assignmentId) {}
 
 export const assignmentCache = {
-  clear: async (id) => {
-  },
-  load: async (id) => {
+  clear: async id => {},
+  load: async id => {
     // should load cache of campaign by id separately, so that can be updated on campaign-save
     // e.g. for script changes
     // should include:
@@ -14,5 +12,5 @@ export const assignmentCache = {
     // campaignId
     // organizationId
     // ?should contact ids be key'd off of campaign or assignment?
-  }
+  },
 }

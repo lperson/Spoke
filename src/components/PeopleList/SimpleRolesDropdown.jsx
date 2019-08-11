@@ -7,16 +7,18 @@ import { ROLE_HIERARCHY } from '../../lib'
 
 export const ALL_ROLES = 'ALL ROLES'
 
-const SimpleRolesDropdown = (props) => (
+const SimpleRolesDropdown = props => (
   <DropDownMenu
     value={props.selectedRole}
     onChange={(event, index, value) => props.onChange(value)}
   >
-    {[ALL_ROLES].concat(ROLE_HIERARCHY).map((option) => (
+    {[ALL_ROLES].concat(ROLE_HIERARCHY).map(option => (
       <MenuItem
         key={option}
         value={option}
-        primaryText={`${option.charAt(0).toUpperCase()}${option.substring(1).toLowerCase()}`}
+        primaryText={`${option.charAt(0).toUpperCase()}${option
+          .substring(1)
+          .toLowerCase()}`}
       />
     ))}
   </DropDownMenu>
@@ -24,7 +26,7 @@ const SimpleRolesDropdown = (props) => (
 
 SimpleRolesDropdown.propTypes = {
   selectedRole: type.object,
-  onChange: type.func
+  onChange: type.func,
 }
 
 export default SimpleRolesDropdown

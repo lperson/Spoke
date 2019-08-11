@@ -17,22 +17,26 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-end'
-  }
+    alignItems: 'flex-end',
+  },
 })
 
-const prepareDataTableData = (conversations) => conversations.map(conversation => ({
-  campaignTitle: conversation.campaign.title,
-  texter: conversation.texter.displayName,
-  to: conversation.contact.firstName + ' ' + conversation.contact.lastName + (conversation.contact.optOut.cell ? '⛔️' : ''),
-  status: conversation.contact.messageStatus,
-  messages: conversation.contact.messages,
-  assignmentId: conversation.contact.assignmentId,
-  campaignContactId: conversation.contact.id,
-  tags: conversation.contact.tags,
-  contactNumber: conversation.contact.cell
-})
-)
+const prepareDataTableData = conversations =>
+  conversations.map(conversation => ({
+    campaignTitle: conversation.campaign.title,
+    texter: conversation.texter.displayName,
+    to:
+      conversation.contact.firstName +
+      ' ' +
+      conversation.contact.lastName +
+      (conversation.contact.optOut.cell ? '⛔️' : ''),
+    status: conversation.contact.messageStatus,
+    messages: conversation.contact.messages,
+    assignmentId: conversation.contact.assignmentId,
+    campaignContactId: conversation.contact.id,
+    tags: conversation.contact.tags,
+    contactNumber: conversation.contact.cell,
+  }))
 
 const prepareSelectedRowsData = (conversations, selectedIndices) => {
   return selectedIndices.map(selectedIndex => {
@@ -40,7 +44,7 @@ const prepareSelectedRowsData = (conversations, selectedIndices) => {
     return {
       campaignId: conversation.campaign.id,
       campaignContactId: conversation.contact.id,
-      messageIds: conversation.contact.messages.map(message => message.id)
+      messageIds: conversation.contact.messages.map(message => message.id),
     }
   })
 }
@@ -54,20 +58,23 @@ export class IncomingMessageList extends Component {
       activeConversation: undefined,
       confirmPageChange: {
         open: false,
-        pageDelta: 0
-      }
+        pageDelta: 0,
+      },
     }
 
-    this.handleCloseConfirmChangePageWithConvosSelectedDialog =
-      this.handleCloseConfirmChangePageWithConvosSelectedDialog.bind(this)
+    this.handleCloseConfirmChangePageWithConvosSelectedDialog = this.handleCloseConfirmChangePageWithConvosSelectedDialog.bind(
+      this
+    )
   }
 
-  componentDidUpdate = (prevProps) => {
-    if (this.props.clearSelectedMessages && this.state.selectedIndices.length > 0) {
-      this.setState(
-        {
-          selectedIndices: []
-        })
+  componentDidUpdate = prevProps => {
+    if (
+      this.props.clearSelectedMessages &&
+      this.state.selectedIndices.length > 0
+    ) {
+      this.setState({
+        selectedIndices: [],
+      })
       this.props.onConversationSelected([], [])
     }
 
@@ -81,7 +88,10 @@ export class IncomingMessageList extends Component {
       pageInfo = this.props.conversations.conversations.pageInfo
     }
 
-    if (previousPageInfo.total !== pageInfo.total || (!previousPageInfo && pageInfo)) {
+    if (
+      previousPageInfo.total !== pageInfo.total ||
+      (!previousPageInfo && pageInfo)
+    ) {
       this.props.onConversationCountChanged(pageInfo.total)
     }
   }
@@ -93,8 +103,8 @@ export class IncomingMessageList extends Component {
       style: {
         textOverflow: 'ellipsis',
         overflow: 'hidden',
-        whiteSpace: 'pre-line'
-      }
+        whiteSpace: 'pre-line',
+      },
     },
     {
       key: 'texter',
@@ -102,8 +112,8 @@ export class IncomingMessageList extends Component {
       style: {
         textOverflow: 'ellipsis',
         overflow: 'scroll',
-        whiteSpace: 'pre-line'
-      }
+        whiteSpace: 'pre-line',
+      },
     },
     {
       key: 'to',
@@ -111,8 +121,8 @@ export class IncomingMessageList extends Component {
       style: {
         textOverflow: 'ellipsis',
         overflow: 'scroll',
-        whiteSpace: 'pre-line'
-      }
+        whiteSpace: 'pre-line',
+      },
     },
     {
       key: 'status',
@@ -120,9 +130,9 @@ export class IncomingMessageList extends Component {
       style: {
         textOverflow: 'ellipsis',
         overflow: 'scroll',
-        whiteSpace: 'pre-line'
+        whiteSpace: 'pre-line',
       },
-      render: (columnKey, row) => MESSAGE_STATUSES[row.status].name
+      render: (columnKey, row) => MESSAGE_STATUSES[row.status].name,
     },
     {
       key: 'latestMessage',
@@ -130,7 +140,7 @@ export class IncomingMessageList extends Component {
       style: {
         textOverflow: 'ellipsis',
         overflow: 'scroll',
-        whiteSpace: 'pre-line'
+        whiteSpace: 'pre-line',
       },
       render: (columnKey, row) => {
         let lastMessage = null
@@ -138,8 +148,16 @@ export class IncomingMessageList extends Component {
         if (row.messages && row.messages.length > 0) {
           lastMessage = row.messages[row.messages.length - 1]
           lastMessageEl = (
-            <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-              <span style={{ color: lastMessage.isFromContact ? 'blue' : 'black' }}>
+            <p
+              style={{
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span
+                style={{ color: lastMessage.isFromContact ? 'blue' : 'black' }}
+              >
                 <b>{lastMessage.isFromContact ? 'Contact:' : 'Texter:'} </b>
               </span>
               {lastMessage.text}
@@ -147,7 +165,7 @@ export class IncomingMessageList extends Component {
           )
         }
         return lastMessageEl
-      }
+      },
     },
     {
       key: 'viewConversation',
@@ -155,23 +173,25 @@ export class IncomingMessageList extends Component {
       style: {
         textOverflow: 'ellipsis',
         overflow: 'scroll',
-        whiteSpace: 'pre-line'
+        whiteSpace: 'pre-line',
       },
       render: (columnKey, row) => {
         return (
           <div>
-            {(row.messages && row.messages.length > 0) && (
+            {row.messages && row.messages.length > 0 && (
               <FlatButton
                 onClick={event => {
                   event.stopPropagation()
                   this.handleOpenConversation(row)
                 }}
                 icon={<ActionOpenInNew />}
-              />)}
+              />
+            )}
             {this.renderTags(row.tags)}
-          </div>)
-      }
-    }
+          </div>
+        )
+      },
+    },
   ]
 
   prepareSelectedIndices = (conversations, rowsSelected) => {
@@ -188,8 +208,12 @@ export class IncomingMessageList extends Component {
     return selection
   }
 
-  handlePageChanged = (pageDelta) => {
-    const { limit, offset, total } = this.props.conversations.conversations.pageInfo
+  handlePageChanged = pageDelta => {
+    const {
+      limit,
+      offset,
+      total,
+    } = this.props.conversations.conversations.pageInfo
     const currentPage = Math.floor(offset / limit)
     const maxPage = Math.floor(total / limit)
     const newPage = Math.min(maxPage, currentPage + pageDelta)
@@ -198,13 +222,13 @@ export class IncomingMessageList extends Component {
     this.props.onPageChanged(newPage)
   }
 
-  handlePageChangeClick = (pageDelta) => {
+  handlePageChangeClick = pageDelta => {
     if (this.state.selectedIndices.length > 0) {
       this.setState({
         confirmPageChange: {
           open: true,
-          pageDelta
-        }
+          pageDelta,
+        },
       })
       return
     }
@@ -221,7 +245,7 @@ export class IncomingMessageList extends Component {
     this.handlePageChangeClick(-1)
   }
 
-  handleCloseConfirmChangePageWithConvosSelectedDialog = (changePage) => {
+  handleCloseConfirmChangePageWithConvosSelectedDialog = changePage => {
     if (changePage) {
       this.handlePageChanged(this.state.confirmPageChange.pageDelta)
     }
@@ -229,8 +253,8 @@ export class IncomingMessageList extends Component {
     this.setState({
       confirmPageChange: {
         open: false,
-        pageDelta: 0
-      }
+        pageDelta: 0,
+      },
     })
   }
 
@@ -239,17 +263,23 @@ export class IncomingMessageList extends Component {
     this.props.onPageSizeChanged(value)
   }
 
-  handleRowsSelected = (rowsSelected) => {
+  handleRowsSelected = rowsSelected => {
     const conversations = this.props.conversations.conversations.conversations
-    const selectedIndices = this.prepareSelectedIndices(conversations, rowsSelected)
+    const selectedIndices = this.prepareSelectedIndices(
+      conversations,
+      rowsSelected
+    )
 
-    const selectedConversations = prepareSelectedRowsData(conversations, selectedIndices)
+    const selectedConversations = prepareSelectedRowsData(
+      conversations,
+      selectedIndices
+    )
     this.props.onConversationSelected(selectedConversations)
 
     this.setState({ selectedIndices })
   }
 
-  handleOpenConversation = (contact) => {
+  handleOpenConversation = contact => {
     this.setState({ activeConversation: contact })
   }
 
@@ -257,9 +287,12 @@ export class IncomingMessageList extends Component {
     this.setState({ activeConversation: undefined })
   }
 
-  renderTags = (tags) => (
+  renderTags = tags => (
     <div>
-      {tags && tags.filter(tag => !tag.resolvedAt).map(tag => <TagChip text={tag.tag} />)}
+      {tags &&
+        tags
+          .filter(tag => !tag.resolvedAt)
+          .map(tag => <TagChip text={tag.tag} />)}
     </div>
   )
 
@@ -290,7 +323,9 @@ export class IncomingMessageList extends Component {
           onRowSizeChange={this.handleRowSizeChanged}
           rowSizeList={this.props.rowSizeList}
           onRowSelection={this.handleRowsSelected}
-          selectedRows={clearSelectedMessages ? null : this.state.selectedIndices}
+          selectedRows={
+            clearSelectedMessages ? null : this.state.selectedIndices
+          }
           showFooterToolbar={false}
           toolbarTop
           toolbarBottom
@@ -298,7 +333,9 @@ export class IncomingMessageList extends Component {
         <ConfirmChangePageWithConvosSelectedDialog
           open={this.state.confirmPageChange.open}
           pageDelta={this.state.confirmPageChange.pageDelta}
-          onRequestClose={this.handleCloseConfirmChangePageWithConvosSelectedDialog}
+          onRequestClose={
+            this.handleCloseConfirmChangePageWithConvosSelectedDialog
+          }
         />
         <ConversationPreviewModal
           organizationId={this.props.organizationId}
@@ -325,84 +362,84 @@ IncomingMessageList.propTypes = {
   conversations: type.object,
   clearSelectedMessages: type.bool,
   rowSizeList: type.arrayOf(type.number),
-  onForceRefresh: type.func
+  onForceRefresh: type.func,
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
   conversations: {
     query: gql`
-          query Q(
-            $organizationId: String!
-            $cursor: OffsetLimitCursor!
-            $contactsFilter: ContactsFilter
-            $campaignsFilter: CampaignsFilter
-            $assignmentsFilter: AssignmentsFilter
-            $utc: String
+      query Q(
+        $organizationId: String!
+        $cursor: OffsetLimitCursor!
+        $contactsFilter: ContactsFilter
+        $campaignsFilter: CampaignsFilter
+        $assignmentsFilter: AssignmentsFilter
+        $utc: String
       ) {
-          conversations(
-            cursor: $cursor
-        organizationId: $organizationId
-        campaignsFilter: $campaignsFilter
-        contactsFilter: $contactsFilter
-        assignmentsFilter: $assignmentsFilter
-        utc: $utc
+        conversations(
+          cursor: $cursor
+          organizationId: $organizationId
+          campaignsFilter: $campaignsFilter
+          contactsFilter: $contactsFilter
+          assignmentsFilter: $assignmentsFilter
+          utc: $utc
         ) {
           pageInfo {
-        limit
-        offset
-        total
-      }
+            limit
+            offset
+            total
+          }
           conversations {
-          texter {
-        id
-        displayName
-      }
+            texter {
+              id
+              displayName
+            }
             contact {
-          id
+              id
               assignmentId
-        firstName
-        lastName
-        cell
-        messageStatus
+              firstName
+              lastName
+              cell
+              messageStatus
               messages {
                 id
                 text
                 isFromContact
                 createdAt
-      }
+              }
               optOut {
-          cell
-        }
-        tags {
-          tag
-          createdAt
-          createdBy {
-            displayName
-          }
-          resolvedAt
-          resolvedBy {
-            displayName
-          }
-        }
-        }
+                cell
+              }
+              tags {
+                tag
+                createdAt
+                createdBy {
+                  displayName
+                }
+                resolvedAt
+                resolvedBy {
+                  displayName
+                }
+              }
+            }
             campaign {
-          id
+              id
               title
+            }
+          }
         }
       }
-    }
-  }
-`,
+    `,
     variables: {
       organizationId: ownProps.organizationId,
       cursor: ownProps.cursor,
       contactsFilter: ownProps.contactsFilter,
       campaignsFilter: ownProps.campaignsFilter,
       assignmentsFilter: ownProps.assignmentsFilter,
-      utc: ownProps.utc
+      utc: ownProps.utc,
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
 export default loadData(withRouter(IncomingMessageList), { mapQueriesToProps })

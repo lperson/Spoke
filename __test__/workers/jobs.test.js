@@ -1,14 +1,19 @@
-import {getTimezoneByZip} from '../../src/workers/jobs'
-import {r, ZipCode} from '../../src/server/models'
-import {setupTest, cleanupTest} from "../test_helpers";
+import { getTimezoneByZip } from '../../src/workers/jobs'
+import { r, ZipCode } from '../../src/server/models'
+import { setupTest, cleanupTest } from '../test_helpers'
 
 jest.mock('../../src/lib/zip-format')
 var zipFormat = require('../../src/lib/zip-format')
 
 describe('test getTimezoneByZip', () => {
-
-  beforeAll(async () => await setupTest(), global.DATABASE_SETUP_TEARDOWN_TIMEOUT)
-  afterAll(async () => await cleanupTest(), global.DATABASE_SETUP_TEARDOWN_TIMEOUT)
+  beforeAll(
+    async () => await setupTest(),
+    global.DATABASE_SETUP_TEARDOWN_TIMEOUT
+  )
+  afterAll(
+    async () => await cleanupTest(),
+    global.DATABASE_SETUP_TEARDOWN_TIMEOUT
+  )
 
   it('returns timezone data from the common zipcode/timezone mappings', async () => {
     zipFormat.zipToTimeZone.mockReturnValueOnce([0, 0, 3, 1])
@@ -42,7 +47,7 @@ describe('test getTimezoneByZip', () => {
         timezone_offset: 7,
         has_dst: true,
         latitude: 0,
-        longitude: 0
+        longitude: 0,
       })
       var future = await ZipCode.save(zipCode)
       expect(future).resolves
@@ -50,7 +55,10 @@ describe('test getTimezoneByZip', () => {
       future = await getTimezoneByZip('11790')
       expect(future).toEqual('7_1')
 
-      future = await r.table('zip_code').getAll().delete()
+      future = await r
+        .table('zip_code')
+        .getAll()
+        .delete()
       expect(future).resolves
 
       future = await r.table('zip_code').get('11790')
@@ -58,12 +66,12 @@ describe('test getTimezoneByZip', () => {
 
       future = await getTimezoneByZip('11790')
       expect(future).toEqual('7_1')
+    } finally {
+      return await r
+        .table('zip_code')
+        .getAll()
+        .delete()
     }
-    finally {
-      return await r.table('zip_code').getAll().delete()
-    }
-
-
   })
 })
 

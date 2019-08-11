@@ -15,7 +15,7 @@ class ConversationPreviewModal extends Component {
 
     this.state = {
       optOutError: '',
-      conversationLinkDialogOpen: false
+      conversationLinkDialogOpen: false,
     }
   }
 
@@ -28,13 +28,20 @@ class ConversationPreviewModal extends Component {
   }
 
   handleClickOptOut = async () => {
-    const { contactNumber, assignmentId, campaignContactId } = this.props.conversation
+    const {
+      contactNumber,
+      assignmentId,
+      campaignContactId,
+    } = this.props.conversation
     const optOut = {
       cell: contactNumber,
-      assignmentId
+      assignmentId,
     }
     try {
-      const response = await this.props.mutations.createOptOut(optOut, campaignContactId)
+      const response = await this.props.mutations.createOptOut(
+        optOut,
+        campaignContactId
+      )
       if (response.errors) {
         let errorText = 'Error processing opt-out.'
         if ('message' in response.errors) {
@@ -54,27 +61,15 @@ class ConversationPreviewModal extends Component {
     const isOpen = conversation !== undefined
 
     const primaryActions = [
-      <FlatButton
-        label='Link'
-        secondary
-        onClick={this.handleClickLink}
-      />,
-      <FlatButton
-        label='Opt-Out'
-        secondary
-        onClick={this.handleClickOptOut}
-      />,
-      <FlatButton
-        label='Close'
-        primary
-        onClick={this.props.onRequestClose}
-      />
+      <FlatButton label="Link" secondary onClick={this.handleClickLink} />,
+      <FlatButton label="Opt-Out" secondary onClick={this.handleClickOptOut} />,
+      <FlatButton label="Close" primary onClick={this.props.onRequestClose} />,
     ]
 
     return (
       <div>
         <Dialog
-          title='Messages'
+          title="Messages"
           open={isOpen}
           actions={primaryActions}
           modal={false}
@@ -83,7 +78,7 @@ class ConversationPreviewModal extends Component {
           <div>
             {isOpen && <ConversationPreviewBody {...this.props} />}
             <Dialog
-              title='Error Opting Out'
+              title="Error Opting Out"
               open={!!this.state.optOutError}
               modal={false}
             >
@@ -108,13 +103,16 @@ ConversationPreviewModal.propTypes = {
   conversation: PropTypes.object,
   onRequestClose: PropTypes.func,
   mutations: PropTypes.object,
-  onForceRefresh: PropTypes.func
+  onForceRefresh: PropTypes.func,
 }
 
 const mapMutationsToProps = () => ({
   createOptOut: (optOut, campaignContactId) => ({
     mutation: gql`
-      mutation createOptOut($optOut: OptOutInput!, $campaignContactId: String!) {
+      mutation createOptOut(
+        $optOut: OptOutInput!
+        $campaignContactId: String!
+      ) {
         createOptOut(optOut: $optOut, campaignContactId: $campaignContactId) {
           id
         }
@@ -122,11 +120,11 @@ const mapMutationsToProps = () => ({
     `,
     variables: {
       optOut,
-      campaignContactId
-    }
-  })
+      campaignContactId,
+    },
+  }),
 })
 
 export default loadData(wrapMutations(ConversationPreviewModal), {
-  mapMutationsToProps
+  mapMutationsToProps,
 })

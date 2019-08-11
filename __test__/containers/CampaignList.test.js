@@ -17,13 +17,13 @@ describe('Campaign list for campaign with null creator', () => {
   const data = {
     organization: {
       campaigns: {
-        campaigns: [ campaignWithoutCreator ],
+        campaigns: [campaignWithoutCreator],
       },
     },
   }
 
   // when
-  test('Renders for campaign with null creator, doesn\'t include created by', () => {
+  test("Renders for campaign with null creator, doesn't include created by", () => {
     const wrapper = mount(
       <MuiThemeProvider>
         <CampaignList data={data} />
@@ -38,14 +38,14 @@ describe('Campaign list for campaign with creator', () => {
   const campaignWithCreator = {
     id: 1,
     creator: {
-      displayName: 'Lorem Ipsum'
+      displayName: 'Lorem Ipsum',
     },
   }
 
   const data = {
     organization: {
       campaigns: {
-        campaigns: [ campaignWithCreator ],
+        campaigns: [campaignWithCreator],
       },
     },
   }
@@ -57,7 +57,10 @@ describe('Campaign list for campaign with creator', () => {
         <CampaignList data={data} />
       </MuiThemeProvider>
     )
-    expect(wrapper.containsMatchingElement(<span> &mdash; Created by Lorem Ipsum</span>)).toBeTruthy()
+    expect(
+      wrapper.containsMatchingElement(
+        <span> &mdash; Created by Lorem Ipsum</span>
+      )
+    ).toBeTruthy()
   })
 })
-

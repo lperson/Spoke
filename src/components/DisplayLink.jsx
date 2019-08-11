@@ -5,15 +5,13 @@ import { dataTest } from '../lib/attributes'
 
 const DisplayLink = ({ url, textContent }) => (
   <div>
-    <div>
-      {textContent}
-    </div>
+    <div>{textContent}</div>
     <TextField
       {...dataTest('url')}
       name={url}
       value={url}
       autoFocus
-      onFocus={(event) => event.target.select()}
+      onFocus={event => event.target.select()}
       fullWidth
     />
   </div>
@@ -21,7 +19,7 @@ const DisplayLink = ({ url, textContent }) => (
 
 DisplayLink.propTypes = {
   url: PropTypes.string,
-  textContent: PropTypes.string
+  textContent: PropTypes.string,
 }
 
 export default DisplayLink

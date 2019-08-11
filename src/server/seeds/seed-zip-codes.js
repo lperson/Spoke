@@ -5,9 +5,11 @@ import fs from 'fs'
 
 export async function seedZipCodes() {
   log.info('Checking if zip code is needed')
-  const hasZip = (await r.table('zip_code')
-    .limit(1)
-    .count()) > 0
+  const hasZip =
+    (await r
+      .table('zip_code')
+      .limit(1)
+      .count()) > 0
 
   if (!hasZip) {
     log.info('Starting to seed zip codes')
@@ -19,21 +21,21 @@ export async function seedZipCodes() {
     } else {
       log.info('Parsed a CSV with ', data.length, ' zip codes')
       const zipCodes = data
-        .filter((row) => (!zipToTimeZone(row.zip)))
-        .map((row) => ({
+        .filter(row => !zipToTimeZone(row.zip))
+        .map(row => ({
           zip: row.zip,
           city: row.city,
           state: row.state,
           timezone_offset: Number(row.timezone_offset),
           has_dst: Boolean(row.has_dst),
           latitude: Number(row.latitude),
-          longitude: Number(row.longitude)
+          longitude: Number(row.longitude),
         }))
 
       log.info(zipCodes.length, 'ZIP CODES')
       ZipCode.save(zipCodes)
         .then(() => log.info('Finished seeding'))
-        .error((err) => log.error('error', err))
+        .error(err => log.error('error', err))
     }
   }
 }

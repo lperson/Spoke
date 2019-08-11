@@ -9,7 +9,7 @@ class DashboardLoader extends React.Component {
     if (this.props.data.currentUser.organizations.length > 0) {
       this.props.router.push(
         `${this.props.path}/${this.props.data.currentUser.organizations[0].id}`
-        )
+      )
     } else {
       this.props.router.push('/')
     }
@@ -23,21 +23,23 @@ class DashboardLoader extends React.Component {
 DashboardLoader.propTypes = {
   data: PropTypes.object,
   router: PropTypes.object,
-  path: PropTypes.string
+  path: PropTypes.string,
 }
 
 const mapQueriesToProps = () => ({
   data: {
-    query: gql`query getCurrentUserForLoader {
-      currentUser {
-        id
-        organizations {
+    query: gql`
+      query getCurrentUserForLoader {
+        currentUser {
           id
+          organizations {
+            id
+          }
         }
       }
-    }`,
-    forceFetch: true
-  }
+    `,
+    forceFetch: true,
+  },
 })
 
 export default loadData(withRouter(DashboardLoader), { mapQueriesToProps })

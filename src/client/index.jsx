@@ -10,11 +10,15 @@ import { ApolloProvider } from 'react-apollo'
 import ApolloClientSingleton from '../network/apollo-client-singleton'
 import { login, logout } from './auth-service'
 
-window.onerror = (msg, file, line, col, error) => { errorCatcher(error) }
-window.addEventListener('unhandledrejection', (event) => { errorCatcher(event.reason) })
+window.onerror = (msg, file, line, col, error) => {
+  errorCatcher(error)
+}
+window.addEventListener('unhandledrejection', event => {
+  errorCatcher(event.reason)
+})
 window.AuthService = {
   login,
-  logout
+  logout,
 }
 
 const store = new Store(browserHistory, window.INITIAL_STATE)

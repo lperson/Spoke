@@ -10,10 +10,10 @@ const campaign = {
       texter: {
         id: '1',
         firstName: 'Test',
-        lastName: 'Tester'
+        lastName: 'Tester',
       },
       unmessagedCount: 193,
-      contactsCount: 238
+      contactsCount: 238,
     },
     {
       id: '1',
@@ -23,9 +23,9 @@ const campaign = {
         lastName: 'Else',
       },
       unmessagedCount: 4,
-      contactsCount: 545
-    }
-  ]
+      contactsCount: 545,
+    },
+  ],
 }
 
 const campaignDynamic = {
@@ -36,10 +36,10 @@ const campaignDynamic = {
       texter: {
         id: '1',
         firstName: 'Test',
-        lastName: 'Tester'
+        lastName: 'Tester',
       },
       unmessagedCount: 193,
-      contactsCount: 238
+      contactsCount: 238,
     },
     {
       id: '1',
@@ -49,11 +49,10 @@ const campaignDynamic = {
         lastName: 'Else',
       },
       unmessagedCount: 4,
-      contactsCount: 545
-    }
-  ]
+      contactsCount: 545,
+    },
+  ],
 }
-
 
 describe('TexterStats (Non-dynamic campaign)', () => {
   it('contains the right text', () => {
@@ -72,11 +71,10 @@ describe('TexterStats (Non-dynamic campaign)', () => {
       max: 100,
       min: 0,
       mode: 'determinate',
-      value: 19
+      value: 19,
     })
   })
 })
-
 
 describe('TexterStats (Dynamic campaign)', () => {
   it('contains the right text', () => {

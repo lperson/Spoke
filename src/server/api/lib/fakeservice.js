@@ -20,13 +20,11 @@ async function sendMessage(message, contact, trx) {
       request = request.transacting(trx)
     }
     // updating message!
-    await request
-      .where('id', message.id)
-      .update({
-        service: 'fakeservice',
-        send_status: 'SENT',
-        sent_at: new Date()
-      })
+    await request.where('id', message.id).update({
+      service: 'fakeservice',
+      send_status: 'SENT',
+      sent_at: new Date(),
+    })
   }
 
   if (contact && /autorespond/.test(message.text)) {
@@ -38,7 +36,7 @@ async function sendMessage(message, contact, trx) {
       service_id: `mockedresponse${Math.random()}`,
       is_from_contact: true,
       text: `responding to ${message.text}`,
-      send_status: 'DELIVERED'
+      send_status: 'DELIVERED',
     })
     contact.message_status = 'needsResponse'
     await contact.save()
@@ -56,11 +54,14 @@ async function convertMessagePartsToMessage(messageParts) {
   const text = firstPart.service_message
 
   const lastMessage = await getLastMessage({
-    contactNumber
+    contactNumber,
   })
 
-  const service_id = (firstPart.service_id
-                      || `fakeservice_${Math.random().toString(36).replace(/[^a-zA-Z1-9]+/g, '')}`)
+  const service_id =
+    firstPart.service_id ||
+    `fakeservice_${Math.random()
+      .toString(36)
+      .replace(/[^a-zA-Z1-9]+/g, '')}`
   return new Message({
     contact_number: contactNumber,
     user_number: userNumber,
@@ -70,7 +71,7 @@ async function convertMessagePartsToMessage(messageParts) {
     service_id,
     assignment_id: lastMessage.assignment_id,
     service: 'fakeservice',
-    send_status: 'DELIVERED'
+    send_status: 'DELIVERED',
   })
 }
 
@@ -82,7 +83,7 @@ async function handleIncomingMessage(message) {
     parent_id: null,
     service_message: text,
     user_number,
-    contact_number
+    contact_number,
   })
 
   const part = await pendingMessagePart.save()
@@ -93,5 +94,5 @@ export default {
   sendMessage,
   // useless unused stubs
   convertMessagePartsToMessage,
-  handleIncomingMessage
+  handleIncomingMessage,
 }

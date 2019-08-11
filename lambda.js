@@ -6,7 +6,7 @@ try {
   app = require('./build/server/server/index')
   server = awsServerlessExpress.createServer(app.default)
   jobs = require('./build/server/workers/job-processes')
-} catch(err) {
+} catch (err) {
   if (!global.TEST_ENVIRONMENT) {
     console.error(`Unable to load built server: ${err}`)
   }
@@ -47,15 +47,20 @@ exports.handler = (event, context, handleCallback) => {
   }
   if (!event.command) {
     // default web server stuff
-    const startTime = (context.getRemainingTimeInMillis ? context.getRemainingTimeInMillis() : 0)
+    const startTime = context.getRemainingTimeInMillis
+      ? context.getRemainingTimeInMillis()
+      : 0
     invocationEvent = event
     invocationContext = context
     cleanHeaders(event)
     const webResponse = awsServerlessExpress.proxy(server, event, context)
     if (process.env.DEBUG_SCALING) {
-      const endTime = (context.getRemainingTimeInMillis ? context.getRemainingTimeInMillis() : 0)
-      if ((endTime - startTime) > 3000) { //3 seconds
-        console.log('SLOW_RESPONSE milliseconds:', endTime-startTime, event)
+      const endTime = context.getRemainingTimeInMillis
+        ? context.getRemainingTimeInMillis()
+        : 0
+      if (endTime - startTime > 3000) {
+        //3 seconds
+        console.log('SLOW_RESPONSE milliseconds:', endTime - startTime, event)
       }
     }
 
@@ -73,23 +78,28 @@ exports.handler = (event, context, handleCallback) => {
       const job = jobs[event.command]
       // behavior and arguments documented here:
       // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Lambda.html#invoke-property
-      job(event,
-          function dispatcher(dataToSend, callback) {
-            const lambda = new AWS.Lambda()
-            return lambda.invoke({
+      job(
+        event,
+        function dispatcher(dataToSend, callback) {
+          const lambda = new AWS.Lambda()
+          return lambda.invoke(
+            {
               FunctionName: functionName,
-              InvocationType: "Event", //asynchronous
-              Payload: JSON.stringify(dataToSend)
-            }, function(err, dataReceived) {
+              InvocationType: 'Event', //asynchronous
+              Payload: JSON.stringify(dataToSend),
+            },
+            function(err, dataReceived) {
               if (err) {
                 console.error('Failed to invoke Lambda job: ', err)
               }
               if (callback) {
                 callback(err, dataReceived)
               }
-            })
-          },
-          handleCallback)
+            }
+          )
+        },
+        handleCallback
+      )
     } else {
       console.error('Unfound command sent as a Lambda event: ' + event.command)
     }

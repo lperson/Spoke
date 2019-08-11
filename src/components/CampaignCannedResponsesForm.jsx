@@ -24,46 +24,46 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingLeft: 10,
     marginTop: 15,
-    textAlign: 'left'
+    textAlign: 'left',
   },
   form: {
     backgroundColor: theme.colors.white,
-    padding: 10
-  }
+    padding: 10,
+  },
 })
 
 export default class CampaignCannedResponsesForm extends React.Component {
-
   state = {
-    showForm: false
+    showForm: false,
   }
 
   formSchema = yup.object({
-    cannedResponses: yup.array().of(yup.object({
-      title: yup.string(),
-      text: yup.string()
-    }))
+    cannedResponses: yup.array().of(
+      yup.object({
+        title: yup.string(),
+        text: yup.string(),
+      })
+    ),
   })
 
   showAddForm() {
     if (this.state.showForm) {
       return (
-        <div
-          className={css(styles.formContainer)}
-        >
-          <div
-            className={css(styles.form)}
-          >
+        <div className={css(styles.formContainer)}>
+          <div className={css(styles.form)}>
             <CampaignCannedResponseForm
-              onSaveCannedResponse={(ele) => {
+              onSaveCannedResponse={ele => {
                 const newVals = this.props.formValues.cannedResponses.slice(0)
                 const newEle = {
-                  ...ele
+                  ...ele,
                 }
-                newEle.id = Math.random().toString(36).replace(/[^a-zA-Z1-9]+/g, '')
+                newEle.id = Math.random()
+                  .toString(36)
+                  .replace(/[^a-zA-Z1-9]+/g, '')
                 newVals.push(newEle)
                 this.props.onChange({
-                  cannedResponses: newVals })
+                  cannedResponses: newVals,
+                })
                 this.setState({ showForm: false })
               }}
               customFields={this.props.customFields}
@@ -76,7 +76,7 @@ export default class CampaignCannedResponsesForm extends React.Component {
       <FlatButton
         {...dataTest('newCannedResponse')}
         secondary
-        label='Add new canned response'
+        label="Add new canned response"
         icon={<CreateIcon />}
         onTouchTap={() => this.setState({ showForm: true })}
       />
@@ -84,30 +84,33 @@ export default class CampaignCannedResponsesForm extends React.Component {
   }
 
   listItems(cannedResponses) {
-    const listItems = cannedResponses.map((response) => (
+    const listItems = cannedResponses.map(response => (
       <ListItem
         {...dataTest('cannedResponse')}
         value={response.text}
         key={response.id}
         primaryText={response.title}
         secondaryText={response.text}
-        rightIconButton={(
+        rightIconButton={
           <IconButton
             onTouchTap={() => {
-              const newVals = this.props.formValues.cannedResponses.map((responseToDelete) => {
-                if (responseToDelete.id === response.id) {
-                  return null
-                }
-                return responseToDelete
-              }).filter((ele) => ele !== null)
+              const newVals = this.props.formValues.cannedResponses
+                .map(responseToDelete => {
+                  if (responseToDelete.id === response.id) {
+                    return null
+                  }
+                  return responseToDelete
+                })
+                .filter(ele => ele !== null)
 
               this.props.onChange({
-                cannedResponses: newVals })
+                cannedResponses: newVals,
+              })
             }}
           >
             <DeleteIcon />
           </IconButton>
-        )}
+        }
         secondaryTextLines={2}
       />
     ))
@@ -117,12 +120,13 @@ export default class CampaignCannedResponsesForm extends React.Component {
   render() {
     const { formValues } = this.props
     const cannedResponses = formValues.cannedResponses
-    const list = cannedResponses.length === 0 ? null : (
-      <List>
-        {this.listItems(cannedResponses)}
-        <Divider />
-      </List>
-    )
+    const list =
+      cannedResponses.length === 0 ? null : (
+        <List>
+          {this.listItems(cannedResponses)}
+          <Divider />
+        </List>
+      )
 
     return (
       <GSForm
@@ -132,13 +136,13 @@ export default class CampaignCannedResponsesForm extends React.Component {
         onSubmit={this.props.onSubmit}
       >
         <CampaignFormSectionHeading
-          title='Canned responses for texters'
-          subtitle='Save some scripts for your texters to use to answer additional FAQs that may come up outside of the survey questions and scripts you already set up.'
+          title="Canned responses for texters"
+          subtitle="Save some scripts for your texters to use to answer additional FAQs that may come up outside of the survey questions and scripts you already set up."
         />
         {list}
         {this.showAddForm()}
         <Form.Button
-          type='submit'
+          type="submit"
           disabled={this.props.saveDisabled}
           label={this.props.saveLabel}
         />
@@ -153,5 +157,5 @@ CampaignCannedResponsesForm.propTypes = {
   onSubmit: type.func,
   onChange: type.func,
   formValues: type.object,
-  customFields: type.array
+  customFields: type.array,
 }

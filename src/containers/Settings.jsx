@@ -15,57 +15,90 @@ import Toggle from 'material-ui/Toggle'
 import moment from 'moment'
 const styles = StyleSheet.create({
   section: {
-    margin: '10px 0'
+    margin: '10px 0',
   },
   sectionLabel: {
     opacity: 0.8,
-    marginRight: 5
+    marginRight: 5,
   },
   textingHoursSpan: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   dialogActions: {
     marginTop: 20,
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-end'
-  }
+    justifyContent: 'flex-end',
+  },
 })
 
 const inlineStyles = {
   dialogButton: {
-    display: 'inline-block'
-  }
+    display: 'inline-block',
+  },
 }
 
-const formatTextingHours = (hour) => moment(hour, 'H').format('h a')
+const formatTextingHours = hour => moment(hour, 'H').format('h a')
 class Settings extends React.Component {
-
   state = {
-    formIsSubmitting: false
+    formIsSubmitting: false,
   }
 
-  handleSubmitTextingHoursForm = async ({ textingHoursStart, textingHoursEnd }) => {
-    await this.props.mutations.updateTextingHours(textingHoursStart, textingHoursEnd)
+  handleSubmitTextingHoursForm = async ({
+    textingHoursStart,
+    textingHoursEnd,
+  }) => {
+    await this.props.mutations.updateTextingHours(
+      textingHoursStart,
+      textingHoursEnd
+    )
     this.handleCloseTextingHoursDialog()
   }
 
-  handleOpenTextingHoursDialog = () => this.setState({ textingHoursDialogOpen: true })
+  handleOpenTextingHoursDialog = () =>
+    this.setState({ textingHoursDialogOpen: true })
 
-  handleCloseTextingHoursDialog = () => this.setState({ textingHoursDialogOpen: false })
+  handleCloseTextingHoursDialog = () =>
+    this.setState({ textingHoursDialogOpen: false })
 
   renderTextingHoursForm() {
     const { organization } = this.props.data
     const { textingHoursStart, textingHoursEnd } = organization
     const formSchema = yup.object({
       textingHoursStart: yup.number().required(),
-      textingHoursEnd: yup.number().required()
+      textingHoursEnd: yup.number().required(),
     })
 
-    const hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
-    const hourChoices = hours.map((hour) => ({
+    const hours = [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+    ]
+    const hourChoices = hours.map(hour => ({
       value: hour,
-      label: formatTextingHours(hour)
+      label: formatTextingHours(hour),
     }))
 
     return (
@@ -79,30 +112,30 @@ class Settings extends React.Component {
           defaultValue={{ textingHoursStart, textingHoursEnd }}
         >
           <Form.Field
-            label='Start time'
-            name='textingHoursStart'
-            type='select'
+            label="Start time"
+            name="textingHoursStart"
+            type="select"
             fullWidth
             choices={hourChoices}
           />
           <Form.Field
-            label='End time'
-            name='textingHoursEnd'
-            type='select'
+            label="End time"
+            name="textingHoursEnd"
+            type="select"
             fullWidth
             choices={hourChoices}
           />
           <div className={css(styles.dialogActions)}>
             <FlatButton
-              label='Cancel'
+              label="Cancel"
               style={inlineStyles.dialogButton}
               onTouchTap={this.handleCloseTextingHoursDialog}
             />
             <Form.Button
-              type='submit'
+              type="submit"
               style={inlineStyles.dialogButton}
               component={GSSubmitButton}
-              label='Save'
+              label="Save"
             />
           </div>
         </GSForm>
@@ -114,76 +147,76 @@ class Settings extends React.Component {
     const { organization } = this.props.data
     const { optOutMessage } = organization
     const formSchema = yup.object({
-      optOutMessage: yup.string().required()
+      optOutMessage: yup.string().required(),
     })
 
     return (
       <div>
         <Card>
-          <CardHeader
-            title='Settings'
-          />
+          <CardHeader title="Settings" />
           <CardText>
             <div className={css(styles.section)}>
+              <GSForm
+                schema={formSchema}
+                onSubmit={this.props.mutations.updateOptOutMessage}
+                defaultValue={{ optOutMessage }}
+              >
+                <Form.Field
+                  label="Default Opt-Out Message"
+                  name="optOutMessage"
+                  fullWidth
+                />
 
-            <GSForm
-              schema={formSchema}
-              onSubmit={this.props.mutations.updateOptOutMessage}
-              defaultValue={{ optOutMessage }}
-            >
-
-              <Form.Field
-                label='Default Opt-Out Message'
-                name='optOutMessage'
-                fullWidth
-              />
-
-              <Form.Button
-                type='submit'
-                label={this.props.saveLabel || 'Save Opt-Out Message'}
-              />
-
-            </GSForm>
+                <Form.Button
+                  type="submit"
+                  label={this.props.saveLabel || 'Save Opt-Out Message'}
+                />
+              </GSForm>
             </div>
           </CardText>
 
           <CardText>
             <div className={css(styles.section)}>
-              <span className={css(styles.sectionLabel)}>
-              </span>
+              <span className={css(styles.sectionLabel)}></span>
               <Toggle
                 toggled={organization.textingHoursEnforced}
-                label='Enforce texting hours?'
-                onToggle={async (event, isToggled) => await this.props.mutations.updateTextingHoursEnforcement(isToggled)}
+                label="Enforce texting hours?"
+                onToggle={async (event, isToggled) =>
+                  await this.props.mutations.updateTextingHoursEnforcement(
+                    isToggled
+                  )
+                }
               />
             </div>
 
             {organization.textingHoursEnforced ? (
               <div className={css(styles.section)}>
-                <span className={css(styles.sectionLabel)}>
-                  Texting hours:
-                </span>
+                <span className={css(styles.sectionLabel)}>Texting hours:</span>
                 <span className={css(styles.textingHoursSpan)}>
-                  {formatTextingHours(organization.textingHoursStart)} to {formatTextingHours(organization.textingHoursEnd)}</span>
-                  {window.TZ ? (
-                    ` in your organisations local time. Timezone ${window.TZ}`
-                  ) : ' in contacts local time (or 12pm-6pm EST if timezone is unknown)'}
+                  {formatTextingHours(organization.textingHoursStart)} to{' '}
+                  {formatTextingHours(organization.textingHoursEnd)}
+                </span>
+                {window.TZ
+                  ? ` in your organisations local time. Timezone ${window.TZ}`
+                  : ' in contacts local time (or 12pm-6pm EST if timezone is unknown)'}
               </div>
-            ) : ''}
+            ) : (
+              ''
+            )}
           </CardText>
           <CardActions>
             {organization.textingHoursEnforced ? (
               <FlatButton
-                label='Change texting hours'
+                label="Change texting hours"
                 primary
                 onTouchTap={this.handleOpenTextingHoursDialog}
               />
-            ) : ''}
+            ) : (
+              ''
+            )}
           </CardActions>
         </Card>
-        <div>
-          {this.renderTextingHoursForm()}
-        </div>
+        <div>{this.renderTextingHoursForm()}</div>
       </div>
     )
   }
@@ -192,76 +225,101 @@ class Settings extends React.Component {
 Settings.propTypes = {
   data: PropTypes.object,
   params: PropTypes.object,
-  mutations: PropTypes.object
+  mutations: PropTypes.object,
 }
 
 const mapMutationsToProps = ({ ownProps }) => ({
   updateTextingHours: (textingHoursStart, textingHoursEnd) => ({
     mutation: gql`
-      mutation updateTextingHours($textingHoursStart: Int!, $textingHoursEnd: Int!, $organizationId: String!) {
-        updateTextingHours(textingHoursStart: $textingHoursStart, textingHoursEnd: $textingHoursEnd, organizationId: $organizationId) {
+      mutation updateTextingHours(
+        $textingHoursStart: Int!
+        $textingHoursEnd: Int!
+        $organizationId: String!
+      ) {
+        updateTextingHours(
+          textingHoursStart: $textingHoursStart
+          textingHoursEnd: $textingHoursEnd
+          organizationId: $organizationId
+        ) {
           id
           textingHoursEnforced
           textingHoursStart
           textingHoursEnd
         }
-      }`,
+      }
+    `,
     variables: {
       organizationId: ownProps.params.organizationId,
       textingHoursStart,
-      textingHoursEnd
-    }
+      textingHoursEnd,
+    },
   }),
-  updateTextingHoursEnforcement: (textingHoursEnforced) => ({
+  updateTextingHoursEnforcement: textingHoursEnforced => ({
     mutation: gql`
-      mutation updateTextingHoursEnforcement($textingHoursEnforced: Boolean!, $organizationId: String!) {
-        updateTextingHoursEnforcement(textingHoursEnforced: $textingHoursEnforced, organizationId: $organizationId) {
+      mutation updateTextingHoursEnforcement(
+        $textingHoursEnforced: Boolean!
+        $organizationId: String!
+      ) {
+        updateTextingHoursEnforcement(
+          textingHoursEnforced: $textingHoursEnforced
+          organizationId: $organizationId
+        ) {
           id
           textingHoursEnforced
           textingHoursStart
           textingHoursEnd
         }
-      }`,
+      }
+    `,
     variables: {
       organizationId: ownProps.params.organizationId,
-      textingHoursEnforced
-    }
+      textingHoursEnforced,
+    },
   }),
   updateOptOutMessage: ({ optOutMessage }) => ({
     mutation: gql`
-      mutation updateOptOutMessage($optOutMessage: String!, $organizationId: String!) {
-        updateOptOutMessage(optOutMessage: $optOutMessage, organizationId: $organizationId) {
+      mutation updateOptOutMessage(
+        $optOutMessage: String!
+        $organizationId: String!
+      ) {
+        updateOptOutMessage(
+          optOutMessage: $optOutMessage
+          organizationId: $organizationId
+        ) {
           id
           optOutMessage
         }
-      }`,
+      }
+    `,
     variables: {
       organizationId: ownProps.params.organizationId,
-      optOutMessage
-    }
-  })
-
+      optOutMessage,
+    },
+  }),
 })
 
 const mapQueriesToProps = ({ ownProps }) => ({
   data: {
-    query: gql`query adminGetCampaigns($organizationId: String!) {
-      organization(id: $organizationId) {
-        id
-        name
-        textingHoursEnforced
-        textingHoursStart
-        textingHoursEnd
-        optOutMessage
+    query: gql`
+      query adminGetCampaigns($organizationId: String!) {
+        organization(id: $organizationId) {
+          id
+          name
+          textingHoursEnforced
+          textingHoursStart
+          textingHoursEnd
+          optOutMessage
+        }
       }
-    }`,
+    `,
     variables: {
-      organizationId: ownProps.params.organizationId
+      organizationId: ownProps.params.organizationId,
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
-export default loadData(
-    wrapMutations(Settings),
-    { mapQueriesToProps, mapMutationsToProps })
+export default loadData(wrapMutations(Settings), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

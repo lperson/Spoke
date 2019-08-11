@@ -6,8 +6,12 @@ jasmine.getEnv().addReporter(selenium.reporter)
 
 describe('Basic Text Manager Workflow', () => {
   // Instantiate browser(s)
-  const driverAdmin = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Basic Text Manager Workflow - Admin' })
-  const driverTexter = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Basic Text Manager Workflow - Texter' })
+  const driverAdmin = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Basic Text Manager Workflow - Admin',
+  })
+  const driverTexter = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Basic Text Manager Workflow - Texter',
+  })
 
   beforeAll(() => {
     global.e2e = {}

@@ -22,26 +22,24 @@ Form.addInputTypes({
   email: GSTextField,
   script: GSScriptField,
   select: GSSelectField,
-  password: GSPasswordField
+  password: GSPasswordField,
 })
 
 const styles = StyleSheet.create({
   root: {
     ...theme.text.body,
-    height: '100%'
-  }
+    height: '100%',
+  },
 })
 
 const App = ({ children }) => (
   <MuiThemeProvider muiTheme={muiTheme}>
-    <div className={css(styles.root)}>
-      {children}
-    </div>
+    <div className={css(styles.root)}>{children}</div>
   </MuiThemeProvider>
 )
 
 App.propTypes = {
-  children: PropTypes.object
+  children: PropTypes.object,
 }
 
 export default App

@@ -8,7 +8,7 @@ const created = '"user"."created_at"'
 const oldest = created
 const newest = '"user"."created_at" desc'
 
-const lower = (column) => `lower(${column})`
+const lower = column => `lower(${column})`
 
 function buildSelect(sortBy) {
   const userStar = '"user".*'
@@ -60,8 +60,15 @@ function buildOrderBy(query, sortBy) {
   return query.orderByRaw(fragmentArray.join(', '))
 }
 
-const addLeftOuterJoin = (query) => query.leftOuterJoin('assignment', 'assignment.user_id', 'user.id')
-export function buildUserOrganizationQuery(queryParam, organizationId, role, campaignsFilter, filterString) {
+const addLeftOuterJoin = query =>
+  query.leftOuterJoin('assignment', 'assignment.user_id', 'user.id')
+export function buildUserOrganizationQuery(
+  queryParam,
+  organizationId,
+  role,
+  campaignsFilter,
+  filterString
+) {
   const roleFilter = role ? { role } : {}
 
   let query = queryParam
@@ -72,54 +79,118 @@ export function buildUserOrganizationQuery(queryParam, organizationId, role, cam
     .distinct()
 
   if (filterString) {
-    const filterStringWithPercents = ('%' + filterString + '%').toLocaleLowerCase()
-    query = query.andWhere(r.knex.raw('lower(first_name) like ? OR lower(last_name) like ? OR lower(email) like ?',
-      [filterStringWithPercents, filterStringWithPercents, filterStringWithPercents]))
+    const filterStringWithPercents = (
+      '%' +
+      filterString +
+      '%'
+    ).toLocaleLowerCase()
+    query = query.andWhere(
+      r.knex.raw(
+        'lower(first_name) like ? OR lower(last_name) like ? OR lower(email) like ?',
+        [
+          filterStringWithPercents,
+          filterStringWithPercents,
+          filterStringWithPercents,
+        ]
+      )
+    )
   }
 
   if (campaignsFilter) {
     if (campaignsFilter.campaignId) {
       query = addLeftOuterJoin(query)
-      query = query.where({ 'assignment.campaign_id': campaignsFilter.campaignId })
-    } else if (campaignsFilter.campaignIds && campaignsFilter.campaignIds.length > 0) {
-      const questionMarks = Array(campaignsFilter.campaignIds.length).fill('?').join(',')
+      query = query.where({
+        'assignment.campaign_id': campaignsFilter.campaignId,
+      })
+    } else if (
+      campaignsFilter.campaignIds &&
+      campaignsFilter.campaignIds.length > 0
+    ) {
+      const questionMarks = Array(campaignsFilter.campaignIds.length)
+        .fill('?')
+        .join(',')
       query = addLeftOuterJoin(query)
-      query = query.whereRaw(`"assignment"."campaign_id" in (${questionMarks})`, campaignsFilter.campaignIds)
+      query = query.whereRaw(
+        `"assignment"."campaign_id" in (${questionMarks})`,
+        campaignsFilter.campaignIds
+      )
     }
   }
 
   return query
 }
 
-export function buildSortedUserOrganizationQuery(organizationId, role, campaignsFilter, sortBy, filterString) {
-  const query = buildUserOrganizationQuery(buildSelect(sortBy), organizationId, role, campaignsFilter, filterString)
+export function buildSortedUserOrganizationQuery(
+  organizationId,
+  role,
+  campaignsFilter,
+  sortBy,
+  filterString
+) {
+  const query = buildUserOrganizationQuery(
+    buildSelect(sortBy),
+    organizationId,
+    role,
+    campaignsFilter,
+    filterString
+  )
   return buildOrderBy(query, sortBy)
 }
 
-function buildUsersQuery(organizationId, campaignsFilter, role, sortBy, filterString) {
-  return buildSortedUserOrganizationQuery(organizationId, role, campaignsFilter, sortBy, filterString)
+function buildUsersQuery(
+  organizationId,
+  campaignsFilter,
+  role,
+  sortBy,
+  filterString
+) {
+  return buildSortedUserOrganizationQuery(
+    organizationId,
+    role,
+    campaignsFilter,
+    sortBy,
+    filterString
+  )
 }
 
-export async function getUsers(organizationId, cursor, campaignsFilter, role, sortBy, filterString) {
-  let usersQuery = buildUsersQuery(organizationId, campaignsFilter, role, sortBy, filterString)
+export async function getUsers(
+  organizationId,
+  cursor,
+  campaignsFilter,
+  role,
+  sortBy,
+  filterString
+) {
+  let usersQuery = buildUsersQuery(
+    organizationId,
+    campaignsFilter,
+    role,
+    sortBy,
+    filterString
+  )
 
   if (cursor) {
     usersQuery = usersQuery.limit(cursor.limit).offset(cursor.offset)
     const users = await usersQuery
 
-    const usersCountQuery = buildUsersQuery(organizationId, campaignsFilter, role, 'COUNT_ONLY')
+    const usersCountQuery = buildUsersQuery(
+      organizationId,
+      campaignsFilter,
+      role,
+      'COUNT_ONLY'
+    )
 
     const usersCountArray = await usersCountQuery
 
     const pageInfo = {
       limit: cursor.limit,
       offset: cursor.offset,
-      total: usersCountArray[0].count
+      total: usersCountArray[0].count,
     }
 
     return {
       users,
-      pageInfo
+      pageInfo,
     }
   } else {
     return usersQuery
@@ -135,10 +206,10 @@ export const resolvers = {
         return 'PaginatedUsers'
       }
       return null
-    }
+    },
   },
   UsersList: {
-    users: users => users
+    users: users => users,
   },
   PaginatedUsers: {
     users: queryResult => queryResult.users,
@@ -147,27 +218,28 @@ export const resolvers = {
         return queryResult.pageInfo
       }
       return null
-    }
+    },
   },
   User: {
-    ...mapFieldsToModel([
-      'id',
-      'firstName',
-      'lastName',
-      'email',
-      'cell',
-      'assignedCell',
-      'terms'
-    ], User),
-    displayName: (user) => `${user.first_name} ${user.last_name}`,
+    ...mapFieldsToModel(
+      ['id', 'firstName', 'lastName', 'email', 'cell', 'assignedCell', 'terms'],
+      User
+    ),
+    displayName: user => `${user.first_name} ${user.last_name}`,
     assignment: async (user, { campaignId }) => {
-      if (user.assignment_id && user.assignment_campaign_id === Number(campaignId)) {
+      if (
+        user.assignment_id &&
+        user.assignment_campaign_id === Number(campaignId)
+      ) {
         // from context of campaign.texters.assignment
-        return { id: user.assignment_id,
-                 campaign_id: user.assignment_campaign_id,
-                 max_contacts: user.assignment_max_contacts }
+        return {
+          id: user.assignment_id,
+          campaign_id: user.assignment_campaign_id,
+          max_contacts: user.assignment_max_contacts,
+        }
       }
-      return r.table('assignment')
+      return r
+        .table('assignment')
         .getAll(user.id, { index: 'user_id' })
         .filter({ campaign_id: campaignId })
         .limit(1)(0)
@@ -180,18 +252,18 @@ export const resolvers = {
       // Note: this only returns {id, name}, but that is all apis need here
       return await cacheableData.user.userOrgs(user.id, role)
     },
-    roles: async(user, { organizationId }) => (
-      cacheableData.user.orgRoles(user.id, organizationId)
-    ),
-    todos: async (user, { organizationId }) => (
-      r.table('assignment')
+    roles: async (user, { organizationId }) =>
+      cacheableData.user.orgRoles(user.id, organizationId),
+    todos: async (user, { organizationId }) =>
+      r
+        .table('assignment')
         .getAll(user.id, { index: 'assignment.user_id' })
         .eqJoin('campaign_id', r.table('campaign'))
-        .filter({ 'is_started': true,
-                 'organization_id': organizationId,
-                 'is_archived': false }
-               )('left')
-    ),
-    cacheable: () => Boolean(r.redis)
-  }
+        .filter({
+          is_started: true,
+          organization_id: organizationId,
+          is_archived: false,
+        })('left'),
+    cacheable: () => Boolean(r.redis),
+  },
 }

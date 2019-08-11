@@ -40,13 +40,20 @@ export const texter = {
       await wait.andClick(driver, pom.texter.sendReplies)
     })
     it('verifies reply', async () => {
-      expect(await wait.andGetEl(driver, pom.texter.replyByText(campaign.standardReply))).toBeDefined()
+      expect(
+        await wait.andGetEl(
+          driver,
+          pom.texter.replyByText(campaign.standardReply)
+        )
+      ).toBeDefined()
     })
   },
   viewSendFirstTexts(driver) {
     it('verifies that Send First Texts button is present', async () => {
       await driver.get(urlBuilder.app.todos())
-      expect(await wait.andGetEl(driver, pom.texter.sendFirstTexts)).toBeDefined()
+      expect(
+        await wait.andGetEl(driver, pom.texter.sendFirstTexts)
+      ).toBeDefined()
     })
-  }
+  },
 }

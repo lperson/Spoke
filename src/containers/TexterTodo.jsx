@@ -50,9 +50,7 @@ export class TexterTodo extends React.Component {
     const { assignment } = this.props.data
     this.assignContactsIfNeeded()
     if (!assignment || assignment.campaign.isArchived) {
-      this.props.router.push(
-        `/app/${this.props.params.organizationId}/todos`
-      )
+      this.props.router.push(`/app/${this.props.params.organizationId}/todos`)
     }
   }
 
@@ -60,8 +58,15 @@ export class TexterTodo extends React.Component {
     const { assignment } = this.props.data
     // TODO: should we assign a single contact at first, and then afterwards assign 10
     //       to avoid people loading up the screen but doing nothing -- then they've 'taken' only one contact
-    if (!this.loadingNewContacts && assignment && (assignment.contacts.length === 0 || checkServer)) {
-      const didAddContacts = await this.getNewContacts(checkServer, currentIndex)
+    if (
+      !this.loadingNewContacts &&
+      assignment &&
+      (assignment.contacts.length === 0 || checkServer)
+    ) {
+      const didAddContacts = await this.getNewContacts(
+        checkServer,
+        currentIndex
+      )
       if (didAddContacts) {
         return
       }
@@ -69,9 +74,7 @@ export class TexterTodo extends React.Component {
       console.log('Are we empty?', checkServer, currentIndex)
       const self = this
       return () => {
-        self.props.router.push(
-          `/app/${self.props.params.organizationId}/todos`
-        )
+        self.props.router.push(`/app/${self.props.params.organizationId}/todos`)
       }
     }
   }
@@ -79,9 +82,15 @@ export class TexterTodo extends React.Component {
   getNewContacts = async (waitForServer = false, currentIndex) => {
     const { assignment } = this.props.data
     if (assignment.campaign.useDynamicAssignment) {
-      console.log('getnewContacts<ind><cur contacts>', currentIndex, assignment.contacts.map(c => c.id))
+      console.log(
+        'getnewContacts<ind><cur contacts>',
+        currentIndex,
+        assignment.contacts.map(c => c.id)
+      )
       this.loadingNewContacts = true
-      const didAddContacts = (await this.props.mutations.findNewCampaignContact(assignment.id)).data.findNewCampaignContact.found
+      const didAddContacts = (await this.props.mutations.findNewCampaignContact(
+        assignment.id
+      )).data.findNewCampaignContact.found
       console.log('getNewContacts ?added', didAddContacts)
       if (didAddContacts | waitForServer) {
         await this.props.data.refetch()
@@ -91,9 +100,11 @@ export class TexterTodo extends React.Component {
     }
   }
 
-  loadContacts = async (contactIds) => {
+  loadContacts = async contactIds => {
     this.loadingAssignmentContacts = true
-    const newContacts = await this.props.mutations.getAssignmentContacts(contactIds)
+    const newContacts = await this.props.mutations.getAssignmentContacts(
+      contactIds
+    )
     this.loadingAssignmentContacts = false
     return newContacts
   }
@@ -129,99 +140,110 @@ TexterTodo.propTypes = {
   data: PropTypes.object,
   mutations: PropTypes.object,
   router: PropTypes.object,
-  reviewMode: PropTypes.bool
+  reviewMode: PropTypes.bool,
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
   data: {
-    query: gql`query getContacts($assignmentId: String!, $contactsFilter: ContactsFilter!) {
-      assignment(id: $assignmentId) {
-        id
-        userCannedResponses {
+    query: gql`
+      query getContacts(
+        $assignmentId: String!
+        $contactsFilter: ContactsFilter!
+      ) {
+        assignment(id: $assignmentId) {
           id
-          title
-          text
-          isUserCreated
-        }
-        campaignCannedResponses {
-          id
-          title
-          text
-          isUserCreated
-        }
-        texter {
-          id
-          firstName
-          lastName
-          displayName
-        }
-        campaign {
-          id
-          title
-          isArchived
-          useDynamicAssignment
-          overrideOrganizationTextingHours
-          timezone
-          textingHoursStart
-          textingHoursEnd
-          textingHoursEnforced
-          organization {
+          userCannedResponses {
             id
-            textingHoursEnforced
+            title
+            text
+            isUserCreated
+          }
+          campaignCannedResponses {
+            id
+            title
+            text
+            isUserCreated
+          }
+          texter {
+            id
+            firstName
+            lastName
+            displayName
+          }
+          campaign {
+            id
+            title
+            isArchived
+            useDynamicAssignment
+            overrideOrganizationTextingHours
+            timezone
             textingHoursStart
             textingHoursEnd
-            threeClickEnabled
-            optOutMessage
-          }
-          customFields
-          interactionSteps {
-            id
-            script
-            question {
-              text
-              answerOptions {
-                value
-                nextInteractionStep {
-                  id
-                  script
+            textingHoursEnforced
+            organization {
+              id
+              textingHoursEnforced
+              textingHoursStart
+              textingHoursEnd
+              threeClickEnabled
+              optOutMessage
+            }
+            customFields
+            interactionSteps {
+              id
+              script
+              question {
+                text
+                answerOptions {
+                  value
+                  nextInteractionStep {
+                    id
+                    script
+                  }
                 }
               }
             }
           }
+          contacts(contactsFilter: $contactsFilter) {
+            id
+          }
+          allContactsCount: contactsCount
         }
-        contacts(contactsFilter: $contactsFilter) {
-          id
-        }
-        allContactsCount: contactsCount
       }
-    }`,
+    `,
     variables: {
       contactsFilter: {
         contactId: ownProps.params.contactId,
         messageStatus: ownProps.messageStatus,
         isOptedOut: false,
-        validTimezone: true
+        validTimezone: true,
       },
-      assignmentId: ownProps.params.assignmentId
+      assignmentId: ownProps.params.assignmentId,
     },
     forceFetch: true,
-    pollInterval: 20000
-  }
+    pollInterval: 20000,
+  },
 })
 
 const mapMutationsToProps = ({ ownProps }) => ({
-  findNewCampaignContact: (assignmentId) => ({
+  findNewCampaignContact: assignmentId => ({
     mutation: gql`
-      mutation findNewCampaignContact($assignmentId: String!, $numberContacts: Int!) {
-        findNewCampaignContact(assignmentId: $assignmentId, numberContacts: $numberContacts) {
+      mutation findNewCampaignContact(
+        $assignmentId: String!
+        $numberContacts: Int!
+      ) {
+        findNewCampaignContact(
+          assignmentId: $assignmentId
+          numberContacts: $numberContacts
+        ) {
           found
         }
       }
     `,
     variables: {
       assignmentId,
-      numberContacts: 10
-    }
+      numberContacts: 10,
+    },
   }),
   getAssignmentContacts: (contactIds, findNew) => ({
     mutation: gql`
@@ -235,9 +257,12 @@ const mapMutationsToProps = ({ ownProps }) => ({
       organizationId: ownProps.params.organizationId,
       assignmentId: ownProps.params.assignmentId,
       contactIds,
-      findNew: !!findNew
-    }
-  })
+      findNew: !!findNew,
+    },
+  }),
 })
 
-export default loadData(withRouter(TexterTodo), { mapQueriesToProps, mapMutationsToProps })
+export default loadData(withRouter(TexterTodo), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

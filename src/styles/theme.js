@@ -16,7 +16,7 @@ const colors = {
   lightGray: 'rgb(225, 228, 224)',
   white: 'rgb(255,255,255)',
   yellow: 'rgb(250,190,40)',
-  lightYellow: 'rgb(252, 214, 120)'
+  lightYellow: 'rgb(252, 214, 120)',
 }
 
 const defaultFont = 'Poppins'
@@ -25,7 +25,7 @@ const text = {
   body: {
     color: colors.darkGray,
     fontSize: 14,
-    fontFamily: defaultFont
+    fontFamily: defaultFont,
   },
   link_light_bg: {
     fontWeight: 400,
@@ -35,14 +35,14 @@ const text = {
     cursor: 'pointer',
     ':hover': {
       borderBottom: 0,
-      color: colors.orange
+      color: colors.orange,
     },
     'a:visited': {
       fontWeight: 400,
       color: colors.darkGray,
-      textDecoration: 'none'
+      textDecoration: 'none',
     },
-    fontFamily: defaultFont
+    fontFamily: defaultFont,
   },
   link_dark_bg: {
     fontWeight: 400,
@@ -52,39 +52,39 @@ const text = {
     cursor: 'pointer',
     ':hover': {
       borderBottom: 0,
-      color: colors.orange
+      color: colors.orange,
     },
     'a:visited': {
       fontWeight: 400,
       color: colors.veryLightGray,
-      textDecoration: 'none'
+      textDecoration: 'none',
     },
-    fontFamily: defaultFont
+    fontFamily: defaultFont,
   },
   header: {
     color: colors.darkGray,
     fontSize: '1.5em',
     fontWeight: 600,
-    fontFamily: defaultFont
+    fontFamily: defaultFont,
   },
   secondaryHeader: {
     color: colors.darkGray,
     fontSize: '1.25em',
-    fontFamily: defaultFont
-  }
+    fontFamily: defaultFont,
+  },
 }
 
 const layouts = {
   multiColumn: {
     container: {
       display: 'flex',
-      flexDirection: 'row'
+      flexDirection: 'row',
     },
     flexColumn: {
       display: 'flex',
       flex: 1,
-      flexDirection: 'column'
-    }
+      flexDirection: 'column',
+    },
   },
   greenBox: {
     marginTop: '5vh',
@@ -96,8 +96,8 @@ const layouts = {
     marginRight: 'auto',
     textAlign: 'center',
     backgroundColor: colors.green,
-    color: colors.white
-  }
+    color: colors.white,
+  },
 }
 
 const components = {
@@ -107,21 +107,20 @@ const components = {
     right: 20,
     bottom: 20,
     left: 'auto',
-    position: 'fixed'
+    position: 'fixed',
   },
   logoDiv: {
     margin: '50 auto',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
-  'logoImg': {
-  }
+  logoImg: {},
 }
 
 const theme = {
   colors,
   text,
   layouts,
-  components
+  components,
 }
 
 export default theme

@@ -35,7 +35,6 @@ import { AssignmentTexter } from '../../src/components/AssignmentTexter'
           * clearcontactidolddata(contactid)
 */
 
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -49,11 +48,11 @@ function genComponent(assignment, propertyOverrides = {}) {
       allContactsCount={assignment.allContactsCount}
       router={{ push: () => {} }}
       refreshData={() => {}}
-      loadContacts={(getIds) => {}}
+      loadContacts={getIds => {}}
       getNewContacts={() => {}}
-      assignContactsIfNeeded={
-         (checkServer, currentContactIndex) => Promise.resolve()
-       }
+      assignContactsIfNeeded={(checkServer, currentContactIndex) =>
+        Promise.resolve()
+      }
       organizationId={'123'}
       {...propertyOverrides}
     />
@@ -63,18 +62,23 @@ function genComponent(assignment, propertyOverrides = {}) {
 
 describe('AssignmentTexter process flows', async () => {
   it('Normal nondynamic assignment queue', async () => {
-    const assignment = genAssignment(false, true, /* contacts=*/ 6, 'needsMessage')
+    const assignment = genAssignment(
+      false,
+      true,
+      /* contacts=*/ 6,
+      'needsMessage'
+    )
     const createContact = contactGenerator(assignment.id, 'needsMessage')
     let calledAssignmentIfNeeded = false
     let component
     const wrapper = genComponent(assignment, {
-      loadContacts: (getIds) => {
+      loadContacts: getIds => {
         return { data: { getAssignmentContacts: getIds.map(createContact) } }
       },
       assignContactsIfNeeded: (checkServer, curContactIndex) => {
         calledAssignmentIfNeeded = true
         return Promise.resolve()
-      }
+      },
     })
     component = wrapper.instance()
     let contactsContacted = 0
@@ -120,4 +124,3 @@ TESTS:
       }
 *
 */
-

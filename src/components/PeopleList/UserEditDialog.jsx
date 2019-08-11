@@ -5,10 +5,10 @@ import Dialog from 'material-ui/Dialog'
 import UserEdit from '../../containers/UserEdit'
 import { dataTest } from '../../lib/attributes'
 
-const UserEditDialog = (props) => (
+const UserEditDialog = props => (
   <Dialog
     {...dataTest('editPersonDialog')}
-    title='Edit user'
+    title="Edit user"
     modal={false}
     open={props.open}
     onRequestClose={props.requestClose}
@@ -26,8 +26,7 @@ UserEditDialog.propTypes = {
   organizationId: PropTypes.string,
   userId: PropTypes.number,
   updateUser: PropTypes.func,
-  requestClose: PropTypes.func
+  requestClose: PropTypes.func,
 }
-
 
 export default UserEditDialog

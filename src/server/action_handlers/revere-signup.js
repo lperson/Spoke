@@ -15,12 +15,11 @@ const akAddPhoneUrl = process.env.AK_ADD_PHONE_URL
 const sqsUrl = process.env.REVERE_SQS_URL
 
 // The Help text for the user after selecting the action
-export const instructions = () => (
+export const instructions = () =>
   'This option triggers a new user request to Revere when selected.'
-)
 
 export async function available(organizationId) {
-  if ((organizationId && listId) && mobileApiKey) {
+  if (organizationId && listId && mobileApiKey) {
     return true
   }
   return false
@@ -41,53 +40,71 @@ const actionKitSignup = (cell, contact) => {
       suppress_subscribe: true,
       phone: [contactCell],
       phone_type: 'mobile',
-      source: 'spoke-signup'
+      source: 'spoke-signup',
     }
 
-    request.post({
-      url: akAddUserUrl,
-      headers: {
-        accept: 'application/json',
-        'content-type': 'application/json'
+    request.post(
+      {
+        url: akAddUserUrl,
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+        },
+        form: userData,
       },
-      form: userData
-    }, (errorResponse, httpResponse) => {
-      if (errorResponse) throw new Error(errorResponse)
-      if (httpResponse.statusCode === 201) {
-        request.post({
-          url: akAddPhoneUrl,
-          headers: {
-            accept: 'application/json',
-            'content-type': 'application/json'
-          },
-          form: {
-            user: httpResponse.headers.location,
-            phone: contactCell,
-            type: 'mobile'
-          }
-        }, (lastError, lastResponse) => {
-          if (lastError) throw new Error(lastError)
-          if (lastResponse.statusCode === 201) {
-            return
-          }
-        })
+      (errorResponse, httpResponse) => {
+        if (errorResponse) throw new Error(errorResponse)
+        if (httpResponse.statusCode === 201) {
+          request.post(
+            {
+              url: akAddPhoneUrl,
+              headers: {
+                accept: 'application/json',
+                'content-type': 'application/json',
+              },
+              form: {
+                user: httpResponse.headers.location,
+                phone: contactCell,
+                type: 'mobile',
+              },
+            },
+            (lastError, lastResponse) => {
+              if (lastError) throw new Error(lastError)
+              if (lastResponse.statusCode === 201) {
+                return
+              }
+            }
+          )
+        }
       }
-    })
+    )
   } else {
     console.log('No AK Post URLs Configured')
   }
 }
 
-export async function processAction(questionResponse, interactionStep, campaignContactId) {
-  const contactRes = await r.knex('campaign_contact')
-      .where('campaign_contact.id', campaignContactId)
-      .leftJoin('campaign', 'campaign_contact.campaign_id', 'campaign.id')
-      .leftJoin('organization', 'campaign.organization_id', 'organization.id')
-      .select('campaign_contact.cell', 'campaign_contact.first_name', 'campaign_contact.last_name', 'campaign_contact.custom_fields')
+export async function processAction(
+  questionResponse,
+  interactionStep,
+  campaignContactId
+) {
+  const contactRes = await r
+    .knex('campaign_contact')
+    .where('campaign_contact.id', campaignContactId)
+    .leftJoin('campaign', 'campaign_contact.campaign_id', 'campaign.id')
+    .leftJoin('organization', 'campaign.organization_id', 'organization.id')
+    .select(
+      'campaign_contact.cell',
+      'campaign_contact.first_name',
+      'campaign_contact.last_name',
+      'campaign_contact.custom_fields'
+    )
 
-  const contact = (contactRes.length ? contactRes[0] : {})
+  const contact = contactRes.length ? contactRes[0] : {}
   const customFields = JSON.parse(contact.custom_fields)
-  const mobileFlowId = (customFields.revere_signup_flow ? customFields.revere_signup_flow : defaultMobileFlowId)
+  const mobileFlowId = customFields.revere_signup_flow
+    ? customFields.revere_signup_flow
+    : defaultMobileFlowId
   const contactCell = contact.cell.substring(1)
 
   if (sqsUrl) {
@@ -95,13 +112,13 @@ export async function processAction(questionResponse, interactionStep, campaignC
       payload: {
         cell: `${contactCell}`,
         mobile_flow_id: `${mobileFlowId}`,
-        source: 'spoke'
-      }
+        source: 'spoke',
+      },
     }
 
     const sqsParams = {
       MessageBody: JSON.stringify(msg),
-      QueueUrl: sqsUrl
+      QueueUrl: sqsUrl,
     }
 
     sqs.sendMessage(sqsParams, (err, data) => {
@@ -117,13 +134,13 @@ export async function processAction(questionResponse, interactionStep, campaignC
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        Authorization: mobileApiKey
+        Authorization: mobileApiKey,
       },
       body: {
         msisdns: [`00${contactCell}`],
-        mobileFlow: `${mobileFlowId}`
+        mobileFlow: `${mobileFlowId}`,
       },
-      json: true
+      json: true,
     }
 
     return request(options, (error, response) => {

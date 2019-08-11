@@ -7,8 +7,8 @@ import { r } from '../../models'
 // * needs an order
 // * needs to get by campaignId-userId pairs
 
-
-const cacheKey = (campaignId, userId) => `${process.env.CACHE_PREFIX | ''}canned-${campaignId}-${userId | ''}`
+const cacheKey = (campaignId, userId) =>
+  `${process.env.CACHE_PREFIX | ''}canned-${campaignId}-${userId | ''}`
 
 export const cannedResponseCache = {
   clearQuery: async ({ campaignId, userId }) => {
@@ -23,22 +23,24 @@ export const cannedResponseCache = {
         return JSON.parse(cannedData)
       }
     }
-    const dbResult = await r.table('canned_response')
+    const dbResult = await r
+      .table('canned_response')
       .getAll(campaignId, { index: 'campaign_id' })
       .filter({ user_id: userId || '' })
       .orderBy('title')
     if (r.redis) {
-      const cacheData = dbResult.map((cannedRes) => ({
+      const cacheData = dbResult.map(cannedRes => ({
         id: cannedRes.id,
         title: cannedRes.title,
         text: cannedRes.text,
-        user_id: cannedRes.user_id
+        user_id: cannedRes.user_id,
       }))
-      await r.redis.multi()
+      await r.redis
+        .multi()
         .set(cacheKey(campaignId, userId), JSON.stringify(cacheData))
         .expire(cacheKey(campaignId, userId), 86400)
         .execAsync()
     }
     return dbResult
-  }
+  },
 }

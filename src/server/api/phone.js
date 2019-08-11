@@ -14,7 +14,10 @@ export const GraphQLPhone = new GraphQLScalarType({
   serialize: identity,
   parseLiteral(ast) {
     if (ast.kind !== Kind.STRING) {
-      throw new GraphQLError(`Query error: Can only parse strings got a: ${ast.kind}`, [ast])
+      throw new GraphQLError(
+        `Query error: Can only parse strings got a: ${ast.kind}`,
+        [ast]
+      )
     }
 
     if (!pattern.test(ast.value)) {
@@ -22,5 +25,5 @@ export const GraphQLPhone = new GraphQLScalarType({
     }
 
     return ast.value
-  }
+  },
 })

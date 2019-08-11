@@ -6,16 +6,16 @@ import ConversationLink from '../components/ConversationLink'
 import FlatButton from 'material-ui/FlatButton'
 import { dataTest } from '../lib/attributes'
 
-const ConversationLinkDialoag = (props) => (
+const ConversationLinkDialoag = props => (
   <Dialog
-    title='Link To This Conversation'
+    title="Link To This Conversation"
     actions={[
       <FlatButton
         {...dataTest('convoLinkOK')}
-        label='OK'
+        label="OK"
         primary
         onTouchTap={props.requestClose}
-      />
+      />,
     ]}
     modal={false}
     open={props.open}
@@ -34,8 +34,7 @@ ConversationLinkDialoag.propTypes = {
   requestClose: PropTypes.func,
   conversation: PropTypes.object,
   organizationId: PropTypes.string,
-  text: PropTypes.text
+  text: PropTypes.text,
 }
-
 
 export default ConversationLinkDialoag

@@ -12,7 +12,7 @@ for (let index = 0; index < numContacts; index++) {
     cell: `1-${faker.phone.phoneNumberFormat()}`,
     companyName: faker.company.companyName(),
     city: faker.address.city(),
-    zip: faker.address.zipCode()
+    zip: faker.address.zipCode(),
   })
 }
 

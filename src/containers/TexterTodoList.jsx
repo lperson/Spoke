@@ -17,20 +17,22 @@ class TexterTodoList extends React.Component {
     const organizationId = this.props.params.organizationId
     return assignments
       .sort((x, y) => {
-        const xToText = (x.unmessagedCount + x.unrepliedCount)
-        const yToText = (y.unmessagedCount + y.unrepliedCount)
+        const xToText = x.unmessagedCount + x.unrepliedCount
+        const yToText = y.unmessagedCount + y.unrepliedCount
         if (xToText === yToText) {
           return Number(y.id) - Number(x.id)
         }
-        return (xToText > yToText ? -1 : 1)
+        return xToText > yToText ? -1 : 1
       })
-      .map((assignment) => {
-        if (assignment.unmessagedCount > 0 ||
-            assignment.unrepliedCount > 0 ||
-            assignment.badTimezoneCount > 0 ||
-            assignment.campaign.useDynamicAssignment ||
-            assignment.pastMessagesCount > 0 ||
-            assignment.skippedMessagesCount > 0) {
+      .map(assignment => {
+        if (
+          assignment.unmessagedCount > 0 ||
+          assignment.unrepliedCount > 0 ||
+          assignment.badTimezoneCount > 0 ||
+          assignment.campaign.useDynamicAssignment ||
+          assignment.pastMessagesCount > 0 ||
+          assignment.skippedMessagesCount > 0
+        ) {
           return (
             <AssignmentSummary
               organizationId={organizationId}
@@ -46,7 +48,8 @@ class TexterTodoList extends React.Component {
           )
         }
         return null
-      }).filter((ele) => ele !== null)
+      })
+      .filter(ele => ele !== null)
   }
   componentDidMount() {
     this.props.data.refetch()
@@ -56,7 +59,8 @@ class TexterTodoList extends React.Component {
       this.setState({
         polling: setInterval(() => {
           self.props.data.refetch()
-        }, 5000) })
+        }, 5000),
+      })
     }
   }
 
@@ -79,91 +83,96 @@ class TexterTodoList extends React.Component {
     const todos = this.props.data.currentUser.todos
     const renderedTodos = this.renderTodoList(todos)
 
-    const empty = (
-      <Empty
-        title='You have nothing to do!'
-        icon={<Check />}
-      />
-    )
+    const empty = <Empty title="You have nothing to do!" icon={<Check />} />
 
-    return (
-      <div>
-        {renderedTodos.length === 0 ?
-          empty : renderedTodos
-        }
-      </div>
-    )
+    return <div>{renderedTodos.length === 0 ? empty : renderedTodos}</div>
   }
 }
 
 TexterTodoList.propTypes = {
   organizationId: PropTypes.string,
   params: PropTypes.object,
-  data: PropTypes.object
+  data: PropTypes.object,
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
   data: {
-    query: gql`query getTodos($organizationId: String!, $needsMessageFilter: ContactsFilter, $needsResponseFilter: ContactsFilter, $badTimezoneFilter: ContactsFilter, $completedConvosFilter: ContactsFilter, $pastMessagesFilter: ContactsFilter, $skippedMessagesFilter: ContactsFilter) {
-      currentUser {
-        id
-        terms
-        cacheable
-        todos(organizationId: $organizationId) {
+    query: gql`
+      query getTodos(
+        $organizationId: String!
+        $needsMessageFilter: ContactsFilter
+        $needsResponseFilter: ContactsFilter
+        $badTimezoneFilter: ContactsFilter
+        $completedConvosFilter: ContactsFilter
+        $pastMessagesFilter: ContactsFilter
+        $skippedMessagesFilter: ContactsFilter
+      ) {
+        currentUser {
           id
-          campaign {
+          terms
+          cacheable
+          todos(organizationId: $organizationId) {
             id
-            title
-            description
-            useDynamicAssignment
-            hasUnassignedContactsForTexter
-            introHtml
-            primaryColor
-            logoImageUrl
+            campaign {
+              id
+              title
+              description
+              useDynamicAssignment
+              hasUnassignedContactsForTexter
+              introHtml
+              primaryColor
+              logoImageUrl
+            }
+            maxContacts
+            unmessagedCount: contactsCount(contactsFilter: $needsMessageFilter)
+            unrepliedCount: contactsCount(contactsFilter: $needsResponseFilter)
+            badTimezoneCount: contactsCount(contactsFilter: $badTimezoneFilter)
+            totalMessagedCount: contactsCount(
+              contactsFilter: $completedConvosFilter
+            )
+            pastMessagesCount: contactsCount(
+              contactsFilter: $pastMessagesFilter
+            )
+            skippedMessagesCount: contactsCount(
+              contactsFilter: $skippedMessagesFilter
+            )
           }
-          maxContacts
-          unmessagedCount: contactsCount(contactsFilter: $needsMessageFilter)
-          unrepliedCount: contactsCount(contactsFilter: $needsResponseFilter)
-          badTimezoneCount: contactsCount(contactsFilter: $badTimezoneFilter)
-          totalMessagedCount: contactsCount(contactsFilter: $completedConvosFilter)
-          pastMessagesCount: contactsCount(contactsFilter: $pastMessagesFilter)
-          skippedMessagesCount: contactsCount(contactsFilter: $skippedMessagesFilter)
         }
       }
-    }`,
+    `,
     variables: {
       organizationId: ownProps.params.organizationId,
       needsMessageFilter: {
         messageStatus: 'needsMessage',
         isOptedOut: false,
-        validTimezone: true
+        validTimezone: true,
       },
       needsResponseFilter: {
         messageStatus: 'needsResponse',
         isOptedOut: false,
-        validTimezone: true
+        validTimezone: true,
       },
       badTimezoneFilter: {
         isOptedOut: false,
-        validTimezone: false
+        validTimezone: false,
       },
       completedConvosFilter: {
         isOptedOut: false,
         validTimezone: true,
-        messageStatus: 'messaged'
+        messageStatus: 'messaged',
       },
       pastMessagesFilter: {
         messageStatus: 'convo',
         isOptedOut: false,
-        validTimezone: true
+        validTimezone: true,
       },
       skippedMessagesFilter: {
         messageStatus: 'closed',
         isOptedOut: false,
-        validTimezone: true
-      }
-    }
-  }
+        validTimezone: true,
+      },
+    },
+  },
 })
 
 export default loadData(withRouter(TexterTodoList), { mapQueriesToProps })

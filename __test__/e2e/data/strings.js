@@ -3,12 +3,12 @@ import _ from 'lodash'
 
 // Common to all campaigns
 const contacts = {
-  csv: path.resolve(__dirname, './people.csv')
+  csv: path.resolve(__dirname, './people.csv'),
 }
 
 const texters = {
   contactLength: 2,
-  contactLengthAfterOptOut: 1
+  contactLengthAfterOptOut: 1,
 }
 
 const interaction = {
@@ -18,21 +18,21 @@ const interaction = {
     {
       answerOption: 'Test Answer 0',
       script: 'Test Answer 0 {firstName}.',
-      questionText: 'Test Child Question 0?'
+      questionText: 'Test Child Question 0?',
     },
     {
       answerOption: 'Test Answer 1',
       script: 'Test Answer 1 {lastName}.',
-      questionText: 'Test Child Question 1?'
-    }
-  ]
+      questionText: 'Test Child Question 1?',
+    },
+  ],
 }
 
 const cannedResponses = [
   {
     title: 'Test CR0',
-    script: 'Test CR First {firstName} Last {lastName}.'
-  }
+    script: 'Test CR First {firstName} Last {lastName}.',
+  },
 ]
 
 const standardReply = 'Test Reply'
@@ -49,7 +49,7 @@ const users = {
     password: 'SpokeAdmin0!',
     given_name: 'Adminzerofirst',
     family_name: 'Adminzerolast',
-    cell: '4145550000'
+    cell: '4145550000',
   },
   admin1: {
     name: 'admin1',
@@ -61,7 +61,7 @@ const users = {
     family_name: 'Adminonelast',
     family_name_changed: 'Adminonelastb',
     cell: '4145550001',
-    cell_changed: '6085550001'
+    cell_changed: '6085550001',
   },
   texter0: {
     name: 'texter0',
@@ -69,7 +69,7 @@ const users = {
     password: 'SpokeTexter0!',
     given_name: 'Texterzerofirst',
     family_name: 'Texterzerolast',
-    cell: '4146660000'
+    cell: '4146660000',
   },
   texter1: {
     name: 'texter1',
@@ -81,7 +81,7 @@ const users = {
     family_name: 'Texteronelast',
     family_name_changed: 'Texteronelastb',
     cell: '4146660001',
-    cell_changed: '6086660001'
+    cell_changed: '6086660001',
   },
   texter2: {
     name: 'texter2',
@@ -89,7 +89,7 @@ const users = {
     password: 'SpokeTexter2!',
     given_name: 'Textertwofirst',
     family_name: 'Textertwolast',
-    cell: '4146660002'
+    cell: '4146660002',
   },
   texter3: {
     name: 'texter3',
@@ -97,8 +97,8 @@ const users = {
     password: 'SpokeTexter3!',
     given_name: 'Texterthreefirst',
     family_name: 'Texterthreelast',
-    cell: '4146660003'
-  }
+    cell: '4146660003',
+  },
 }
 
 const campaigns = {
@@ -110,13 +110,13 @@ const campaigns = {
     existingTexter: false,
     basics: {
       title: 'Test NET Campaign Title',
-      description: 'Test NET Campaign Description'
+      description: 'Test NET Campaign Description',
     },
     contacts,
     texters,
     interaction,
     cannedResponses,
-    standardReply
+    standardReply,
   },
   existingTexter: {
     name: 'existingTexter',
@@ -126,13 +126,13 @@ const campaigns = {
     existingTexter: true,
     basics: {
       title: 'Test ET Campaign Title',
-      description: 'Test ET Campaign Description'
+      description: 'Test ET Campaign Description',
     },
     contacts,
     texters,
     interaction,
     cannedResponses,
-    standardReply
+    standardReply,
   },
   noExistingTexterOptOut: {
     name: 'noExistingTexterOptOut',
@@ -142,13 +142,15 @@ const campaigns = {
     existingTexter: false,
     basics: {
       title: 'Test NETOO Campaign Title',
-      description: 'Test NETOO Campaign Description'
+      description: 'Test NETOO Campaign Description',
     },
     contacts,
-    texters: _.assign({}, texters, { contactLength: texters.contactLengthAfterOptOut }),
+    texters: _.assign({}, texters, {
+      contactLength: texters.contactLengthAfterOptOut,
+    }),
     interaction,
     cannedResponses,
-    standardReply
+    standardReply,
   },
   existingTexterOptOut: {
     name: 'existingTexterOptOut',
@@ -158,13 +160,15 @@ const campaigns = {
     existingTexter: true,
     basics: {
       title: 'Test ETOO Campaign Title',
-      description: 'Test ETOO Campaign Description'
+      description: 'Test ETOO Campaign Description',
     },
     contacts,
-    texters: _.assign({}, texters, { contactLength: texters.contactLengthAfterOptOut }),
+    texters: _.assign({}, texters, {
+      contactLength: texters.contactLengthAfterOptOut,
+    }),
     interaction,
     cannedResponses,
-    standardReply
+    standardReply,
   },
   copyCampaign: {
     name: 'copyCampaign',
@@ -175,12 +179,12 @@ const campaigns = {
     basics: {
       title: 'Test C Campaign Title',
       title_copied: 'COPY - Test C Campaign Title',
-      description: 'Test C Campaign Description'
+      description: 'Test C Campaign Description',
     },
     contacts,
     texters,
     interaction,
-    cannedResponses
+    cannedResponses,
   },
   editCampaign: {
     name: 'editCampaign',
@@ -190,22 +194,22 @@ const campaigns = {
     basics: {
       title: 'Test E Campaign Title',
       title_changed: 'Test E Campaign Title Changed',
-      description: 'Test E Campaign Description'
+      description: 'Test E Campaign Description',
     },
     contacts,
     texters,
     interaction,
-    cannedResponses
+    cannedResponses,
   },
   userManagement: {
     name: 'userManagement',
     admin: users.admin1,
-    texter: users.texter1
-  }
+    texter: users.texter1,
+  },
 }
 
 export default {
   campaigns,
   org,
-  users
+  users,
 }

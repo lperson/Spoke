@@ -7,8 +7,8 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     marginLeft: 'auto',
     marginTop: 50,
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 })
 
 export default () => (

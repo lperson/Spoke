@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   fieldContainer: {
     background: theme.colors.white,
     padding: '15px',
-    width: '256px'
+    width: '256px',
   },
   loginPage: {
     display: 'flex',
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     'align-items': 'flex-start',
     height: '100vh',
     'padding-top': '10vh',
-    background: theme.colors.veryLightGray
+    background: theme.colors.veryLightGray,
   },
   button: {
     border: 'none',
@@ -35,22 +35,22 @@ const styles = StyleSheet.create({
     ':disabled': {
       background: theme.colors.white,
       cursor: 'default',
-      color: theme.colors.green
-    }
+      color: theme.colors.green,
+    },
   },
   header: {
     ...theme.text.header,
     color: theme.colors.green,
     'text-align': 'center',
-    'margin-bottom': 0
-  }
+    'margin-bottom': 0,
+  },
 })
 
 class Login extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      active: 'login'
+      active: 'login',
     }
   }
 
@@ -58,7 +58,10 @@ class Login extends React.Component {
     if (!this.naiveVerifyInviteValid(this.props.location.query.nextUrl)) {
       this.props.router.replace('/login')
     }
-    if (this.props.location.query.nextUrl && this.props.location.query.nextUrl.includes('reset')) {
+    if (
+      this.props.location.query.nextUrl &&
+      this.props.location.query.nextUrl.includes('reset')
+    ) {
       this.setState({ active: 'reset' })
     }
   }
@@ -67,25 +70,25 @@ class Login extends React.Component {
     this.setState({ active: e.target.name })
   }
 
-  naiveVerifyInviteValid = nextUrl => (
+  naiveVerifyInviteValid = nextUrl =>
     /\/\w{8}-(\w{4}\-){3}\w{12}(\/|$)/.test(nextUrl)
-  )
 
   render() {
     const auth0Strategy =
-      window.PASSPORT_STRATEGY === 'auth0' ||
-      window.PASSPORT_STRATEGY === ''
+      window.PASSPORT_STRATEGY === 'auth0' || window.PASSPORT_STRATEGY === ''
     const auth0Login = isClient() && auth0Strategy
 
-    const { location: { query: { nextUrl } }, router
+    const {
+      location: {
+        query: { nextUrl },
+      },
+      router,
     } = this.props
 
     // If nextUrl is a valid (naive RegEx only) invite or organization
     // UUID display Sign Up section. Full validation done on backend.
-    const inviteLink = nextUrl && (
-      nextUrl.includes('join') ||
-      nextUrl.includes('invite')
-    )
+    const inviteLink =
+      nextUrl && (nextUrl.includes('join') || nextUrl.includes('invite'))
     let displaySignUp
     if (inviteLink) {
       displaySignUp = this.naiveVerifyInviteValid(nextUrl)
@@ -94,7 +97,7 @@ class Login extends React.Component {
     const saveLabels = {
       login: 'Log In',
       signup: 'Sign Up',
-      reset: 'Save New Password'
+      reset: 'Save New Password',
     }
 
     return (
@@ -103,15 +106,15 @@ class Login extends React.Component {
         {auth0Login && window.AuthService.login(nextUrl)}
 
         {/* Show UserEdit component configured for login / signup */}
-        {window.PASSPORT_STRATEGY === 'local' &&
+        {window.PASSPORT_STRATEGY === 'local' && (
           <div>
             {/* Only display sign up option if there is a nextUrl */}
-            {displaySignUp &&
+            {displaySignUp && (
               <section>
                 <button
                   className={css(styles.button)}
-                  type='button'
-                  name='login'
+                  type="button"
+                  name="login"
                   onClick={this.handleClick}
                   disabled={this.state.active === 'login'}
                 >
@@ -119,15 +122,15 @@ class Login extends React.Component {
                 </button>
                 <button
                   className={css(styles.button)}
-                  type='button'
-                  name='signup'
+                  type="button"
+                  name="signup"
                   onClick={this.handleClick}
                   disabled={this.state.active === 'signup'}
                 >
                   Sign Up
                 </button>
-              </section >
-            }
+              </section>
+            )}
             <div className={css(styles.fieldContainer)}>
               <h2 className={css(styles.header)}>Welcome to Spoke</h2>
               <UserEdit
@@ -139,15 +142,15 @@ class Login extends React.Component {
               />
             </div>
           </div>
-        }
-      </div >
+        )}
+      </div>
     )
   }
 }
 
 Login.propTypes = {
   location: PropTypes.object,
-  router: PropTypes.object
+  router: PropTypes.object,
 }
 
 export default withRouter(Login)

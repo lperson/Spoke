@@ -17,48 +17,48 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.red,
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
-
+    alignItems: 'center',
   },
   text: {
     marginLeft: '10px',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   strikeout: {
-    textDecoration: 'line-through'
+    textDecoration: 'line-through',
   },
   when: {
-    fontSize: theme.text.body.fontSize - 2
-  }
+    fontSize: theme.text.body.fontSize - 2,
+  },
 })
 
-const Tag = (props) =>
+const Tag = props => (
   <p key={props.index} className={css(styles.conversationRow)}>
-    <Avatar
-      backgroundColor={theme.colors.red}
-    >
-      <FlagIcon
-        color='white'
-      />
+    <Avatar backgroundColor={theme.colors.red}>
+      <FlagIcon color="white" />
     </Avatar>
     <div className={css(styles.text)}>
       <span className={css(props.tag.resolvedAt && styles.strikeout)}>
         {props.tag.tag}
       </span>
       <span className={css(styles.when)}>
-        {moment(props.tag.createdAt).fromNow()} -- {props.tag.createdBy.displayName}
+        {moment(props.tag.createdAt).fromNow()} --{' '}
+        {props.tag.createdBy.displayName}
       </span>
-      {props.tag.resolvedAt && <span className={css(styles.when)}>
-        {' RESOLVED '}{moment(props.tag.createdAt).fromNow()} -- {props.tag.createdBy.displayName}
-      </span>
-      }
+      {props.tag.resolvedAt && (
+        <span className={css(styles.when)}>
+          {' RESOLVED '}
+          {moment(props.tag.createdAt).fromNow()} --{' '}
+          {props.tag.createdBy.displayName}
+        </span>
+      )}
     </div>
   </p>
+)
 
 Tag.propTypes = {
   tag: PropTypes.object,
-  index: PropTypes.number
+  index: PropTypes.number,
 }
 
 export default Tag

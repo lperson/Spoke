@@ -7,20 +7,19 @@ import ScriptList from './ScriptList'
 const styles = {
   popover: {
     width: '75%',
-    overflowY: 'scroll'
-  }
+    overflowY: 'scroll',
+  },
 }
-
 
 class CannedResponseMenu extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      popoverOpen: false
+      popoverOpen: false,
     }
   }
 
-  handleSelectCannedResponse = (cannedResponse) => {
+  handleSelectCannedResponse = cannedResponse => {
     const { onSelectCannedResponse, onRequestClose } = this.props
     onSelectCannedResponse(cannedResponse.text)
     onRequestClose()
@@ -44,7 +43,13 @@ class CannedResponseMenu extends React.Component {
   }
 
   render() {
-    const { userCannedResponses, campaignCannedResponses, open, onRequestClose, anchorEl } = this.props
+    const {
+      userCannedResponses,
+      campaignCannedResponses,
+      open,
+      onRequestClose,
+      anchorEl,
+    } = this.props
 
     return (
       <div>
@@ -57,12 +62,20 @@ class CannedResponseMenu extends React.Component {
           onRequestClose={onRequestClose}
           style={{
             overflowY: 'scroll',
-            width: '75%'
+            width: '75%',
           }}
         >
           <List>
-            {this.renderCannedResponses({ scripts: campaignCannedResponses, subheader: 'Suggested', showAddScriptButton: false })}
-            {this.renderCannedResponses({ scripts: userCannedResponses, subheader: 'Personal', showAddScriptButton: true })}
+            {this.renderCannedResponses({
+              scripts: campaignCannedResponses,
+              subheader: 'Suggested',
+              showAddScriptButton: false,
+            })}
+            {this.renderCannedResponses({
+              scripts: userCannedResponses,
+              subheader: 'Personal',
+              showAddScriptButton: true,
+            })}
           </List>
         </Popover>
       </div>
@@ -80,7 +93,7 @@ CannedResponseMenu.propTypes = {
   open: type.bool,
   anchorEl: type.object,
   campaignId: type.number,
-  campaignCannedResponses: type.array
+  campaignCannedResponses: type.array,
 }
 
 export default CannedResponseMenu

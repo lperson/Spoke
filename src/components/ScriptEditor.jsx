@@ -5,7 +5,7 @@ import {
   ContentState,
   CompositeDecorator,
   Editor,
-  Modifier
+  Modifier,
 } from 'draft-js'
 import { delimit } from '../lib/scripts'
 import Chip from './Chip'
@@ -16,19 +16,19 @@ const styles = {
     border: '1px solid #ddd',
     cursor: 'text',
     fontSize: 16,
-    padding: 5
+    padding: 5,
   },
   button: {
     marginTop: 10,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   goodField: {
     color: green500,
     direction: 'ltr',
-    unicodeBidi: 'bidi-override'
+    unicodeBidi: 'bidi-override',
   },
   badField: {
-    color: red400
+    color: red400,
   },
   scriptFieldButton: {
     fontSize: '11px',
@@ -36,13 +36,13 @@ const styles = {
     textTransform: 'none',
     backgroundColor: grey100,
     // margin: '5px 10px',
-    cursor: 'pointer'
+    cursor: 'pointer',
     // display: 'inline-block',
   },
   scriptFieldButtonSection: {
     marginTop: 10,
-    padding: 5
-  }
+    padding: 5,
+  },
 }
 
 function findWithRegex(regex, contentBlock, callback) {
@@ -56,21 +56,24 @@ function findWithRegex(regex, contentBlock, callback) {
   }
 }
 
-
-const RecognizedField = (props) => (
-  <span {...props} style={styles.goodField}>{props.children}</span>
+const RecognizedField = props => (
+  <span {...props} style={styles.goodField}>
+    {props.children}
+  </span>
 )
 
 RecognizedField.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element)
+  children: PropTypes.arrayOf(PropTypes.element),
 }
 
-const UnrecognizedField = (props) => (
-  <span {...props} style={styles.badField}>{props.children}</span>
+const UnrecognizedField = props => (
+  <span {...props} style={styles.badField}>
+    {props.children}
+  </span>
 )
 
 UnrecognizedField.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element)
+  children: PropTypes.arrayOf(PropTypes.element),
 }
 
 class ScriptEditor extends React.Component {
@@ -79,7 +82,7 @@ class ScriptEditor extends React.Component {
 
     const editorState = this.getEditorState()
     this.state = {
-      editorState
+      editorState,
     }
 
     this.focus = () => this.refs.editor.focus()
@@ -111,7 +114,10 @@ class ScriptEditor extends React.Component {
     const decorator = this.getCompositeDecorator(scriptFields)
     let editorState
     if (scriptText) {
-      editorState = EditorState.createWithContent(ContentState.createFromText(scriptText), decorator)
+      editorState = EditorState.createWithContent(
+        ContentState.createFromText(scriptText),
+        decorator
+      )
     } else {
       editorState = EditorState.createEmpty(decorator)
     }
@@ -130,17 +136,18 @@ class ScriptEditor extends React.Component {
       return findWithRegex(regex, contentBlock, callback)
     }
 
-    const unrecognizedFieldStrategy = (contentBlock, callback) => findWithRegex(/\{[^{]*\}/g, contentBlock, callback)
+    const unrecognizedFieldStrategy = (contentBlock, callback) =>
+      findWithRegex(/\{[^{]*\}/g, contentBlock, callback)
 
     return new CompositeDecorator([
       {
         strategy: recognizedFieldStrategy,
-        component: RecognizedField
+        component: RecognizedField,
       },
       {
         strategy: unrecognizedFieldStrategy,
-        component: UnrecognizedField
-      }
+        component: UnrecognizedField,
+      },
     ])
   }
 
@@ -149,8 +156,16 @@ class ScriptEditor extends React.Component {
     const { editorState } = this.state
     const selection = editorState.getSelection()
     const contentState = editorState.getCurrentContent()
-    const newContentState = Modifier.insertText(contentState, selection, textToInsert)
-    const newEditorState = EditorState.push(editorState, newContentState, 'insert-fragment')
+    const newContentState = Modifier.insertText(
+      contentState,
+      selection,
+      textToInsert
+    )
+    const newEditorState = EditorState.push(
+      editorState,
+      newContentState,
+      'insert-fragment'
+    )
     this.setState({ editorState: newEditorState }, this.focus)
   }
 
@@ -158,7 +173,7 @@ class ScriptEditor extends React.Component {
     const { scriptFields } = this.props
     return (
       <div style={styles.scriptFieldButtonSection}>
-        {scriptFields.map((field) => (
+        {scriptFields.map(field => (
           <Chip
             style={styles.scriptFieldButton}
             text={delimit(field)}
@@ -179,7 +194,7 @@ class ScriptEditor extends React.Component {
             name={name}
             editorState={this.state.editorState}
             onChange={this.onChange}
-            ref='editor'
+            ref="editor"
             spellCheck
           />
         </div>
@@ -193,7 +208,7 @@ ScriptEditor.propTypes = {
   scriptFields: PropTypes.array,
   scriptText: PropTypes.string,
   onChange: PropTypes.func,
-  name: PropTypes.string
+  name: PropTypes.string,
 }
 
 export default ScriptEditor

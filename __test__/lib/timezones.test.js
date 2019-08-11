@@ -1,6 +1,6 @@
 import moment from 'moment-timezone'
 
-const MockDate = require('mockdate');
+const MockDate = require('mockdate')
 
 import {
   convertOffsetsToStrings,
@@ -11,7 +11,7 @@ import {
   getContactTimezone,
   getUtcFromOffsetAndHour,
   getUtcFromTimezoneAndHour,
-  getSendBeforeTimeUtc
+  getSendBeforeTimeUtc,
 } from '../../src/lib/index'
 
 import { getProcessEnvDstReferenceTimezone } from '../../src/lib/tz-helpers'
@@ -26,7 +26,7 @@ const makeCampignTextingHoursConfig = (
     textingHoursEnforced,
     textingHoursStart,
     textingHoursEnd,
-    timezone
+    timezone,
   }
 }
 
@@ -57,7 +57,7 @@ const makeConfig = (
     textingHoursStart,
     textingHoursEnd,
     textingHoursEnforced,
-    campaignTextingHours
+    campaignTextingHours,
   }
 }
 
@@ -65,16 +65,46 @@ const makeLocationWithOnlyTimezoneData = (offset, hasDst) => {
   return { timezone: { offset, hasDst } }
 }
 
-const buildIsBetweenTextingHoursExpectForSpecifiedTimezone = (offsetData, start, end, timezone) => {
-  return expect(isBetweenTextingHours(offsetData, makeConfig(0, 0, false, makeCampignTextingHoursConfig(true, start, end, timezone ))))
+const buildIsBetweenTextingHoursExpectForSpecifiedTimezone = (
+  offsetData,
+  start,
+  end,
+  timezone
+) => {
+  return expect(
+    isBetweenTextingHours(
+      offsetData,
+      makeConfig(
+        0,
+        0,
+        false,
+        makeCampignTextingHoursConfig(true, start, end, timezone)
+      )
+    )
+  )
 }
 
 const buildIsBetweenTextingHoursExpect = (offsetData, start, end) => {
-  return buildIsBetweenTextingHoursExpectForSpecifiedTimezone(offsetData, start, end, 'America/Los_Angeles')
+  return buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+    offsetData,
+    start,
+    end,
+    'America/Los_Angeles'
+  )
 }
 
 const buildIsBetweenTextingHoursExpectWithNoOffset = (start, end) => {
-  return expect(isBetweenTextingHours(null, makeConfig(0, 0, false, makeCampignTextingHoursConfig(true, start, end, 'America/New_York' ))))
+  return expect(
+    isBetweenTextingHours(
+      null,
+      makeConfig(
+        0,
+        0,
+        false,
+        makeCampignTextingHoursConfig(true, start, end, 'America/New_York')
+      )
+    )
+  )
 }
 
 jest.unmock('../../src/lib/timezones')
@@ -92,7 +122,9 @@ describe('test getLocalTime winter (standard time)', () => {
   it('returns correct local time UTC-5 standard time', () => {
     let localTime = getLocalTime(-5, true, getProcessEnvDstReferenceTimezone())
     expect(localTime.hours()).toEqual(10)
-    expect(new Date(localTime)).toEqual(new Date('2018-02-01T10:00:00.000-05:00'))
+    expect(new Date(localTime)).toEqual(
+      new Date('2018-02-01T10:00:00.000-05:00')
+    )
   })
 })
 
@@ -108,7 +140,9 @@ describe('test getLocalTime summer (DST)', () => {
   it('returns correct local time UTC-5 DST', () => {
     let localTime = getLocalTime(-5, true, getProcessEnvDstReferenceTimezone())
     expect(localTime.hours()).toEqual(11)
-    expect(new Date(localTime)).toEqual(new Date('2018-07-21T10:00:00.000-05:00'))
+    expect(new Date(localTime)).toEqual(
+      new Date('2018-07-21T10:00:00.000-05:00')
+    )
   })
 })
 
@@ -120,7 +154,7 @@ describe('testing isBetweenTextingHours with env.TZ set', () => {
   })
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    jest.restoreAllMocks()
     MockDate.reset()
   })
 
@@ -129,18 +163,26 @@ describe('testing isBetweenTextingHours with env.TZ set', () => {
   })
 
   it('returns true if texting hours are not enforced and there are campaign texting hours with !textingHoursEnforced', () => {
-    expect(isBetweenTextingHours(null, makeConfig(1, 1, false, makeCampignTextingHoursConfig(false, 0, 0, 'not_used')))).toBeTruthy()
+    expect(
+      isBetweenTextingHours(
+        null,
+        makeConfig(
+          1,
+          1,
+          false,
+          makeCampignTextingHoursConfig(false, 0, 0, 'not_used')
+        )
+      )
+    ).toBeTruthy()
   })
 
   it('returns false if texting hours are 05-07 and time is 12:00', () => {
-      expect(isBetweenTextingHours(null, makeConfig(5, 7, true))).toBeFalsy()
-    }
-  )
+    expect(isBetweenTextingHours(null, makeConfig(5, 7, true))).toBeFalsy()
+  })
 
   it('returns false if texting hours are 14-21 and time is 12:00', () => {
-      expect(isBetweenTextingHours(null, makeConfig(14, 21, true))).toBeFalsy()
-    }
-  )
+    expect(isBetweenTextingHours(null, makeConfig(14, 21, true))).toBeFalsy()
+  })
 
   it('returns true if texting hours are 10-21 and time is 12:00', () => {
     expect(isBetweenTextingHours(null, makeConfig(10, 21, true))).toBeTruthy()
@@ -160,39 +202,119 @@ describe('isBetweenTextingHours with campaign overrides works with DST', () => {
     MockDate.reset()
   })
 
-  const easternOffsetData = {offset: -5, hasDST: true}
-  const arizonaOffsetData = {offset: -7, hasDST: true}
+  const easternOffsetData = { offset: -5, hasDST: true }
+  const arizonaOffsetData = { offset: -7, hasDST: true }
 
   it('works for NYC in January', () => {
     MockDate.set('2018-01-01T15:00:00.000-05:00')
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 14, 18, 'US/Eastern').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 15, 18, 'US/Eastern').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 16, 18, 'US/Eastern').toBeFalsy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 17, 18, 'US/Eastern').toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      14,
+      18,
+      'US/Eastern'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      15,
+      18,
+      'US/Eastern'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      16,
+      18,
+      'US/Eastern'
+    ).toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      17,
+      18,
+      'US/Eastern'
+    ).toBeFalsy()
   })
 
   it('works for NYC in July', () => {
     MockDate.set('2018-06-01T15:00:00.000-05:00')
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 14, 18, 'US/Eastern').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 15, 18, 'US/Eastern').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 16, 18, 'US/Eastern').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(easternOffsetData, 17, 18, 'US/Eastern').toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      14,
+      18,
+      'US/Eastern'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      15,
+      18,
+      'US/Eastern'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      16,
+      18,
+      'US/Eastern'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      easternOffsetData,
+      17,
+      18,
+      'US/Eastern'
+    ).toBeFalsy()
   })
 
   it('works for Arizona in January', () => {
     MockDate.set('2018-01-01T15:00:00.000-07:00')
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 14, 18, 'US/Arizona').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 15, 18, 'US/Arizona').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 16, 18, 'US/Arizona').toBeFalsy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 17, 18, 'US/Arizona').toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      14,
+      18,
+      'US/Arizona'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      15,
+      18,
+      'US/Arizona'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      16,
+      18,
+      'US/Arizona'
+    ).toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      17,
+      18,
+      'US/Arizona'
+    ).toBeFalsy()
   })
 
   it('works for Arizona in July', () => {
     MockDate.set('2018-06-01T15:00:00.000-07:00')
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 14, 18, 'US/Arizona').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 15, 18, 'US/Arizona').toBeTruthy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 16, 18, 'US/Arizona').toBeFalsy()
-    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(arizonaOffsetData, 17, 18, 'US/Arizona').toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      14,
+      18,
+      'US/Arizona'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      15,
+      18,
+      'US/Arizona'
+    ).toBeTruthy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      16,
+      18,
+      'US/Arizona'
+    ).toBeFalsy()
+    buildIsBetweenTextingHoursExpectForSpecifiedTimezone(
+      arizonaOffsetData,
+      17,
+      18,
+      'US/Arizona'
+    ).toBeFalsy()
   })
 })
 
@@ -205,28 +327,26 @@ describe('test isBetweenTextingHours with campaign overrides', () => {
     MockDate.reset()
   })
 
-  const offsetData = {offset: -8, hasDST: true}
+  const offsetData = { offset: -8, hasDST: true }
 
   it('returns false if texting hours are 05-07 and time is 12:00', () => {
-      buildIsBetweenTextingHoursExpect(offsetData, 5, 7).toBeFalsy()
-    }
-  )
+    buildIsBetweenTextingHoursExpect(offsetData, 5, 7).toBeFalsy()
+  })
 
   it('returns false if texting hours are 14-21 and time is 12:00', () => {
-      buildIsBetweenTextingHoursExpect(offsetData, 14, 21).toBeFalsy()
-    }
-  )
+    buildIsBetweenTextingHoursExpect(offsetData, 14, 21).toBeFalsy()
+  })
 
   it('returns true if texting hours are 10-21 and time is 12:00', () => {
-    buildIsBetweenTextingHoursExpect(offsetData,10, 21).toBeTruthy()
+    buildIsBetweenTextingHoursExpect(offsetData, 10, 21).toBeTruthy()
   })
 
   it('returns true if texting hours are 12-21 and time is 12:00', () => {
-    buildIsBetweenTextingHoursExpect(offsetData,12, 21).toBeTruthy()
+    buildIsBetweenTextingHoursExpect(offsetData, 12, 21).toBeTruthy()
   })
 
   it('returns false if texting hours are 10-12 and time is 12:00', () => {
-    buildIsBetweenTextingHoursExpect(offsetData,10, 12).toBeFalsy()
+    buildIsBetweenTextingHoursExpect(offsetData, 10, 12).toBeFalsy()
   })
 
   it('returns false if texting hours are 16-21 and time is 3pm NY and offset data is not provided', () => {
@@ -239,196 +359,220 @@ describe('test isBetweenTextingHours with campaign overrides', () => {
 })
 
 describe('test isBetweenTextingHours with offset data supplied', () => {
-    var offsetData = {offset: -8, hasDST: true}
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      jest.doMock('../../src/lib/tz-helpers')
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-      MockDate.set('2018-02-01T12:00:00.000-08:00')
-    })
+  var offsetData = { offset: -8, hasDST: true }
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    jest.doMock('../../src/lib/tz-helpers')
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+    MockDate.set('2018-02-01T12:00:00.000-08:00')
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-      MockDate.reset()
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+    MockDate.reset()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are 05-07 and time is 12:00', () => {
-        expect(isBetweenTextingHours(offsetData, makeConfig(5, 7, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are 05-07 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(5, 7, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if texting hours are 14-21 and time is 12:00', () => {
-        expect(isBetweenTextingHours(offsetData, makeConfig(14, 21, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are 14-21 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(14, 21, true))
+    ).toBeFalsy()
+  })
 
-    it('returns true if texting hours are 10-21 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(10, 21, true))).toBeTruthy()
-    })
+  it('returns true if texting hours are 10-21 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(10, 21, true))
+    ).toBeTruthy()
+  })
 
-    it('returns true if texting hours are 12-21 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(12, 21, true))).toBeTruthy()
-    })
+  it('returns true if texting hours are 12-21 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(12, 21, true))
+    ).toBeTruthy()
+  })
 
-    it('returns true if texting hours are 10-12 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(10, 12, true))).toBeFalsy()
-    })
+  it('returns true if texting hours are 10-12 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(10, 12, true))
+    ).toBeFalsy()
+  })
 
-    it('returns true if texting hours are 10-11 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(10, 13, true))).toBeTruthy()
-    })
-  }
-)
+  it('returns true if texting hours are 10-11 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(10, 13, true))
+    ).toBeTruthy()
+  })
+})
 
 describe('test isBetweenTextingHours with offset data empty', () => {
-    var offsetData = {offset: null, hasDST: null}
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-    })
+  var offsetData = { offset: null, hasDST: null }
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+  })
 
-    afterEach(() => {
-      MockDate.reset()
-    })
+  afterEach(() => {
+    MockDate.reset()
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
-        MockDate.set('2018-02-01T12:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
+    MockDate.set('2018-02-01T12:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
-        MockDate.set('2018-02-01T11:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
+    MockDate.set('2018-02-01T11:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
-        MockDate.set('2018-02-01T20:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
+    MockDate.set('2018-02-01T20:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
-        MockDate.set('2018-02-01T21:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
-  }
-)
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
+    MockDate.set('2018-02-01T21:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
+})
 
 describe('test isBetweenTextingHours with offset data NOT supplied', () => {
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-    })
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+  })
 
-    afterEach(() => {
-      MockDate.reset()
-    })
+  afterEach(() => {
+    MockDate.reset()
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(isBetweenTextingHours(null, makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
-        MockDate.set('2018-02-01T12:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
+    MockDate.set('2018-02-01T12:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
-        MockDate.set('2018-02-01T11:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
+    MockDate.set('2018-02-01T11:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
-        MockDate.set('2018-02-01T20:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
+    MockDate.set('2018-02-01T20:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
-        MockDate.set('2018-02-01T21:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
-  }
-)
-
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
+    MockDate.set('2018-02-01T21:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
+})
 
 describe('test defaultTimezoneIsBetweenTextingHours', () => {
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-      jest.doMock('../../src/lib/tz-helpers')
-    })
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+    jest.doMock('../../src/lib/tz-helpers')
+  })
 
-    afterEach(() => {
-      MockDate.reset()
-    })
+  afterEach(() => {
+    MockDate.reset()
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if time is 12:00 EST', () => {
-        MockDate.set('2018-02-01T12:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if time is 12:00 EST', () => {
+    MockDate.set('2018-02-01T12:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if time is 11:00 EST', () => {
-        MockDate.set('2018-02-01T11:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
+  it('returns false if time is 11:00 EST', () => {
+    MockDate.set('2018-02-01T11:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if time is 20:00 EST', () => {
-        MockDate.set('2018-02-01T20:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if time is 20:00 EST', () => {
+    MockDate.set('2018-02-01T20:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if time is 21:00 EST', () => {
-        MockDate.set('2018-02-01T21:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
-  }
-)
+  it('returns false if time is 21:00 EST', () => {
+    MockDate.set('2018-02-01T21:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
+})
 
 describe('test convertOffsetsToStrings', () => {
   it('works', () => {
-      let test_offsets = [[1, true], [2, false], [-1, true]]
-      let strings_returned = convertOffsetsToStrings(test_offsets)
-      expect(strings_returned).toHaveLength(3)
-      expect(strings_returned[0]).toBe('1_1')
-      expect(strings_returned[1]).toBe('2_0')
-      expect(strings_returned[2]).toBe('-1_1')
-    }
-  )
+    let test_offsets = [[1, true], [2, false], [-1, true]]
+    let strings_returned = convertOffsetsToStrings(test_offsets)
+    expect(strings_returned).toHaveLength(3)
+    expect(strings_returned[0]).toBe('1_1')
+    expect(strings_returned[1]).toBe('2_0')
+    expect(strings_returned[2]).toBe('-1_1')
+  })
 })
 
 describe('test getOffsets', () => {
@@ -527,204 +671,227 @@ describe('test getContactTimezone', () => {
     ).toEqual({
       timezone: {
         offset: -5,
-        hasDST: true
-      }
+        hasDST: true,
+      },
     })
   })
-
 })
 
 describe('test isBetweenTextingHours with offset data supplied', () => {
-    var offsetData = {offset: -8, hasDST: true}
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      jest.doMock('../../src/lib/tz-helpers')
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-      MockDate.set('2018-02-01T12:00:00.000-08:00')
-    })
+  var offsetData = { offset: -8, hasDST: true }
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    jest.doMock('../../src/lib/tz-helpers')
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+    MockDate.set('2018-02-01T12:00:00.000-08:00')
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-      MockDate.reset()
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+    MockDate.reset()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are 05-07 and time is 12:00', () => {
-        expect(isBetweenTextingHours(offsetData, makeConfig(5, 7, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are 05-07 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(5, 7, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if texting hours are 14-21 and time is 12:00', () => {
-        expect(isBetweenTextingHours(offsetData, makeConfig(14, 21, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are 14-21 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(14, 21, true))
+    ).toBeFalsy()
+  })
 
-    it('returns true if texting hours are 10-21 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(10, 21, true))).toBeTruthy()
-    })
+  it('returns true if texting hours are 10-21 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(10, 21, true))
+    ).toBeTruthy()
+  })
 
-    it('returns true if texting hours are 12-21 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(12, 21, true))).toBeTruthy()
-    })
+  it('returns true if texting hours are 12-21 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(12, 21, true))
+    ).toBeTruthy()
+  })
 
-    it('returns true if texting hours are 10-12 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(10, 12, true))).toBeFalsy()
-    })
+  it('returns true if texting hours are 10-12 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(10, 12, true))
+    ).toBeFalsy()
+  })
 
-    it('returns true if texting hours are 10-11 and time is 12:00', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(10, 13, true))).toBeTruthy()
-    })
-  }
-)
+  it('returns true if texting hours are 10-11 and time is 12:00', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(10, 13, true))
+    ).toBeTruthy()
+  })
+})
 
 describe('test isBetweenTextingHours with offset data empty', () => {
-    var offsetData = {offset: null, hasDST: null}
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-    })
+  var offsetData = { offset: null, hasDST: null }
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+  })
 
-    afterEach(() => {
-      MockDate.reset()
-    })
+  afterEach(() => {
+    MockDate.reset()
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(isBetweenTextingHours(offsetData, makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
-        MockDate.set('2018-02-01T12:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
+    MockDate.set('2018-02-01T12:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
-        MockDate.set('2018-02-01T11:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
+    MockDate.set('2018-02-01T11:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
-        MockDate.set('2018-02-01T20:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
+    MockDate.set('2018-02-01T20:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
-        MockDate.set('2018-02-01T21:00:00.000-05:00')
-        expect(isBetweenTextingHours(offsetData, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
-  }
-)
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
+    MockDate.set('2018-02-01T21:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(offsetData, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
+})
 
 describe('test isBetweenTextingHours with offset data NOT supplied', () => {
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-    })
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+  })
 
-    afterEach(() => {
-      MockDate.reset()
-    })
+  afterEach(() => {
+    MockDate.reset()
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(isBetweenTextingHours(null, makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
-        MockDate.set('2018-02-01T12:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 12:00 EST', () => {
+    MockDate.set('2018-02-01T12:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
-        MockDate.set('2018-02-01T11:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 11:00 EST', () => {
+    MockDate.set('2018-02-01T11:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
-        MockDate.set('2018-02-01T20:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 20:00 EST', () => {
+    MockDate.set('2018-02-01T20:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
-        MockDate.set('2018-02-01T21:00:00.000-05:00')
-        expect(isBetweenTextingHours(null, makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
-  }
-)
-
+  it('returns false if texting hours are for MISSING TIME ZONE and time is 21:00 EST', () => {
+    MockDate.set('2018-02-01T21:00:00.000-05:00')
+    expect(
+      isBetweenTextingHours(null, makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
+})
 
 describe('test defaultTimezoneIsBetweenTextingHours', () => {
-    var tzHelpers = require('../../src/lib/tz-helpers')
-    beforeAll(() => {
-      tzHelpers.getProcessEnvTz.mockImplementation(() => null)
-      jest.doMock('../../src/lib/tz-helpers')
-    })
+  var tzHelpers = require('../../src/lib/tz-helpers')
+  beforeAll(() => {
+    tzHelpers.getProcessEnvTz.mockImplementation(() => null)
+    jest.doMock('../../src/lib/tz-helpers')
+  })
 
-    afterEach(() => {
-      MockDate.reset()
-    })
+  afterEach(() => {
+    MockDate.reset()
+  })
 
-    afterAll(() => {
-      jest.restoreAllMocks();
-    })
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
 
-    it('returns true if texting hours are not enforced', () => {
-      expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, false))).toBeTruthy()
-    })
+  it('returns true if texting hours are not enforced', () => {
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, false))
+    ).toBeTruthy()
+  })
 
-    it('returns false if time is 12:00 EST', () => {
-        MockDate.set('2018-02-01T12:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if time is 12:00 EST', () => {
+    MockDate.set('2018-02-01T12:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if time is 11:00 EST', () => {
-        MockDate.set('2018-02-01T11:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
+  it('returns false if time is 11:00 EST', () => {
+    MockDate.set('2018-02-01T11:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
 
-    it('returns false if time is 20:00 EST', () => {
-        MockDate.set('2018-02-01T20:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeTruthy()
-      }
-    )
+  it('returns false if time is 20:00 EST', () => {
+    MockDate.set('2018-02-01T20:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeTruthy()
+  })
 
-    it('returns false if time is 21:00 EST', () => {
-        MockDate.set('2018-02-01T21:00:00.000-05:00')
-        expect(defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))).toBeFalsy()
-      }
-    )
-  }
-)
+  it('returns false if time is 21:00 EST', () => {
+    MockDate.set('2018-02-01T21:00:00.000-05:00')
+    expect(
+      defaultTimezoneIsBetweenTextingHours(makeConfig(null, null, true))
+    ).toBeFalsy()
+  })
+})
 
 describe('test convertOffsetsToStrings', () => {
   it('works', () => {
-      let test_offsets = [[1, true], [2, false], [-1, true]]
-      let strings_returned = convertOffsetsToStrings(test_offsets)
-      expect(strings_returned).toHaveLength(3)
-      expect(strings_returned[0]).toBe('1_1')
-      expect(strings_returned[1]).toBe('2_0')
-      expect(strings_returned[2]).toBe('-1_1')
-    }
-  )
+    let test_offsets = [[1, true], [2, false], [-1, true]]
+    let strings_returned = convertOffsetsToStrings(test_offsets)
+    expect(strings_returned).toHaveLength(3)
+    expect(strings_returned[0]).toBe('1_1')
+    expect(strings_returned[1]).toBe('2_0')
+    expect(strings_returned[2]).toBe('-1_1')
+  })
 })
 
 describe('test getOffsets', () => {
@@ -823,8 +990,8 @@ describe('test getContactTimezone', () => {
     ).toEqual({
       timezone: {
         offset: -5,
-        hasDST: true
-      }
+        hasDST: true,
+      },
     })
   })
 
@@ -844,8 +1011,8 @@ describe('test getContactTimezone', () => {
     ).toEqual({
       timezone: {
         offset: -7,
-        hasDST: true
-      }
+        hasDST: true,
+      },
     })
   })
 
@@ -864,12 +1031,11 @@ describe('test getContactTimezone', () => {
     ).toEqual({
       timezone: {
         offset: -5,
-        hasDST: true
-      }
+        hasDST: true,
+      },
     })
   })
 })
-
 
 describe('test getUtcFromOffsetAndHour', () => {
   afterEach(() => {
@@ -878,28 +1044,37 @@ describe('test getUtcFromOffsetAndHour', () => {
 
   it('returns the correct UTC during northern hemisphere summer', () => {
     MockDate.set('2018-07-01T11:00:00.000-05:00')
-    expect(getUtcFromOffsetAndHour(-5, true, 12, 'America/New_York').unix()).toEqual(moment('2018-07-01T16:00:00.000Z').unix())
+    expect(
+      getUtcFromOffsetAndHour(-5, true, 12, 'America/New_York').unix()
+    ).toEqual(moment('2018-07-01T16:00:00.000Z').unix())
   })
 
   it('returns the correct UTC during northern hemisphere summer with result being next day', () => {
     MockDate.set('2018-07-01T11:00:00.000-05:00')
-    expect(getUtcFromOffsetAndHour(-5, true, 23, 'America/New_York').unix()).toEqual(moment('2018-07-02T03:00:00.000Z').unix())
+    expect(
+      getUtcFromOffsetAndHour(-5, true, 23, 'America/New_York').unix()
+    ).toEqual(moment('2018-07-02T03:00:00.000Z').unix())
   })
 
   it('returns the correct UTC during northern hemisphere winter', () => {
     MockDate.set('2018-02-01T11:00:00.000-05:00')
-    expect(getUtcFromOffsetAndHour(-5, true, 12, 'America/New_York').unix()).toEqual(moment('2018-02-01T17:00:00.000Z').unix())
-
+    expect(
+      getUtcFromOffsetAndHour(-5, true, 12, 'America/New_York').unix()
+    ).toEqual(moment('2018-02-01T17:00:00.000Z').unix())
   })
 
-  it('returns the correct UTC during northern hemisphere summer if offset doesn\'t have DST', () => {
+  it("returns the correct UTC during northern hemisphere summer if offset doesn't have DST", () => {
     MockDate.set('2018-07-01T11:00:00.000-05:00')
-    expect(getUtcFromOffsetAndHour(-5, false, 12, 'America/New_York').unix()).toEqual(moment('2018-07-01T17:00:00.000Z').unix())
+    expect(
+      getUtcFromOffsetAndHour(-5, false, 12, 'America/New_York').unix()
+    ).toEqual(moment('2018-07-01T17:00:00.000Z').unix())
   })
 
-  it('returns the correct UTC during northern hemisphere winter if offset doesn\'t have DST', () => {
+  it("returns the correct UTC during northern hemisphere winter if offset doesn't have DST", () => {
     MockDate.set('2018-02-01T11:00:00.000-05:00')
-    expect(getUtcFromOffsetAndHour(-5, false, 12, 'America/New_York').unix()).toEqual(moment('2018-02-01T17:00:00.000Z').unix())
+    expect(
+      getUtcFromOffsetAndHour(-5, false, 12, 'America/New_York').unix()
+    ).toEqual(moment('2018-02-01T17:00:00.000Z').unix())
   })
 })
 
@@ -910,28 +1085,37 @@ describe('test getUtcFromTimezoneAndHour', () => {
 
   it('returns the correct UTC during northern hemisphere summer', () => {
     MockDate.set('2018-07-01T11:00:00.000-05:00')
-    expect(getUtcFromTimezoneAndHour('America/New_York', 12).unix()).toEqual(moment('2018-07-01T16:00:00.000Z').unix())
+    expect(getUtcFromTimezoneAndHour('America/New_York', 12).unix()).toEqual(
+      moment('2018-07-01T16:00:00.000Z').unix()
+    )
   })
 
   it('returns the correct UTC during northern hemisphere summer with result being next day', () => {
     MockDate.set('2018-07-01T11:00:00.000-05:00')
-    expect(getUtcFromTimezoneAndHour('America/New_York', 23).unix()).toEqual(moment('2018-07-02T03:00:00.000Z').unix())
+    expect(getUtcFromTimezoneAndHour('America/New_York', 23).unix()).toEqual(
+      moment('2018-07-02T03:00:00.000Z').unix()
+    )
   })
 
   it('returns the correct UTC during northern hemisphere winter', () => {
     MockDate.set('2018-02-01T11:00:00.000-05:00')
-    expect(getUtcFromTimezoneAndHour('America/New_York', 12).unix()).toEqual(moment('2018-02-01T17:00:00.000Z').unix())
-
+    expect(getUtcFromTimezoneAndHour('America/New_York', 12).unix()).toEqual(
+      moment('2018-02-01T17:00:00.000Z').unix()
+    )
   })
 
-  it('returns the correct UTC during northern hemisphere summer if timezone doesn\'t have DST', () => {
+  it("returns the correct UTC during northern hemisphere summer if timezone doesn't have DST", () => {
     MockDate.set('2018-07-01T11:00:00.000-05:00')
-    expect(getUtcFromTimezoneAndHour('US/Arizona', 12).unix()).toEqual(moment('2018-07-01T19:00:00.000Z').unix())
+    expect(getUtcFromTimezoneAndHour('US/Arizona', 12).unix()).toEqual(
+      moment('2018-07-01T19:00:00.000Z').unix()
+    )
   })
 
-  it('returns the correct UTC during northern hemisphere winter if timezone doesn\'t have DST', () => {
+  it("returns the correct UTC during northern hemisphere winter if timezone doesn't have DST", () => {
     MockDate.set('2018-02-01T11:00:00.000-05:00')
-    expect(getUtcFromTimezoneAndHour('US/Arizona', 12).unix()).toEqual(moment('2018-02-01T19:00:00.000Z').unix())
+    expect(getUtcFromTimezoneAndHour('US/Arizona', 12).unix()).toEqual(
+      moment('2018-02-01T19:00:00.000Z').unix()
+    )
   })
 })
 
@@ -943,7 +1127,7 @@ describe('test getSendBeforeTimewUtc', () => {
   })
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.restoreAllMocks()
   })
 
   afterAll(() => {
@@ -951,67 +1135,121 @@ describe('test getSendBeforeTimewUtc', () => {
   })
 
   it('returns undefined if campaign overrides and texting hours are not enforced', () => {
-    expect(getSendBeforeTimeUtc(
-      {},
-      {},
-      { overrideOrganizationTextingHours: true, textingHoursEnforced: false}
-    )).toBeNull()
+    expect(
+      getSendBeforeTimeUtc(
+        {},
+        {},
+        { overrideOrganizationTextingHours: true, textingHoursEnforced: false }
+      )
+    ).toBeNull()
   })
 
   it('returns undefined if campaign does not override and texting hours are not enforced', () => {
-    expect(getSendBeforeTimeUtc(
-      {},
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: false},
-      {}
-    )).toBeNull()
+    expect(
+      getSendBeforeTimeUtc(
+        {},
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: false,
+        },
+        {}
+      )
+    ).toBeNull()
   })
 
   it('returns correct time if campaign overrides and contact offset is supplied', () => {
-    expect(getSendBeforeTimeUtc(
-      { offset: -5, hasDST: 1 },
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: true },
-      { overrideOrganizationTextingHours: true, textingHoursEnforced: true, textingHoursEnd: 21, timezone: 'America/New_York'}
-    ).unix()).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
+    expect(
+      getSendBeforeTimeUtc(
+        { offset: -5, hasDST: 1 },
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: true,
+        },
+        {
+          overrideOrganizationTextingHours: true,
+          textingHoursEnforced: true,
+          textingHoursEnd: 21,
+          timezone: 'America/New_York',
+        }
+      ).unix()
+    ).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
   })
 
   it('returns correct time if campaign overrides and contact offset is not supplied', () => {
-    expect(getSendBeforeTimeUtc(
-      {},
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: true },
-      { overrideOrganizationTextingHours: true, textingHoursEnforced: true, textingHoursEnd: 21, timezone: 'America/New_York'}
-    ).unix()).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
+    expect(
+      getSendBeforeTimeUtc(
+        {},
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: true,
+        },
+        {
+          overrideOrganizationTextingHours: true,
+          textingHoursEnforced: true,
+          textingHoursEnd: 21,
+          timezone: 'America/New_York',
+        }
+      ).unix()
+    ).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
   })
 
   it('returns correct time if campaign does not override and TZ is set', () => {
     tzHelpers.getProcessEnvTz.mockImplementation(() => 'America/New_York')
-    expect(getSendBeforeTimeUtc(
-      {},
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: true },
-      {}
-    ).unix()).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
+    expect(
+      getSendBeforeTimeUtc(
+        {},
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: true,
+        },
+        {}
+      ).unix()
+    ).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
   })
 
   it('returns correct time if campaign does not override and TZ is not set and contact offset is supplied', () => {
-    expect(getSendBeforeTimeUtc(
-      { offset: -5, hasDST: 1 },
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: true },
-      {}
-    ).unix()).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
+    expect(
+      getSendBeforeTimeUtc(
+        { offset: -5, hasDST: 1 },
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: true,
+        },
+        {}
+      ).unix()
+    ).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
   })
 
   it('returns correct time if campaign does not override and TZ is not set and contact offset is not supplied', () => {
-    expect(getSendBeforeTimeUtc(
-      {},
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: true },
-      {}
-    ).unix()).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
+    expect(
+      getSendBeforeTimeUtc(
+        {},
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: true,
+        },
+        {}
+      ).unix()
+    ).toEqual(moment('2018-09-04T01:00:00.000Z').unix())
   })
 
   it('converts to Date as expected', () => {
-    expect(getSendBeforeTimeUtc(
-      {},
-      { textingHoursStart: 9, textingHoursEnd: 21, textingHoursEnforced: true },
-      {}
-    ).toDate()).toEqual(Date('2018-09-04T01:00:00.000Z'))
+    expect(
+      getSendBeforeTimeUtc(
+        {},
+        {
+          textingHoursStart: 9,
+          textingHoursEnd: 21,
+          textingHoursEnforced: true,
+        },
+        {}
+      ).toDate()
+    ).toEqual(Date('2018-09-04T01:00:00.000Z'))
   })
 })

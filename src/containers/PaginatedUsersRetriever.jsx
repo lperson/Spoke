@@ -29,14 +29,15 @@ export class PaginatedUsersRetriever extends Component {
       this.props.onUsersReceived(this.props.users.people.users)
     }
 
-    const newOffset = this.props.users.people.pageInfo.offset + this.props.pageSize
+    const newOffset =
+      this.props.users.people.pageInfo.offset + this.props.pageSize
     if (newOffset < this.props.users.people.pageInfo.total) {
       this.props.users.fetchMore({
         variables: {
           cursor: {
             offset: newOffset,
-            limit: this.props.pageSize
-          }
+            limit: this.props.pageSize,
+          },
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) {
@@ -48,7 +49,7 @@ export class PaginatedUsersRetriever extends Component {
           )
           returnValue.people.pageInfo = fetchMoreResult.data.people.pageInfo
           return returnValue
-        }
+        },
       })
     }
   }
@@ -61,54 +62,56 @@ export class PaginatedUsersRetriever extends Component {
 const mapQueriesToProps = ({ ownProps }) => ({
   users: {
     query: gql`
-        query getUsers(
+      query getUsers(
         $organizationId: String!
         $cursor: OffsetLimitCursor
         $campaignsFilter: CampaignsFilter
         $sortBy: SortPeopleBy
+      ) {
+        people(
+          organizationId: $organizationId
+          cursor: $cursor
+          campaignsFilter: $campaignsFilter
+          sortBy: $sortBy
         ) {
-            people(
-                organizationId: $organizationId
-                cursor: $cursor
-                campaignsFilter: $campaignsFilter
-                sortBy: $sortBy
-            ) {
-                ...on PaginatedUsers {
-                    pageInfo {
-                        offset
-                        limit
-                        total
-                    }
-                    users {
-                        id
-                        displayName
-                        email
-                        roles(organizationId: $organizationId)
-                    }
-                }
+          ... on PaginatedUsers {
+            pageInfo {
+              offset
+              limit
+              total
             }
+            users {
+              id
+              displayName
+              email
+              roles(organizationId: $organizationId)
+            }
+          }
         }
+      }
     `,
     variables: {
       cursor: { offset: 0, limit: ownProps.pageSize },
       organizationId: ownProps.organizationId,
       campaignsFilter: ownProps.campaignsFilter,
-      sortBy: ownProps.sortBy || 'FIRST_NAME'
+      sortBy: ownProps.sortBy || 'FIRST_NAME',
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
 PaginatedUsersRetriever.propTypes = {
   organizationId: PropTypes.string.isRequired,
   campaignsFilter: PropTypes.shape({
     isArchived: PropTypes.bool,
-    campaignId: PropTypes.number
+    campaignId: PropTypes.number,
   }),
   sortBy: PropTypes.string,
   onUsersReceived: PropTypes.func.isRequired,
   pageSize: PropTypes.number.isRequired,
-  forceUpdateTime: PropTypes.number
+  forceUpdateTime: PropTypes.number,
 }
 
-export default loadData(withRouter(PaginatedUsersRetriever), { mapQueriesToProps })
+export default loadData(withRouter(PaginatedUsersRetriever), {
+  mapQueriesToProps,
+})

@@ -9,28 +9,28 @@ import loadData from './hoc/load-data'
 const styles = {
   previousStep: {
     fontSize: 16,
-    verticalAlign: 'middle'
+    verticalAlign: 'middle',
   },
   currentStep: {
     // fontSize: 16,
   },
   currentStepSelect: {
     fontSize: 16,
-    color: 'red'
+    color: 'red',
   },
   previousStepSelect: {
     fontSize: 16,
-    opacity: 0.8
+    opacity: 0.8,
     // fontSize: 16
   },
   previousStepLabel: {
-    fontSize: 16
+    fontSize: 16,
   },
   currentStepLabel: {
     fontSize: 16,
     color: 'red',
-    fontWeight: 'bold'
-  }
+    fontWeight: 'bold',
+  },
 }
 
 class AssignmentTexterSurveyDropdown extends Component {
@@ -41,7 +41,7 @@ class AssignmentTexterSurveyDropdown extends Component {
       const questionResponse = {
         interactionStepId: step.id,
         campaignContactId,
-        value
+        value,
       }
       await this.props.mutations.editQuestionResponse(questionResponse)
     }
@@ -49,20 +49,20 @@ class AssignmentTexterSurveyDropdown extends Component {
 
   renderAnswers() {
     const { step } = this.props
-    const menuItems = step.question.answerOptions.map(answerOption =>
+    const menuItems = step.question.answerOptions.map(answerOption => (
       <MenuItem
         key={answerOption.value}
         value={answerOption.value}
         primaryText={answerOption.value}
       />
-    )
+    ))
 
     menuItems.push(<Divider />)
     menuItems.push(
       <MenuItem
-        key='clear'
-        value='clearResponse'
-        primaryText='Clear response'
+        key="clear"
+        value="clearResponse"
+        primaryText="Clear response"
         // onTouchTap={(event) => this.handleAnswerDelete(event, step.id)}
       />
     )
@@ -72,7 +72,9 @@ class AssignmentTexterSurveyDropdown extends Component {
 
   render() {
     const { step, isCurrentStep } = this.props
-    const responseValue = step.questionResponse ? step.questionResponse.value : null
+    const responseValue = step.questionResponse
+      ? step.questionResponse.value
+      : null
     const { question } = step
 
     if (!question) {
@@ -82,12 +84,14 @@ class AssignmentTexterSurveyDropdown extends Component {
     return (
       <div>
         <SelectField
-          style={isCurrentStep ? styles.currentStepSelect : styles.previousStepSelect}
+          style={
+            isCurrentStep ? styles.currentStepSelect : styles.previousStepSelect
+          }
           onChange={this.handleAnswerChange}
           name={question.id}
           value={responseValue}
           floatingLabelText={question.text}
-          hintText='Choose answer'
+          hintText="Choose answer"
         >
           {this.renderAnswers()}
         </SelectField>
@@ -101,11 +105,11 @@ AssignmentTexterSurveyDropdown.propTypes = {
   answerValue: PropTypes.object,
   isCurrentStep: PropTypes.boolean,
   campaignContactId: PropTypes.number,
-  mutations: PropTypes.object
+  mutations: PropTypes.object,
 }
 
 const mapMutationsToProps = () => ({
-  editQuestionResponse: (questionResponse) => ({
+  editQuestionResponse: questionResponse => ({
     mutation: gql`
       mutation editQuestionResponse($questionResponse: QuestionResponseInput!) {
         editQuestionResponse(questionResponse: $questionResponse) {
@@ -115,9 +119,9 @@ const mapMutationsToProps = () => ({
       }
     `,
     variables: {
-      questionResponse
-    }
-  })
+      questionResponse,
+    },
+  }),
 })
 
 export default loadData(AssignmentTexterSurveyDropdown, { mapMutationsToProps })

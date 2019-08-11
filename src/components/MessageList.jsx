@@ -9,17 +9,17 @@ import { red300 } from 'material-ui/styles/colors'
 const styles = {
   optOut: {
     fontSize: '13px',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
   },
   sent: {
     fontSize: '13px',
     textAlign: 'right',
-    marginLeft: '24px'
+    marginLeft: '24px',
   },
   received: {
     fontSize: '13px',
-    marginRight: '24px'
-  }
+    marginRight: '24px',
+  },
 }
 
 const MessageList = function MessageList(props) {
@@ -37,7 +37,9 @@ const MessageList = function MessageList(props) {
         secondaryText={moment(optOut.createdAt).fromNow()}
       />
     </div>
-  ) : ''
+  ) : (
+    ''
+  )
 
   return (
     <List>
@@ -56,7 +58,7 @@ const MessageList = function MessageList(props) {
 }
 
 MessageList.propTypes = {
-  contact: PropTypes.object
+  contact: PropTypes.object,
 }
 
 export default MessageList

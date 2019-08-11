@@ -5,11 +5,10 @@ import { r } from '../models'
 export const displayName = () => 'Test Action'
 
 // The Help text for the user after selecting the action
-export const instructions = () => (
+export const instructions = () =>
   `
   This action is for testing and as a code-template for new actions.
   `
-)
 
 // return true, if the action is usable and available for the organizationId
 // Sometimes this means certain variables/credentials must be setup
@@ -22,18 +21,24 @@ export async function available(organizationId) {
 
 // What happens when a texter saves the answer that triggers the action
 // This is presumably the meat of the action
-export async function processAction(questionResponse, interactionStep, campaignContactId) {
+export async function processAction(
+  questionResponse,
+  interactionStep,
+  campaignContactId
+) {
   // This is a meta action that updates a variable in the contact record itself.
   // Generally, you want to send action data to the outside world, so you
   // might want the request library loaded above
-  const contact = await r.knex('campaign_contact')
+  const contact = await r
+    .knex('campaign_contact')
     .where('campaign_contact_id', campaignContactId)
   const customFields = JSON.parse(contact.custom_fields || '{}')
   if (customFields) {
     customFields['processed_test_action'] = 'completed'
   }
 
-  await r.knex('campaign_contact')
+  await r
+    .knex('campaign_contact')
     .where('campaign_contact.id', campaignContactId)
     .update('custom_fields', JSON.stringify(customFields))
 }

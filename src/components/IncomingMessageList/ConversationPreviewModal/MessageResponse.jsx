@@ -25,7 +25,7 @@ class MessageResponse extends Component {
     this.state = {
       messageText: '',
       isSending: false,
-      sendError: ''
+      sendError: '',
     }
 
     this.handleCloseErrorDialog = this.handleCloseErrorDialog.bind(this)
@@ -38,7 +38,7 @@ class MessageResponse extends Component {
       assignmentId,
       contactNumber,
       userId: texter.id,
-      text
+      text,
     }
   }
 
@@ -54,7 +54,10 @@ class MessageResponse extends Component {
 
     const finalState = { isSending: false }
     try {
-      const response = await this.props.mutations.sendMessage(message, campaignContactId)
+      const response = await this.props.mutations.sendMessage(
+        message,
+        campaignContactId
+      )
       const { messages } = response.data.sendMessage
       this.props.messagesChanged(messages)
       finalState.messageText = ''
@@ -75,7 +78,10 @@ class MessageResponse extends Component {
 
   render() {
     const messageSchema = yup.object({
-      messageText: yup.string().required('Can\'t send empty message').max(window.MAX_MESSAGE_LENGTH)
+      messageText: yup
+        .string()
+        .required("Can't send empty message")
+        .max(window.MAX_MESSAGE_LENGTH),
     })
 
     const { messageText, isSending } = this.state
@@ -86,30 +92,37 @@ class MessageResponse extends Component {
         label="OK"
         primary={true}
         onClick={this.handleCloseErrorDialog}
-      />
+      />,
     ]
 
     return (
       <div className={css(styles.messageField)}>
         <GSForm
-          ref='messageForm'
+          ref="messageForm"
           schema={messageSchema}
           value={{ messageText: this.state.messageText }}
           onSubmit={this.handleMessageFormSubmit}
           onChange={this.handleMessageFormChange}
         >
-          <div style={{position: 'relative'}}>
-            <div style={{position: 'absolute', right: 0, bottom: 0, width: '120px'}}>
+          <div style={{ position: 'relative' }}>
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                bottom: 0,
+                width: '120px',
+              }}
+            >
               <SendButton
                 threeClickEnabled={false}
                 onFinalTouchTap={this.handleClickSendMessageButton}
                 disabled={isSendDisabled}
               />
             </div>
-            <div style={{marginRight: '120px'}}>
+            <div style={{ marginRight: '120px' }}>
               <Form.Field
-                name='messageText'
-                label='Send a response'
+                name="messageText"
+                label="Send a response"
                 multiLine
                 fullWidth
                 disabled={isSending}
@@ -119,7 +132,7 @@ class MessageResponse extends Component {
           </div>
         </GSForm>
         <Dialog
-          title='Error Sending'
+          title="Error Sending"
           open={!!this.state.sendError}
           actions={errorActions}
           modal={false}
@@ -134,13 +147,16 @@ class MessageResponse extends Component {
 MessageResponse.propTypes = {
   conversation: PropTypes.object,
   messagesChanged: PropTypes.func,
-  mutations: PropTypes.object
+  mutations: PropTypes.object,
 }
 
 const mapMutationsToProps = () => ({
   sendMessage: (message, campaignContactId) => ({
     mutation: gql`
-      mutation sendMessage($message: MessageInput!, $campaignContactId: String!) {
+      mutation sendMessage(
+        $message: MessageInput!
+        $campaignContactId: String!
+      ) {
         sendMessage(message: $message, campaignContactId: $campaignContactId) {
           id
           messageStatus
@@ -155,11 +171,11 @@ const mapMutationsToProps = () => ({
     `,
     variables: {
       message,
-      campaignContactId
-    }
-  })
+      campaignContactId,
+    },
+  }),
 })
 
 export default loadData(wrapMutations(MessageResponse), {
-  mapMutationsToProps
+  mapMutationsToProps,
 })

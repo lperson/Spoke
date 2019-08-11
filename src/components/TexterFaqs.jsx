@@ -8,9 +8,7 @@ const TexterFaqs = ({ faqs }) => {
       <h1>Frequently Asked Questions</h1>
       {faqs.map((faq, idx) => (
         <Card>
-          <CardTitle
-            title={`${idx + 1}. ${faq.question}`}
-          />
+          <CardTitle title={`${idx + 1}. ${faq.question}`} />
           <CardText>
             <p>{faq.answer}</p>
           </CardText>
@@ -21,7 +19,7 @@ const TexterFaqs = ({ faqs }) => {
 }
 
 TexterFaqs.propTypes = {
-  faqs: PropTypes.array
+  faqs: PropTypes.array,
 }
 
 export default TexterFaqs

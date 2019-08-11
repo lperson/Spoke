@@ -33,6 +33,5 @@ export function timestamp() {
 }
 
 export function optionalTimestamp() {
-  return type
-    .date()
+  return type.date()
 }

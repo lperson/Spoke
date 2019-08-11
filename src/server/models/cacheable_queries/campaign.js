@@ -18,10 +18,11 @@ import { organizationCache } from './organization'
 // * organization metadata (saved in organization.js instead)
 // * campaignCannedResponses (saved in canned-responses.js instead)
 
-const cacheKey = (id) => `${process.env.CACHE_PREFIX | ''}campaign-${id}`
+const cacheKey = id => `${process.env.CACHE_PREFIX | ''}campaign-${id}`
 
-const dbCustomFields = async (id) => {
-  const campaignContacts = await r.table('campaign_contact')
+const dbCustomFields = async id => {
+  const campaignContacts = await r
+    .table('campaign_contact')
     .getAll(id, { index: 'campaign_id' })
     .limit(1)
   if (campaignContacts.length > 0) {
@@ -30,20 +31,21 @@ const dbCustomFields = async (id) => {
   return []
 }
 
-const dbInteractionSteps = async (id) => {
-  return r.table('interaction_step')
+const dbInteractionSteps = async id => {
+  return r
+    .table('interaction_step')
     .getAll(id, { index: 'campaign_id' })
     .filter({ is_deleted: false })
     .orderBy('id')
 }
 
-const clear = async (id) => {
+const clear = async id => {
   if (r.redis) {
     await r.redis.delAsync(cacheKey(id))
   }
 }
 
-const loadDeep = async (id) => {
+const loadDeep = async id => {
   if (r.redis) {
     const campaign = await Campaign.get(id)
     if (campaign.is_archived) {
@@ -57,7 +59,8 @@ const loadDeep = async (id) => {
     // if/when we can clear it on organization data changes
     // campaign.organization = await organizationCache.load(campaign.organization_id)
 
-    await r.redis.multi()
+    await r.redis
+      .multi()
       .set(cacheKey(id), JSON.stringify(campaign))
       .expire(cacheKey(id), 86400)
       .execAsync()
@@ -69,7 +72,11 @@ const currentEditors = async (campaign, user) => {
   // Add user ID in case of duplicate admin names
   const displayName = `${user.id}~${user.first_name} ${user.last_name}`
 
-  await r.redis.hsetAsync(`campaign_editors_${campaign.id}`, displayName, new Date())
+  await r.redis.hsetAsync(
+    `campaign_editors_${campaign.id}`,
+    displayName,
+    new Date()
+  )
   await r.redis.expire(`campaign_editors_${campaign.id}`, 120)
 
   let editors = await r.redis.hgetallAsync(`campaign_editors_${campaign.id}`)
@@ -87,7 +94,7 @@ const currentEditors = async (campaign, user) => {
 
 export const campaignCache = {
   clear,
-  load: async(id) => {
+  load: async id => {
     if (r.redis) {
       let campaignData = await r.redis.getAsync(cacheKey(id))
       if (!campaignData) {
@@ -113,5 +120,5 @@ export const campaignCache = {
   reload: loadDeep,
   currentEditors,
   dbCustomFields,
-  dbInteractionSteps
+  dbInteractionSteps,
 }

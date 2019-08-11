@@ -23,8 +23,8 @@ function getAssignment(isDynamic = false) {
       hasUnassignedContacts: false,
       introHtml: 'yoyo',
       primaryColor: '#2052d8',
-      logoImageUrl: ''
-    }
+      logoImageUrl: '',
+    },
   }
 }
 
@@ -57,15 +57,22 @@ describe('AssignmentSummary text', function t() {
         d => d.length && d.type() === 'div' && d.prop('dangerouslySetInnerHTML')
       )
       expect(htmlWrapper.prop('dangerouslySetInnerHTML')).toEqual({
-        __html: 'yoyo'
+        __html: 'yoyo',
       })
     }
   )
 })
 
 describe('AssignmentSummary actions inUSA and NOT AllowSendAll', () => {
-  injectTapEventPlugin()  // prevents warning
-  function create(unmessaged, unreplied, badTimezone, past, skipped, isDynamic) {
+  injectTapEventPlugin() // prevents warning
+  function create(
+    unmessaged,
+    unreplied,
+    badTimezone,
+    past,
+    skipped,
+    isDynamic
+  ) {
     window.NOT_IN_USA = 0
     window.ALLOW_SEND_ALL = false
     return mount(
@@ -84,19 +91,44 @@ describe('AssignmentSummary actions inUSA and NOT AllowSendAll', () => {
 
   it('renders "send first texts (1)" with unmessaged (dynamic assignment)', () => {
     const actions = create(5, 0, 0, 0, 0, true)
-    expect(actions.find(Badge).at(0).prop('badgeContent')).toBe(5)
-    expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Send first texts')
+    expect(
+      actions
+        .find(Badge)
+        .at(0)
+        .prop('badgeContent')
+    ).toBe(5)
+    expect(
+      actions
+        .find(RaisedButton)
+        .at(0)
+        .prop('label')
+    ).toBe('Send first texts')
   })
 
   it('renders "send first texts (1)" with unmessaged (non-dynamic)', () => {
     const actions = create(1, 0, 0, 0, 0, false)
-    expect(actions.find(Badge).at(0).prop('badgeContent')).toBe(1)
-    expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Send first texts')
+    expect(
+      actions
+        .find(Badge)
+        .at(0)
+        .prop('badgeContent')
+    ).toBe(1)
+    expect(
+      actions
+        .find(RaisedButton)
+        .at(0)
+        .prop('label')
+    ).toBe('Send first texts')
   })
 
   it('renders "send first texts" with no unmessaged (dynamic assignment)', () => {
     const actions = create(0, 0, 0, 0, 0, true)
-    expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Send first texts')
+    expect(
+      actions
+        .find(RaisedButton)
+        .at(0)
+        .prop('label')
+    ).toBe('Send first texts')
   })
 
   it('renders a "past messages" badge after messaged contacts', () => {
@@ -111,13 +143,30 @@ describe('AssignmentSummary actions inUSA and NOT AllowSendAll', () => {
 
   it('renders "past messages (n)" with messaged', () => {
     const actions = create(0, 0, 0, 9, 0, false)
-    expect(actions.find(Badge).at(0).prop('badgeContent')).toBe(9)
-    expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Past Messages')
+    expect(
+      actions
+        .find(Badge)
+        .at(0)
+        .prop('badgeContent')
+    ).toBe(9)
+    expect(
+      actions
+        .find(RaisedButton)
+        .at(0)
+        .prop('label')
+    ).toBe('Past Messages')
   })
 })
 
 describe('AssignmentSummary NOT inUSA and AllowSendAll', () => {
-  function create(unmessaged, unreplied, badTimezone, past, skipped, isDynamic) {
+  function create(
+    unmessaged,
+    unreplied,
+    badTimezone,
+    past,
+    skipped,
+    isDynamic
+  ) {
     window.NOT_IN_USA = 1
     window.ALLOW_SEND_ALL = true
     return mount(
@@ -136,12 +185,22 @@ describe('AssignmentSummary NOT inUSA and AllowSendAll', () => {
 
   it('renders "Send message" with unmessaged', () => {
     const actions = create(1, 0, 0, 0, 0, false)
-    expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Send messages')
+    expect(
+      actions
+        .find(RaisedButton)
+        .at(0)
+        .prop('label')
+    ).toBe('Send messages')
   })
 
   it('renders "Send messages" with unreplied', () => {
     const actions = create(0, 1, 0, 0, 0, false)
-    expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Send messages')
+    expect(
+      actions
+        .find(RaisedButton)
+        .at(0)
+        .prop('label')
+    ).toBe('Send messages')
   })
 })
 
@@ -157,9 +216,24 @@ it('renders "Send later" when there is a badTimezoneCount', () => {
       />
     </MuiThemeProvider>
   ).find(CardActions)
-  expect(actions.find(Badge).at(1).prop('badgeContent')).toBe(4)
-  expect(actions.find(RaisedButton).at(0).prop('label')).toBe('Past Messages')
-  expect(actions.find(RaisedButton).at(1).prop('label')).toBe('Send messages')
+  expect(
+    actions
+      .find(Badge)
+      .at(1)
+      .prop('badgeContent')
+  ).toBe(4)
+  expect(
+    actions
+      .find(RaisedButton)
+      .at(0)
+      .prop('label')
+  ).toBe('Past Messages')
+  expect(
+    actions
+      .find(RaisedButton)
+      .at(1)
+      .prop('label')
+  ).toBe('Send messages')
 })
 
 describe('contacts filters', () => {

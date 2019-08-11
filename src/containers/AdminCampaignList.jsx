@@ -16,7 +16,10 @@ import IconMenu from 'material-ui/IconMenu'
 import { MenuItem } from 'material-ui/Menu'
 import { dataTest } from '../lib/attributes'
 import IconButton from 'material-ui/IconButton/IconButton'
-import SortBy, { ID_ASC_SORT, ID_DESC_SORT } from '../components/AdminCampaignList/SortBy'
+import SortBy, {
+  ID_ASC_SORT,
+  ID_DESC_SORT,
+} from '../components/AdminCampaignList/SortBy'
 import Paper from 'material-ui/Paper'
 import Search from '../components/Search'
 import { StyleSheet, css } from 'aphrodite'
@@ -25,22 +28,23 @@ const styles = StyleSheet.create({
   settings: {
     display: 'flex',
     flexDirection: 'column',
-    padding: '20px'
-  }
+    padding: '20px',
+  },
 })
 
-const defaultSort = (isArchived) => (isArchived ? ID_DESC_SORT.value : ID_ASC_SORT.value)
+const defaultSort = isArchived =>
+  isArchived ? ID_DESC_SORT.value : ID_ASC_SORT.value
 
 class AdminCampaignList extends React.Component {
   state = {
     isLoading: false,
     campaignsFilter: {
       isArchived: false,
-      searchString: ''
+      searchString: '',
     },
     archiveMultiple: false,
     campaignsToArchive: {},
-    sortBy: defaultSort(false)
+    sortBy: defaultSort(false),
   }
 
   handleClickNewButton = async () => {
@@ -53,8 +57,8 @@ class AdminCampaignList extends React.Component {
       organizationId,
       contacts: [],
       interactionSteps: {
-        script: ''
-      }
+        script: '',
+      },
     })
     if (newCampaign.errors) {
       alert('There was an error creating your campaign')
@@ -66,14 +70,14 @@ class AdminCampaignList extends React.Component {
     )
   }
 
-  handleClickArchiveButton = async (keys) => {
+  handleClickArchiveButton = async keys => {
     if (keys.length) {
       this.setState({ isLoading: true })
       await this.props.mutations.archiveCampaigns(keys)
       this.setState({
         archiveMultiple: false,
         isLoading: false,
-        campaignsToArchive: {}
+        campaignsToArchive: {},
       })
     }
   }
@@ -81,12 +85,11 @@ class AdminCampaignList extends React.Component {
   handleFilterChange = (event, index, isArchived) => {
     this.setState({
       campaignsFilter: {
-        isArchived
+        isArchived,
       },
-      sortBy: defaultSort(isArchived)
+      sortBy: defaultSort(isArchived),
     })
   }
-
 
   handleChecked = ({ campaignId, checked }) => {
     this.setState(prevState => {
@@ -108,14 +111,14 @@ class AdminCampaignList extends React.Component {
     }, delay)
   }
 
-  handleSortByChanged = (sortBy) => {
+  handleSortByChanged = sortBy => {
     this.setState({ sortBy })
   }
 
-  handleSearchRequested = (searchString) => {
+  handleSearchRequested = searchString => {
     const campaignsFilter = {
       ...this.state.campaignsFilter,
-      searchString
+      searchString,
     }
     this.setState({ campaignsFilter })
   }
@@ -123,36 +126,43 @@ class AdminCampaignList extends React.Component {
   handleCancelSearch = () => {
     const campaignsFilter = {
       ...this.state.campaignsFilter,
-      searchString: ''
+      searchString: '',
     }
     this.setState({ campaignsFilter })
   }
 
   renderArchivedAndSortBy = () => {
-    return !this.state.archiveMultiple && (
-      <span>
+    return (
+      !this.state.archiveMultiple && (
         <span>
-          <DropDownMenu value={this.state.campaignsFilter.isArchived} onChange={this.handleFilterChange}>
-            <MenuItem value={false} primaryText='Current' />
-            <MenuItem value primaryText='Archived' />
-          </DropDownMenu>
-          <SortBy
-            onChange={this.handleSortByChanged}
-            sortBy={this.state.sortBy}
-          />
+          <span>
+            <DropDownMenu
+              value={this.state.campaignsFilter.isArchived}
+              onChange={this.handleFilterChange}
+            >
+              <MenuItem value={false} primaryText="Current" />
+              <MenuItem value primaryText="Archived" />
+            </DropDownMenu>
+            <SortBy
+              onChange={this.handleSortByChanged}
+              sortBy={this.state.sortBy}
+            />
+          </span>
         </span>
-      </span>
+      )
     )
   }
 
   renderSearch = () => {
-    return !this.state.archiveMultiple && (
-      <Search
-        onSearchRequested={this.handleSearchRequested}
-        searchString={this.state.campaignsFilter.searchString}
-        onCancelSearch={this.handleCancelSearch}
-        hintText='Search for campaign title. Hit enter to search.'
-      />
+    return (
+      !this.state.archiveMultiple && (
+        <Search
+          onSearchRequested={this.handleSearchRequested}
+          searchString={this.state.campaignsFilter.searchString}
+          onCancelSearch={this.handleCancelSearch}
+          hintText="Search for campaign title. Hit enter to search."
+        />
+      )
     )
   }
 
@@ -162,16 +172,18 @@ class AdminCampaignList extends React.Component {
         {this.props.params.adminPerms && this.renderArchiveMultiple()}
         {this.renderArchivedAndSortBy()}
       </span>
-      <span>
-        {this.renderSearch()}
-      </span>
+      <span>{this.renderSearch()}</span>
     </Paper>
   )
 
   renderArchiveMultiple() {
     return (
       <IconMenu
-        iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+        iconButtonElement={
+          <IconButton>
+            <MoreVertIcon />
+          </IconButton>
+        }
         style={{ bottom: '13px' }}
       >
         {/*
@@ -180,18 +192,21 @@ class AdminCampaignList extends React.Component {
           delayed for 201ms to avoid switching the menu text before the
           menu is hidden.
         */}
-        {this.state.archiveMultiple ?
+        {this.state.archiveMultiple ? (
           <MenuItem
-            primaryText='Cancel'
-            onClick={() => { this.toggleStateWithDelay('archiveMultiple', 250) }}
+            primaryText="Cancel"
+            onClick={() => {
+              this.toggleStateWithDelay('archiveMultiple', 250)
+            }}
           />
-          :
+        ) : (
           <MenuItem
-            primaryText='Archive multiple campaigns'
-            onClick={() => { this.toggleStateWithDelay('archiveMultiple', 250) }}
+            primaryText="Archive multiple campaigns"
+            onClick={() => {
+              this.toggleStateWithDelay('archiveMultiple', 250)
+            }}
           />
-        }
-
+        )}
       </IconMenu>
     )
   }
@@ -226,7 +241,9 @@ class AdminCampaignList extends React.Component {
     return (
       <div>
         {this.renderFilters()}
-        {this.state.isLoading ? <LoadingIndicator /> : (
+        {this.state.isLoading ? (
+          <LoadingIndicator />
+        ) : (
           <CampaignList
             campaignsFilter={this.state.campaignsFilter}
             sortBy={this.state.sortBy}
@@ -247,13 +264,13 @@ AdminCampaignList.propTypes = {
   params: PropTypes.object,
   mutations: PropTypes.exact({
     createCampaign: PropTypes.func,
-    archiveCampaigns: PropTypes.func
+    archiveCampaigns: PropTypes.func,
   }),
-  router: PropTypes.object
+  router: PropTypes.object,
 }
 
 const mapMutationsToProps = () => ({
-  createCampaign: (campaign) => ({
+  createCampaign: campaign => ({
     mutation: gql`
       mutation createBlankCampaign($campaign: CampaignInput!) {
         createCampaign(campaign: $campaign) {
@@ -261,7 +278,7 @@ const mapMutationsToProps = () => ({
         }
       }
     `,
-    variables: { campaign }
+    variables: { campaign },
   }),
   archiveCampaigns: ids => ({
     mutation: gql`
@@ -271,11 +288,10 @@ const mapMutationsToProps = () => ({
         }
       }
     `,
-    variables: { ids }
-  })
+    variables: { ids },
+  }),
 })
 
-export default loadData(wrapMutations(
-  withRouter(AdminCampaignList)), {
-    mapMutationsToProps
-  })
+export default loadData(wrapMutations(withRouter(AdminCampaignList)), {
+  mapMutationsToProps,
+})

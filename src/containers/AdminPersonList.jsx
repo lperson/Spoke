@@ -17,7 +17,9 @@ import { dataTest } from '../lib/attributes'
 import PeopleList from '../components/PeopleList'
 import { StyleSheet, css } from 'aphrodite'
 import Search from '../components/Search'
-import SimpleRolesDropdown, { ALL_ROLES } from '../components/PeopleList/SimpleRolesDropdown'
+import SimpleRolesDropdown, {
+  ALL_ROLES,
+} from '../components/PeopleList/SimpleRolesDropdown'
 
 export const ALL_CAMPAIGNS = -1
 
@@ -25,12 +27,11 @@ const styles = StyleSheet.create({
   settings: {
     display: 'flex',
     flexDirection: 'column',
-    padding: '20px'
-  }
+    padding: '20px',
+  },
 })
 
 class AdminPersonList extends React.Component {
-
   constructor(props) {
     super(props)
     this.handleOpen = this.handleOpen.bind(this)
@@ -45,27 +46,27 @@ class AdminPersonList extends React.Component {
 
   FIRST_NAME_SORT = {
     display: 'First Name',
-    value: 'FIRST_NAME'
+    value: 'FIRST_NAME',
   }
   LAST_NAME_SORT = {
     display: 'Last Name',
-    value: 'LAST_NAME'
+    value: 'LAST_NAME',
   }
   NEWEST_SORT = {
     display: 'Newest',
-    value: 'NEWEST'
+    value: 'NEWEST',
   }
 
   OLDEST_SORT = {
     display: 'Oldest',
-    value: 'OLDEST'
+    value: 'OLDEST',
   }
 
   SORTS = [
     this.FIRST_NAME_SORT,
     this.LAST_NAME_SORT,
     this.NEWEST_SORT,
-    this.OLDEST_SORT
+    this.OLDEST_SORT,
   ]
 
   DEFAULT_SORT_BY_VALUE = this.FIRST_NAME_SORT.value
@@ -74,7 +75,7 @@ class AdminPersonList extends React.Component {
     return value ? `${name}=${value}` : undefined
   }
 
-  determineCampaignIdForFilter = (changedItems) => {
+  determineCampaignIdForFilter = changedItems => {
     if (changedItems.campaignId && changedItems.campaignId === ALL_CAMPAIGNS) {
       return undefined
     }
@@ -82,13 +83,31 @@ class AdminPersonList extends React.Component {
     return changedItems.campaignId || this.props.location.query.campaignId
   }
 
-  handleFilterChange = (changedItems) => {
-    const campaignId = this.makeQueryItem('campaignId', this.determineCampaignIdForFilter(changedItems))
-    const sortBy = this.makeQueryItem('sortBy', changedItems.sortBy || this.props.location.query.sortBy)
-    const role = changedItems.role !== ALL_ROLES && this.makeQueryItem('role', changedItems.role || this.props.location.query.role)
-    const searchString = this.makeQueryItem('searchString', _.has(changedItems, 'searchString') ? changedItems.searchString : this.props.location.query.searchString)
+  handleFilterChange = changedItems => {
+    const campaignId = this.makeQueryItem(
+      'campaignId',
+      this.determineCampaignIdForFilter(changedItems)
+    )
+    const sortBy = this.makeQueryItem(
+      'sortBy',
+      changedItems.sortBy || this.props.location.query.sortBy
+    )
+    const role =
+      changedItems.role !== ALL_ROLES &&
+      this.makeQueryItem(
+        'role',
+        changedItems.role || this.props.location.query.role
+      )
+    const searchString = this.makeQueryItem(
+      'searchString',
+      _.has(changedItems, 'searchString')
+        ? changedItems.searchString
+        : this.props.location.query.searchString
+    )
 
-    const query = [campaignId, sortBy, role, searchString].filter(item => item !== undefined).join('&')
+    const query = [campaignId, sortBy, role, searchString]
+      .filter(item => item !== undefined)
+      .join('&')
 
     this.props.router.push(
       `/admin/${this.props.params.organizationId}/people${query && '?' + query}`
@@ -112,16 +131,18 @@ class AdminPersonList extends React.Component {
     this.handleFilterChange({ sortBy })
   }
 
-  handleSearchRequested = (searchString) => {
+  handleSearchRequested = searchString => {
     this.handleFilterChange({ searchString })
   }
 
-  handleRoleChanged = (role) => {
+  handleRoleChanged = role => {
     this.handleFilterChange({ role })
   }
-  
+
   renderCampaignList = () => {
-    const { organizationData: { organization } } = this.props
+    const {
+      organizationData: { organization },
+    } = this.props
     const campaigns = organization ? organization.campaigns : { campaigns: [] }
     return (
       <DropDownMenu
@@ -129,7 +150,7 @@ class AdminPersonList extends React.Component {
         onChange={this.handleCampaignChange}
       >
         <MenuItem
-          primaryText='All Campaigns'
+          primaryText="All Campaigns"
           value={ALL_CAMPAIGNS}
           key={ALL_CAMPAIGNS}
         />
@@ -149,31 +170,32 @@ class AdminPersonList extends React.Component {
       value={this.props.location.query.sortBy || this.DEFAULT_SORT_BY_VALUE}
       onChange={this.handleSortByChanged}
     >
-      {this.SORTS.map((sort) => (
+      {this.SORTS.map(sort => (
         <MenuItem
           value={sort.value}
           key={sort.value}
           primaryText={'Sort by ' + sort.display}
         />
-      ))
-    }
+      ))}
     </DropDownMenu>
   )
 
   renderRoles = () => (
     <SimpleRolesDropdown
       onChange={this.handleRoleChanged}
-      selectedRole={this.props.location.query.role || ALL_ROLES }
+      selectedRole={this.props.location.query.role || ALL_ROLES}
     />
   )
 
   render() {
     const { organizationData } = this.props
-    const { userData: { currentUser } } = this.props
+    const {
+      userData: { currentUser },
+    } = this.props
 
     return (
       <div>
-        <Paper className={css(styles.settings)} zDepth='3'>
+        <Paper className={css(styles.settings)} zDepth="3">
           <div>
             {this.renderCampaignList()}
             {this.renderRoles()}
@@ -183,15 +205,23 @@ class AdminPersonList extends React.Component {
             onSearchRequested={this.handleSearchRequested}
             searchString={this.props.location.query.searchString}
             onCancelSearch={this.handleCancelSearch}
-            hintText='Search for first name, last name, or email. Hit enter to search.'
+            hintText="Search for first name, last name, or email. Hit enter to search."
           />
         </Paper>
         <PeopleList
-          organizationId={organizationData.organization && organizationData.organization.id}
-          campaignsFilter={{ campaignId: this.props.location.query.campaignId && parseInt(this.props.location.query.campaignId, 10) }}
+          organizationId={
+            organizationData.organization && organizationData.organization.id
+          }
+          campaignsFilter={{
+            campaignId:
+              this.props.location.query.campaignId &&
+              parseInt(this.props.location.query.campaignId, 10),
+          }}
           utc={this.state.utc}
           currentUser={currentUser}
-          sortBy={this.props.location.query.sortBy || this.DEFAULT_SORT_BY_VALUE}
+          sortBy={
+            this.props.location.query.sortBy || this.DEFAULT_SORT_BY_VALUE
+          }
           searchString={this.props.location.query.searchString}
           role={this.props.location.query.role}
           location={this.props.location}
@@ -206,14 +236,14 @@ class AdminPersonList extends React.Component {
         {organizationData.organization && (
           <div>
             <Dialog
-              title='Invite new texters'
+              title="Invite new texters"
               actions={[
                 <FlatButton
                   {...dataTest('inviteOk')}
-                  label='OK'
+                  label="OK"
                   primary
                   onTouchTap={this.handleClose}
-                />
+                />,
               ]}
               modal={false}
               open={this.state.open}
@@ -236,42 +266,46 @@ AdminPersonList.propTypes = {
   userData: PropTypes.object,
   organizationData: PropTypes.object,
   router: PropTypes.object,
-  location: PropTypes.object
+  location: PropTypes.object,
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
   userData: {
-    query: gql` query getCurrentUserAndRoles($organizationId: String!) {
-      currentUser {
-        id
-        roles(organizationId: $organizationId)
+    query: gql`
+      query getCurrentUserAndRoles($organizationId: String!) {
+        currentUser {
+          id
+          roles(organizationId: $organizationId)
+        }
       }
-    }`,
+    `,
     variables: {
-      organizationId: ownProps.params.organizationId
+      organizationId: ownProps.params.organizationId,
     },
-    forceFetch: true
+    forceFetch: true,
   },
   organizationData: {
-    query: gql`query getOrganizationData($organizationId: String!) {
-      organization(id: $organizationId) {
-        id
-        uuid
-        campaigns(campaignsFilter: { isArchived: false }) {
-          ... on CampaignsList{
-            campaigns{
-              id
-              title
+    query: gql`
+      query getOrganizationData($organizationId: String!) {
+        organization(id: $organizationId) {
+          id
+          uuid
+          campaigns(campaignsFilter: { isArchived: false }) {
+            ... on CampaignsList {
+              campaigns {
+                id
+                title
+              }
             }
           }
         }
       }
-    }`,
+    `,
     variables: {
-      organizationId: ownProps.params.organizationId
+      organizationId: ownProps.params.organizationId,
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
 export default loadData(withRouter(AdminPersonList), { mapQueriesToProps })

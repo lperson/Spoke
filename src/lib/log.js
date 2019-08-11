@@ -16,20 +16,27 @@ if (isClient()) {
   }
 } else {
   let enableRollbar = false
-  if (process.env.NODE_ENV === 'production' && process.env.ROLLBAR_ACCESS_TOKEN) {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.ROLLBAR_ACCESS_TOKEN
+  ) {
     enableRollbar = true
     rollbar.init(process.env.ROLLBAR_ACCESS_TOKEN)
   }
 
-  minilog.suggest.deny(/.*/, process.env.NODE_ENV === 'development' ? 'debug' : 'debug')
+  minilog.suggest.deny(
+    /.*/,
+    process.env.NODE_ENV === 'development' ? 'debug' : 'debug'
+  )
 
-  minilog.enable()
+  minilog
+    .enable()
     .pipe(minilog.backends.console.formatWithStack)
     .pipe(minilog.backends.console)
 
   logInstance = minilog('backend')
   const existingErrorLogger = logInstance.error
-  logInstance.error = (err) => {
+  logInstance.error = err => {
     if (enableRollbar) {
       if (typeof err === 'object') {
         rollbar.handleError(err)
@@ -44,6 +51,6 @@ if (isClient()) {
   }
 }
 
-const log = (process.env.LAMBDA_DEBUG_LOG ? console : logInstance)
+const log = process.env.LAMBDA_DEBUG_LOG ? console : logInstance
 
 export { log }

@@ -15,7 +15,7 @@ const styles = {
     padding: '0 12px',
     borderRadius: '16px',
     backgroundColor: '#e4e4e4',
-    margin: 5
+    margin: 5,
   },
   icon: {
     cursor: 'pointer',
@@ -25,15 +25,26 @@ const styles = {
     height: '30px',
     width: '16px',
     paddingLeft: '8px',
-    color: 'rgba(0,0,0,0.6)'
-  }
+    color: 'rgba(0,0,0,0.6)',
+  },
 }
 
-function Chip({ text, iconRightClass, onIconRightTouchTap, onTouchTap, style = {} }) {
+function Chip({
+  text,
+  iconRightClass,
+  onIconRightTouchTap,
+  onTouchTap,
+  style = {},
+}) {
   return (
     <div style={_.extend({}, styles.chip, style)} onTouchTap={onTouchTap}>
       {text}
-      {iconRightClass ? React.createElement(iconRightClass, { style: styles.icon, onTouchTap: onIconRightTouchTap }) : ''}
+      {iconRightClass
+        ? React.createElement(iconRightClass, {
+            style: styles.icon,
+            onTouchTap: onIconRightTouchTap,
+          })
+        : ''}
     </div>
   )
 }
@@ -43,7 +54,7 @@ Chip.propTypes = {
   iconRightClass: PropTypes.string,
   onIconRightTouchTap: PropTypes.func,
   onTouchTap: PropTypes.func,
-  style: PropTypes.object
+  style: PropTypes.object,
 }
 
 export default Chip

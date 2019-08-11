@@ -6,27 +6,29 @@ import Chip from 'material-ui/Chip'
 const ssStyles = StyleSheet.create({
   container: {
     display: 'flex',
-    flexWrap: 'wrap'
-  }
+    flexWrap: 'wrap',
+  },
 })
 
 const styles = {
   chip: {
-    margin: 6
-  }
+    margin: 6,
+  },
 }
 
-const SelectedCampaigns = (props) => (
+const SelectedCampaigns = props => (
   <div className={css(ssStyles.container)}>
-    {!!props.campaigns.length && <Chip
-      style={styles.chip}
-      key={0}
-      onClick={props.onClear}
-      backgroundColor='#FFC0CB'
-    >
-      Clear campaigns
-    </Chip>}
-    {props.campaigns.map((campaign) => (
+    {!!props.campaigns.length && (
+      <Chip
+        style={styles.chip}
+        key={0}
+        onClick={props.onClear}
+        backgroundColor="#FFC0CB"
+      >
+        Clear campaigns
+      </Chip>
+    )}
+    {props.campaigns.map(campaign => (
       <Chip
         style={styles.chip}
         key={campaign.key}
@@ -41,7 +43,7 @@ const SelectedCampaigns = (props) => (
 SelectedCampaigns.propTypes = {
   campaigns: PropTypes.array.isRequired,
   onDeleteRequested: PropTypes.func.isRequired,
-  onClear: PropTypes.func.isRequired
+  onClear: PropTypes.func.isRequired,
 }
 
 export default SelectedCampaigns

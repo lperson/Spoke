@@ -8,20 +8,19 @@ const OrganizationJoinLink = ({ organizationUuid, campaignId }) => {
     baseUrl = window.location.origin
   }
 
-  const joinUrl = ((campaignId)
+  const joinUrl = campaignId
     ? `${baseUrl}/${organizationUuid}/join/${campaignId}`
-    : `${baseUrl}/${organizationUuid}/join`)
+    : `${baseUrl}/${organizationUuid}/join`
 
-  const textContent = 'Send your texting volunteers this link! Once they sign up, they\'ll be automatically assigned to this campaign.'
+  const textContent =
+    "Send your texting volunteers this link! Once they sign up, they'll be automatically assigned to this campaign."
 
-  return (
-    <DisplayLink url={joinUrl} textContent={textContent} />
-  )
+  return <DisplayLink url={joinUrl} textContent={textContent} />
 }
 
 OrganizationJoinLink.propTypes = {
   organizationUuid: PropTypes.string,
-  campaignId: PropTypes.string
+  campaignId: PropTypes.string,
 }
 
 export default OrganizationJoinLink

@@ -7,9 +7,10 @@ const webpackPort = process.env.WEBPACK_PORT || 3000
 const appPort = process.env.DEV_APP_PORT
 const webpackHost = process.env.WEBPACK_HOST || '127.0.0.1'
 
-Object.keys(config.entry)
-.forEach((key) => {
-  config.entry[key].unshift(`webpack-dev-server/client?http://${webpackHost}:${webpackPort}/`)
+Object.keys(config.entry).forEach(key => {
+  config.entry[key].unshift(
+    `webpack-dev-server/client?http://${webpackHost}:${webpackPort}/`
+  )
   config.entry[key].unshift('webpack/hot/only-dev-server')
 })
 
@@ -26,7 +27,7 @@ const app = new WebpackDevServer(compiler, {
   disableHostCheck: true,
   headers: { 'Access-Control-Allow-Origin': '*' },
   proxy: {
-    '*': `http://127.0.0.1:${appPort}`
+    '*': `http://127.0.0.1:${appPort}`,
   },
   stats: {
     colors: true,
@@ -42,10 +43,12 @@ const app = new WebpackDevServer(compiler, {
     errors: false,
     errorDetails: false,
     warnings: true,
-    publicPath: false
-  }
+    publicPath: false,
+  },
 })
 
 app.listen(webpackPort || process.env.PORT, () => {
-  log.info(`Webpack dev server is now running on http://${webpackHost}:${webpackPort}`)
+  log.info(
+    `Webpack dev server is now running on http://${webpackHost}:${webpackPort}`
+  )
 })

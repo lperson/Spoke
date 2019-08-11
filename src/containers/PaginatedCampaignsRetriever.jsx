@@ -31,14 +31,15 @@ export class PaginatedCampaignsRetriever extends Component {
       this.props.onCampaignsReceived(this.props.campaigns.campaigns.campaigns)
     }
 
-    const newOffset = this.props.campaigns.campaigns.pageInfo.offset + this.props.pageSize
+    const newOffset =
+      this.props.campaigns.campaigns.pageInfo.offset + this.props.pageSize
     if (newOffset < this.props.campaigns.campaigns.pageInfo.total) {
       this.props.campaigns.fetchMore({
         variables: {
           cursor: {
             offset: newOffset,
-            limit: this.props.pageSize
-          }
+            limit: this.props.pageSize,
+          },
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) {
@@ -48,9 +49,10 @@ export class PaginatedCampaignsRetriever extends Component {
           returnValue.campaigns.campaigns = returnValue.campaigns.campaigns.concat(
             fetchMoreResult.data.campaigns.campaigns
           )
-          returnValue.campaigns.pageInfo = fetchMoreResult.data.campaigns.pageInfo
+          returnValue.campaigns.pageInfo =
+            fetchMoreResult.data.campaigns.pageInfo
           return returnValue
-        }
+        },
       })
     }
   }
@@ -91,20 +93,22 @@ const mapQueriesToProps = ({ ownProps }) => ({
     variables: {
       cursor: { offset: 0, limit: ownProps.pageSize },
       organizationId: ownProps.organizationId,
-      campaignsFilter: ownProps.campaignsFilter
+      campaignsFilter: ownProps.campaignsFilter,
     },
-    forceFetch: true
-  }
+    forceFetch: true,
+  },
 })
 
 PaginatedCampaignsRetriever.propTypes = {
   organizationId: PropTypes.string.isRequired,
   campaignsFilter: PropTypes.shape({
     isArchived: PropTypes.bool,
-    campaignId: PropTypes.number
+    campaignId: PropTypes.number,
   }),
   onCampaignsReceived: PropTypes.func.isRequired,
-  pageSize: PropTypes.number.isRequired
+  pageSize: PropTypes.number.isRequired,
 }
 
-export default loadData(withRouter(PaginatedCampaignsRetriever), { mapQueriesToProps })
+export default loadData(withRouter(PaginatedCampaignsRetriever), {
+  mapQueriesToProps,
+})

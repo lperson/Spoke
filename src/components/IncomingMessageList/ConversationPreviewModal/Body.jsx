@@ -8,7 +8,7 @@ export default class ConversationPreviewBody extends Component {
     super(props)
 
     this.state = {
-      messages: props.conversation.messages
+      messages: props.conversation.messages,
     }
 
     this.messagesChanged = this.messagesChanged.bind(this)
@@ -35,5 +35,5 @@ export default class ConversationPreviewBody extends Component {
 }
 
 ConversationPreviewBody.propTypes = {
-  conversation: PropTypes.object
+  conversation: PropTypes.object,
 }

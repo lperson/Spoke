@@ -5,7 +5,7 @@ import yup from 'yup'
 import GSForm from './forms/GSForm'
 
 class CannedResponseForm extends React.Component {
-  handleSave = (formValues) => {
+  handleSave = formValues => {
     const { onSaveCannedResponse } = this.props
     onSaveCannedResponse(formValues)
   }
@@ -13,28 +13,19 @@ class CannedResponseForm extends React.Component {
   render() {
     const modelSchema = yup.object({
       title: yup.string().required(),
-      text: yup.string().required()
+      text: yup.string().required(),
     })
 
     const { customFields } = this.props
     return (
       <div>
-        <GSForm
-          ref='form'
-          schema={modelSchema}
-          onSubmit={this.handleSave}
-        >
-          <Form.Field
-            name='title'
-            autoFocus
-            fullWidth
-            label='Title'
-          />
+        <GSForm ref="form" schema={modelSchema} onSubmit={this.handleSave}>
+          <Form.Field name="title" autoFocus fullWidth label="Title" />
           <Form.Field
             customFields={customFields}
-            name='text'
-            type='script'
-            label='Script'
+            name="text"
+            type="script"
+            label="Script"
             multiLine
             fullWidth
           />
@@ -46,7 +37,7 @@ class CannedResponseForm extends React.Component {
 
 CannedResponseForm.propTypes = {
   onSaveCannedResponse: type.func,
-  customFields: type.array
+  customFields: type.array,
 }
 
 export default CannedResponseForm

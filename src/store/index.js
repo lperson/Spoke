@@ -9,7 +9,7 @@ export default class Store {
     const reducer = combineReducers({
       ...reducers,
       apollo: ApolloClientSingleton.reducer(),
-      routing: routerReducer
+      routing: routerReducer,
     })
 
     this.data = createStore(
@@ -21,8 +21,10 @@ export default class Store {
           ApolloClientSingleton.middleware(),
           ReduxThunk.withExtraArgument(ApolloClientSingleton)
         ),
-         typeof window === 'object' &&
-         typeof window.devToolsExtension !== 'undefined' ? window.devToolsExtension() : f => f
+        typeof window === 'object' &&
+          typeof window.devToolsExtension !== 'undefined'
+          ? window.devToolsExtension()
+          : f => f
       )
     )
   }

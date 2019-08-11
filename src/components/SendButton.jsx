@@ -10,23 +10,26 @@ const styles = StyleSheet.create({
   container: {
     display: 'inline-block',
     marginLeft: 24,
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 })
 class SendButton extends Component {
   state = {
-    clickStepIndex: 0
+    clickStepIndex: 0,
   }
 
-  clickStepLabels = () => (this.props.threeClickEnabled ? ['Recipient ok?', 'Message ok?', 'Send message'] : ['Send'])
+  clickStepLabels = () =>
+    this.props.threeClickEnabled
+      ? ['Recipient ok?', 'Message ok?', 'Send message']
+      : ['Send']
 
   handleTouchTap = () => {
     const { clickStepIndex } = this.state
     const { onFinalTouchTap } = this.props
 
-    if (clickStepIndex < (this.clickStepLabels().length - 1)) {
+    if (clickStepIndex < this.clickStepLabels().length - 1) {
       this.setState({
-        clickStepIndex: clickStepIndex + 1
+        clickStepIndex: clickStepIndex + 1,
       })
     } else {
       onFinalTouchTap()
@@ -51,7 +54,7 @@ class SendButton extends Component {
 SendButton.propTypes = {
   threeClickEnabled: PropTypes.bool,
   onFinalTouchTap: PropTypes.func,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 }
 
 export default SendButton

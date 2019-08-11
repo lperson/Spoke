@@ -1,21 +1,22 @@
 import { r } from '../../models'
 
-const cacheKey = (orgId) => `${process.env.CACHE_PREFIX | ''}org-${orgId}`
+const cacheKey = orgId => `${process.env.CACHE_PREFIX | ''}org-${orgId}`
 
 export const organizationCache = {
-  clear: async (id) => {
+  clear: async id => {
     if (r.redis) {
       await r.redis.delAsync(cacheKey(id))
     }
   },
-  load: async (id) => {
+  load: async id => {
     if (r.redis) {
       const orgData = await r.redis.getAsync(cacheKey(id))
       if (orgData) {
         return JSON.parse(orgData)
       }
     }
-    const [dbResult] = await r.knex('organization')
+    const [dbResult] = await r
+      .knex('organization')
       .where('id', id)
       .select('*')
       .limit(1)
@@ -26,14 +27,15 @@ export const organizationCache = {
         dbResult.feature = {}
       }
       if (r.redis) {
-        await r.redis.multi()
+        await r.redis
+          .multi()
           .set(cacheKey(id), JSON.stringify(dbResult))
           .expire(cacheKey(id), 86400)
           .execAsync()
       }
       return dbResult
     }
-  }
+  },
 }
 
 export default organizationCache

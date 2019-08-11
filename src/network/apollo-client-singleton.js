@@ -5,7 +5,8 @@ import fetch from 'isomorphic-fetch'
 import { graphQLErrorParser } from './errors'
 
 const responseMiddlewareNetworkInterface = new ResponseMiddlewareNetworkInterface(
-  process.env.GRAPHQL_URL || '/graphql', { credentials: 'same-origin' }
+  process.env.GRAPHQL_URL || '/graphql',
+  { credentials: 'same-origin' }
 )
 
 responseMiddlewareNetworkInterface.use({
@@ -20,11 +21,15 @@ responseMiddlewareNetworkInterface.use({
       } else if (parsedError.status === 404) {
         window.location = '/404'
       } else {
-        log.error(`GraphQL request resulted in error:\nRequest:${JSON.stringify(response.data)}\nError:${JSON.stringify(response.errors)}`)
+        log.error(
+          `GraphQL request resulted in error:\nRequest:${JSON.stringify(
+            response.data
+          )}\nError:${JSON.stringify(response.errors)}`
+        )
       }
     }
     next()
-  }
+  },
 })
 
 const networkInterface = addQueryMerging(responseMiddlewareNetworkInterface)
@@ -32,6 +37,6 @@ const networkInterface = addQueryMerging(responseMiddlewareNetworkInterface)
 const ApolloClientSingleton = new ApolloClient({
   networkInterface,
   shouldBatch: true,
-  dataIdFromObject: (result) => result.id
+  dataIdFromObject: result => result.id,
 })
 export default ApolloClientSingleton

@@ -9,28 +9,27 @@ import { StyleSheet, css } from 'aphrodite'
 const styles = StyleSheet.create({
   container: {
     display: 'inline-block',
-    marginLeft: 20
+    marginLeft: 20,
   },
   icon: {
     color: 'rgb(83, 180, 119)',
     width: 40,
-    height: 40
+    height: 40,
   },
   arrowButton: {
     '@media(min-width: 450px)': {
-      display: 'none !important'
+      display: 'none !important',
     },
     '@media(max-width: 450px)': {
-      display: 'block !important'
+      display: 'block !important',
     },
     position: 'absolute',
     right: 2,
     bottom: 125,
-    zIndex: 100
-  }
+    zIndex: 100,
+  },
 })
 class SendButtonArrow extends Component {
-
   handleTouchTap = () => {
     const { onFinalTouchTap } = this.props
     return onFinalTouchTap()
@@ -55,7 +54,7 @@ class SendButtonArrow extends Component {
 SendButtonArrow.propTypes = {
   threeClickEnabled: PropTypes.boolean,
   onClick: PropTypes.function,
-  disabled: PropTypes.boolean
+  disabled: PropTypes.boolean,
 }
 
 export default SendButtonArrow

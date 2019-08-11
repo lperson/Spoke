@@ -1,5 +1,12 @@
 import _ from 'lodash'
-import { createLoaders, createTables, dropTables, User, CampaignContact, r } from '../src/server/models/'
+import {
+  createLoaders,
+  createTables,
+  dropTables,
+  User,
+  CampaignContact,
+  r,
+} from '../src/server/models/'
 import { graphql } from 'graphql'
 
 export async function setupTest() {
@@ -15,7 +22,7 @@ export function getContext(context) {
   return {
     ...context,
     req: {},
-    loaders: createLoaders()
+    loaders: createLoaders(),
   }
 }
 import loadData from '../src/containers/hoc/load-data'
@@ -43,7 +50,7 @@ export function getGql(componentPath, props) {
           const m = mutation(...params)
           return [m.mutation.loc.source.body, m.variables]
         }
-      )
+      ),
     }
   }, {})
 
@@ -62,7 +69,7 @@ export async function createUser(
     first_name: 'TestUserFirst',
     last_name: 'TestUserLast',
     cell: '555-555-5555',
-    email: 'testuser@example.com'
+    email: 'testuser@example.com',
   }
 ) {
   const user = new User(userInfo)
@@ -78,12 +85,11 @@ export async function createContact(campaign) {
     last_name: 'Lewis',
     cell: '5555555555',
     zip: '12345',
-    campaign_id: campaignId
+    campaign_id: campaignId,
   })
   await contact.save()
   return contact
 }
-
 
 import { makeExecutableSchema } from 'graphql-tools'
 import { resolvers } from '../src/server/api/schema'
@@ -92,7 +98,7 @@ import { schema } from '../src/api/schema'
 const mySchema = makeExecutableSchema({
   typeDefs: schema,
   resolvers,
-  allowUndefinedInResolve: true
+  allowUndefinedInResolve: true,
 })
 
 const rootValue = {}
@@ -129,7 +135,7 @@ export async function createOrganization(user, invite) {
   const variables = {
     userId,
     name,
-    inviteId
+    inviteId,
   }
   return await graphql(mySchema, orgQuery, rootValue, context, variables)
 }
@@ -149,10 +155,16 @@ export async function createCampaign(user, organization) {
     input: {
       title,
       description,
-      organizationId
-    }
+      organizationId,
+    },
   }
-  const ret = await graphql(mySchema, campaignQuery, rootValue, context, variables)
+  const ret = await graphql(
+    mySchema,
+    campaignQuery,
+    rootValue,
+    context,
+    variables
+  )
   return ret.data.createCampaign
 }
 
@@ -162,7 +174,7 @@ export async function createTexter(organization) {
     first_name: 'TestTexterFirst',
     last_name: 'TestTexterLast',
     cell: '555-555-6666',
-    email: 'testtexter@example.com'
+    email: 'testtexter@example.com',
   })
   const joinQuery = `
   mutation joinOrganization($organizationUuid: String!) {
@@ -171,7 +183,7 @@ export async function createTexter(organization) {
     }
   }`
   const variables = {
-    organizationUuid: organization.data.createOrganization.uuid
+    organizationUuid: organization.data.createOrganization.uuid,
   }
   const context = getContext({ user })
   await graphql(mySchema, joinQuery, rootValue, context, variables)
@@ -190,16 +202,22 @@ export async function assignTexter(admin, user, campaign) {
   const campaignId = updateCampaign.id
   updateCampaign.texters = [
     {
-      id: user.id
-    }
+      id: user.id,
+    },
   ]
   delete updateCampaign.id
   delete updateCampaign.contacts
   const variables = {
     campaignId,
-    campaign: updateCampaign
+    campaign: updateCampaign,
   }
-  return await graphql(mySchema, campaignEditQuery, rootValue, context, variables)
+  return await graphql(
+    mySchema,
+    campaignEditQuery,
+    rootValue,
+    context,
+    variables
+  )
 }
 
 export async function createScript(admin, campaign) {
@@ -231,15 +249,20 @@ export async function createScript(admin, campaign) {
             answerActions: '',
             parentInteractionId: '1',
             isDeleted: false,
-            interactionSteps: []
-          }
-        ]
-      }
-    }
+            interactionSteps: [],
+          },
+        ],
+      },
+    },
   }
-  return await graphql(mySchema, campaignEditQuery, rootValue, context, variables)
+  return await graphql(
+    mySchema,
+    campaignEditQuery,
+    rootValue,
+    context,
+    variables
+  )
 }
-
 
 jest.mock('../src/server/mail')
 export async function startCampaign(admin, campaign) {
@@ -250,12 +273,18 @@ export async function startCampaign(admin, campaign) {
   }`
   const context = getContext({ user: admin })
   const variables = { campaignId: campaign.id }
-  return await graphql(mySchema, startCampaignQuery, rootValue, context, variables)
+  return await graphql(
+    mySchema,
+    startCampaignQuery,
+    rootValue,
+    context,
+    variables
+  )
 }
 
 export async function getCampaignContact(id) {
   return await r
-  .knex('campaign_contact')
-  .where({ id })
-  .first()
+    .knex('campaign_contact')
+    .where({ id })
+    .first()
 }

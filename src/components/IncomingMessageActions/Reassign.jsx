@@ -15,14 +15,13 @@ const styles = StyleSheet.create({
     alignContent: 'flex-start',
     justifyContent: 'flex-start',
     flexWrap: 'wrap',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   flexColumn: {
     display: 'flex',
-    marginRight: '10px'
-  }
+    marginRight: '10px',
+  },
 })
-
 
 class Reassign extends Component {
   constructor(props) {
@@ -30,7 +29,7 @@ class Reassign extends Component {
 
     this.onReassignmentClicked = this.onReassignmentClicked.bind(this)
     this.state = {
-      confirmDialogOpen: false
+      confirmDialogOpen: false,
     }
   }
 
@@ -75,83 +74,85 @@ class Reassign extends Component {
     const texterNodes = !this.props.people
       ? []
       : this.props.people.map(user => {
-        const userId = parseInt(user.id, 10)
-        const label = user.displayName + ' ' + getHighestRole(user.roles)
-        return dataSourceItem(label, userId)
-      })
+          const userId = parseInt(user.id, 10)
+          const label = user.displayName + ' ' + getHighestRole(user.roles)
+          return dataSourceItem(label, userId)
+        })
     texterNodes.sort((left, right) => {
       return left.text.localeCompare(right.text, 'en', { sensitivity: 'base' })
     })
 
     const confirmDialogActions = [
       <FlatButton
-        label='Cancel'
+        label="Cancel"
         primary
         onClick={this.handleConfirmDialogCancel}
       />,
       <FlatButton
-        label='Reassign'
+        label="Reassign"
         primary
         onClick={this.handleConfirmDialogReassign}
-      />
+      />,
     ]
 
-    return (< div className={css(styles.container)} >
-      <div className={css(styles.flexColumn)}>
-        <AutoComplete
-          filter={AutoComplete.caseInsensitiveFilter}
-          maxSearchResults={8}
-          onFocus={() => this.setState({
-            reassignTo: undefined,
-            texterSearchText: ''
-          })}
-          onUpdateInput={texterSearchText =>
-            this.setState({ texterSearchText })
-          }
-          searchText={this.state.texterSearchText}
-          dataSource={texterNodes}
-          hintText={'Search for a texter'}
-          floatingLabelText={'Reassign to ...'}
-          onNewRequest={this.onReassignChanged}
-        />
-      </div>
-      <div className={css(styles.flexColumn)}>
-        <RaisedButton
-          label={'Reassign selected'}
-          onClick={this.onReassignmentClicked}
-          disabled={!this.state.reassignTo}
-        />
-      </div>
-      {
-        this.props.conversationCount ? (
+    return (
+      <div className={css(styles.container)}>
+        <div className={css(styles.flexColumn)}>
+          <AutoComplete
+            filter={AutoComplete.caseInsensitiveFilter}
+            maxSearchResults={8}
+            onFocus={() =>
+              this.setState({
+                reassignTo: undefined,
+                texterSearchText: '',
+              })
+            }
+            onUpdateInput={texterSearchText =>
+              this.setState({ texterSearchText })
+            }
+            searchText={this.state.texterSearchText}
+            dataSource={texterNodes}
+            hintText={'Search for a texter'}
+            floatingLabelText={'Reassign to ...'}
+            onNewRequest={this.onReassignChanged}
+          />
+        </div>
+        <div className={css(styles.flexColumn)}>
+          <RaisedButton
+            label={'Reassign selected'}
+            onClick={this.onReassignmentClicked}
+            disabled={!this.state.reassignTo}
+          />
+        </div>
+        {this.props.conversationCount ? (
           <div className={css(styles.flexColumn)}>
             <RaisedButton
               label={`Reassign all ${this.props.conversationCount} matching`}
               onClick={this.onReassignAllMatchingClicked}
               disabled={!this.state.reassignTo}
             />
-          </div>) : ''
-      }
-      <Dialog
-        actions={confirmDialogActions}
-        open={this.state.confirmDialogOpen}
-        modal
-        onRequestClose={this.handleConfirmDialogCancel}
-      >
-        {
-          `Reassign all ${this.props.conversationCount} matching conversations?`
-        }
-      </Dialog>
-    </div >)
+          </div>
+        ) : (
+          ''
+        )}
+        <Dialog
+          actions={confirmDialogActions}
+          open={this.state.confirmDialogOpen}
+          modal
+          onRequestClose={this.handleConfirmDialogCancel}
+        >
+          {`Reassign all ${this.props.conversationCount} matching conversations?`}
+        </Dialog>
+      </div>
+    )
   }
 }
-
 
 Reassign.propTypes = {
   people: type.array.isRequired,
   onReassignRequested: type.func.isRequired,
   onReassignAllMatchingRequested: type.func.isRequired,
-  conversationCount: type.number.isRequired
+  conversationCount: type.number.isRequired,
 }
 
 export default Reassign

@@ -6,11 +6,11 @@ class Search extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      searchString: props.searchString
+      searchString: props.searchString,
     }
   }
 
-  handleSearchStringChanged = (searchString) => {
+  handleSearchStringChanged = searchString => {
     const trimmedSearchString = searchString.trim()
     if (!!this.state.searchString && !trimmedSearchString) {
       this.props.onSearchRequested(undefined)
@@ -28,7 +28,6 @@ class Search extends React.Component {
       onChange={this.handleSearchStringChanged}
       value={this.props.searchString}
       hintText={this.props.hintText}
-      
     />
   )
 }
@@ -36,8 +35,7 @@ class Search extends React.Component {
 Search.propTypes = {
   searchString: PropTypes.string,
   onSearchRequested: PropTypes.func.isRequired,
-  hintText: PropTypes.string
+  hintText: PropTypes.string,
 }
 
 export default Search
-

@@ -6,8 +6,12 @@ jasmine.getEnv().addReporter(selenium.reporter)
 
 describe('Create and Copy Campaign', () => {
   // Instantiate browser(s)
-  const driverAdmin = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Create and Copy Campaign - Admin' })
-  const driverTexter = selenium.buildDriver({ name: 'Spoke E2E Tests - Chrome - Create and Copy Campaign - Texter' })
+  const driverAdmin = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Create and Copy Campaign - Admin',
+  })
+  const driverTexter = selenium.buildDriver({
+    name: 'Spoke E2E Tests - Chrome - Create and Copy Campaign - Texter',
+  })
   const CAMPAIGN = STRINGS.campaigns.copyCampaign
 
   beforeAll(() => {

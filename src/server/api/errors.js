@@ -5,12 +5,17 @@ export function authRequired(user) {
   if (!user) {
     throw new GraphQLError({
       status: 401,
-      message: 'You must login to access that resource.'
+      message: 'You must login to access that resource.',
     })
   }
 }
 
-export async function accessRequired(user, orgId, role, allowSuperadmin = false) {
+export async function accessRequired(
+  user,
+  orgId,
+  role,
+  allowSuperadmin = false
+) {
   authRequired(user)
   if (!orgId) {
     throw new Error('orgId not passed correctly to accessRequired')
@@ -36,19 +41,27 @@ export async function assignmentRequired(user, assignmentId, assignment) {
     return true
   }
 
-  const [userHasAssignment] = await r.knex('assignment')
-  .where({
-    user_id: user.id,
-    id: assignmentId
-  }).limit(1)
+  const [userHasAssignment] = await r
+    .knex('assignment')
+    .where({
+      user_id: user.id,
+      id: assignmentId,
+    })
+    .limit(1)
 
-  if (!userHasAssignment) { // undefined or null
+  if (!userHasAssignment) {
+    // undefined or null
     throw new GraphQLError('You are not authorized to access that resource.')
   }
   return true
 }
 
-export async function assignmentOrSupervolunteerRequired(organizationId, user, assignmentId, assignment) {
+export async function assignmentOrSupervolunteerRequired(
+  organizationId,
+  user,
+  assignmentId,
+  assignment
+) {
   try {
     await assignmentRequired(user, assignmentId, assignment)
   } catch (e) {
@@ -56,7 +69,7 @@ export async function assignmentOrSupervolunteerRequired(organizationId, user, a
     if (e instanceof GraphQLError) {
       accessRequired(user, organizationId, 'SUPERVOLUNTEER', true)
     } else {
-      throw (e)
+      throw e
     }
   }
 

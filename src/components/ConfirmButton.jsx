@@ -10,18 +10,19 @@ import Dialog from 'material-ui/Dialog'
 const styles = StyleSheet.create({
   container: {
     display: 'inline-block',
-    marginLeft: 20
-  }
+    marginLeft: 20,
+  },
 })
 
 export default class ConfirmButton extends Component {
-
   state = {
-    showConfirmationDialog: false
+    showConfirmationDialog: false,
   }
 
   toggleConfirmationDialog = () => {
-    this.setState({ showConfirmationDialog: !this.state.showConfirmationDialog })
+    this.setState({
+      showConfirmationDialog: !this.state.showConfirmationDialog,
+    })
   }
 
   handleConfirm = async () => {
@@ -31,16 +32,8 @@ export default class ConfirmButton extends Component {
 
   render() {
     const actions = [
-      <FlatButton
-        label='No'
-        primary
-        onClick={this.toggleConfirmationDialog}
-      />,
-      <FlatButton
-        label='Yes'
-        primary
-        onClick={this.handleConfirm}
-      />
+      <FlatButton label="No" primary onClick={this.toggleConfirmationDialog} />,
+      <FlatButton label="Yes" primary onClick={this.handleConfirm} />,
     ]
 
     return (
@@ -64,5 +57,5 @@ export default class ConfirmButton extends Component {
 
 ConfirmButton.propTypes = {
   onConfirm: PropTypes.function,
-  label: PropTypes.string
+  label: PropTypes.string,
 }

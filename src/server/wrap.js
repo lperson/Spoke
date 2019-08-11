@@ -2,10 +2,10 @@
  catch and handle uncaught exceptions in
  asynchronous code. */
 import { log } from '../lib'
-export default (fn) =>
-  (...args) =>
-    fn(...args)
-      .catch((ex) => {
-        log.error(ex)
-        process.nextTick(() => { throw ex })
-      })
+export default fn => (...args) =>
+  fn(...args).catch(ex => {
+    log.error(ex)
+    process.nextTick(() => {
+      throw ex
+    })
+  })

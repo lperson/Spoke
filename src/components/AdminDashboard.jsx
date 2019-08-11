@@ -10,24 +10,24 @@ import loadData from '../containers/hoc/load-data'
 import AdminNavigation from '../containers/AdminNavigation'
 const styles = StyleSheet.create({
   container: {
-    ...theme.layouts.multiColumn.container
+    ...theme.layouts.multiColumn.container,
   },
   sidebar: {
-    minHeight: 'calc(100vh - 56px)'
+    minHeight: 'calc(100vh - 56px)',
   },
   content: {
     ...theme.layouts.multiColumn.flexColumn,
     paddingLeft: '2rem',
     paddingRight: '2rem',
-    margin: '24px auto'
-  }
+    margin: '24px auto',
+  },
 })
 
 class AdminDashboard extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      showMenu: true
+      showMenu: true,
     }
 
     this.handleToggleMenu = this.handleToggleMenu.bind(this)
@@ -38,7 +38,7 @@ class AdminDashboard extends React.Component {
   }
 
   async handleToggleMenu() {
-    await this.setState({showMenu: !this.state.showMenu})
+    await this.setState({ showMenu: !this.state.showMenu })
   }
 
   renderNavigation(sections) {
@@ -67,47 +67,56 @@ class AdminDashboard extends React.Component {
     // HACK: Setting params.adminPerms helps us hide non-supervolunteer functionality
     params.adminPerms = hasRole('ADMIN', roles || [])
 
-    const sections = [{
-      name: 'Campaigns',
-      path: 'campaigns',
-      role: 'SUPERVOLUNTEER'
-    }, {
-      name: 'People',
-      path: 'people',
-      role: 'ADMIN'
-    }, {
-      name: 'Optouts',
-      path: 'optouts',
-      role: 'ADMIN'
-    }, {
-      name: 'Message Review',
-      path: 'incoming',
-      role: 'SUPERVOLUNTEER'
-    }, {
-      name: 'Settings',
-      path: 'settings',
-      role: 'SUPERVOLUNTEER'
-    }]
+    const sections = [
+      {
+        name: 'Campaigns',
+        path: 'campaigns',
+        role: 'SUPERVOLUNTEER',
+      },
+      {
+        name: 'People',
+        path: 'people',
+        role: 'ADMIN',
+      },
+      {
+        name: 'Optouts',
+        path: 'optouts',
+        role: 'ADMIN',
+      },
+      {
+        name: 'Message Review',
+        path: 'incoming',
+        role: 'SUPERVOLUNTEER',
+      },
+      {
+        name: 'Settings',
+        path: 'settings',
+        role: 'SUPERVOLUNTEER',
+      },
+    ]
 
-    let currentSection = sections.filter(
-      (section) => location.pathname.match(`/${section.path}`)
+    let currentSection = sections.filter(section =>
+      location.pathname.match(`/${section.path}`)
     )
 
     currentSection = currentSection.length > 0 ? currentSection.shift() : null
     const title = currentSection ? currentSection.name : 'Admin'
-    const backToURL = currentSection &&
-      location.pathname.split('/').pop() !== currentSection.path ?
-      this.urlFromPath(currentSection.path) :
-      null
+    const backToURL =
+      currentSection &&
+      location.pathname.split('/').pop() !== currentSection.path
+        ? this.urlFromPath(currentSection.path)
+        : null
 
     return (
       <div>
-        <TopNav title={title} backToURL={backToURL} orgId={params.organizationId} />
+        <TopNav
+          title={title}
+          backToURL={backToURL}
+          orgId={params.organizationId}
+        />
         <div className={css(styles.container)}>
-          {this.renderNavigation(sections.filter((s) => hasRole(s.role, roles)))}
-          <div className={css(styles.content)}>
-            {children}
-          </div>
+          {this.renderNavigation(sections.filter(s => hasRole(s.role, roles)))}
+          <div className={css(styles.content)}>{children}</div>
         </div>
       </div>
     )
@@ -118,21 +127,23 @@ AdminDashboard.propTypes = {
   router: PropTypes.object,
   params: PropTypes.object,
   children: PropTypes.object,
-  location: PropTypes.object
+  location: PropTypes.object,
 }
 
 const mapQueriesToProps = ({ ownProps }) => ({
   data: {
-    query: gql`query getCurrentUserRoles($organizationId: String!) {
-      currentUser {
-        id
-        roles(organizationId: $organizationId)
+    query: gql`
+      query getCurrentUserRoles($organizationId: String!) {
+        currentUser {
+          id
+          roles(organizationId: $organizationId)
+        }
       }
-    }`,
+    `,
     variables: {
-      organizationId: ownProps.params.organizationId
-    }
-  }
+      organizationId: ownProps.params.organizationId,
+    },
+  },
 })
 
 export default loadData(withRouter(AdminDashboard), { mapQueriesToProps })

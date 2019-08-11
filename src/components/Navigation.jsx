@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
   sideBarWithoutMenu: {
     writingMode: 'vertical-rl',
     padding: '5px',
-    paddingTop: '20px'
-  }
+    paddingTop: '20px',
+  },
 })
 
 const Navigation = function Navigation(props) {
@@ -32,14 +32,11 @@ const Navigation = function Navigation(props) {
           rounded={false}
           zDepth={2}
           style={{
-            height: '100%'
+            height: '100%',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <FlatButton
-              label={'Close Menu'}
-              onClick={props.onToggleMenu}
-            />
+            <FlatButton label={'Close Menu'} onClick={props.onToggleMenu} />
           </div>
 
           <List>
@@ -51,7 +48,7 @@ const Navigation = function Navigation(props) {
                 onTouchTap={() => props.router.push(section.url)}
               />
             ))}
-            <Divider/>
+            <Divider />
             {switchListItem}
           </List>
         </Paper>
@@ -59,17 +56,18 @@ const Navigation = function Navigation(props) {
     )
   } else {
     return (
-      <div className={css(styles.sideBarWithoutMenu)} onClick={props.onToggleMenu}>
-        <span style={{cursor: 'pointer'}}>
-          SHOW MENU
-        </span>
+      <div
+        className={css(styles.sideBarWithoutMenu)}
+        onClick={props.onToggleMenu}
+      >
+        <span style={{ cursor: 'pointer' }}>SHOW MENU</span>
       </div>
     )
   }
 }
 
 Navigation.defaultProps = {
-  showMenu: true
+  showMenu: true,
 }
 
 Navigation.propTypes = {
@@ -77,7 +75,7 @@ Navigation.propTypes = {
   switchListItem: PropTypes.object,
   router: PropTypes.object,
   onToggleMenu: PropTypes.func.isRequired,
-  showMenu: PropTypes.bool
+  showMenu: PropTypes.bool,
 }
 
 export default withRouter(Navigation)

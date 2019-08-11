@@ -19,11 +19,17 @@ export function addWhereClauseForContactsFilterMessageStatusIrrespectiveOfPastDu
   return query
 }
 
-export function getContacts(assignment, contactsFilter, organization, campaign, forCount = false) {
+export function getContacts(
+  assignment,
+  contactsFilter,
+  organization,
+  campaign,
+  forCount = false
+) {
   if (contactsFilter && contactsFilter.contactId) {
     return r.knex('campaign_contact').where({
       assignment_id: assignment.id,
-      id: contactsFilter.contactId
+      id: contactsFilter.contactId,
     })
   }
 
@@ -33,9 +39,10 @@ export function getContacts(assignment, contactsFilter, organization, campaign, 
   const textingHoursEnd = organization.texting_hours_end
 
   // 24-hours past due - why is this 24 hours offset?
-  const includePastDue = (contactsFilter && contactsFilter.includePastDue)
-  const pastDue = (campaign.due_by
-                   && Number(campaign.due_by) + 24 * 60 * 60 * 1000 < Number(new Date()))
+  const includePastDue = contactsFilter && contactsFilter.includePastDue
+  const pastDue =
+    campaign.due_by &&
+    Number(campaign.due_by) + 24 * 60 * 60 * 1000 < Number(new Date())
   const config = { textingHoursStart, textingHoursEnd, textingHoursEnforced }
 
   if (campaign.override_organization_texting_hours) {
@@ -44,16 +51,26 @@ export function getContacts(assignment, contactsFilter, organization, campaign, 
     const textingHoursEnforced = campaign.texting_hours_enforced
     const timezone = campaign.timezone
 
-    config.campaignTextingHours = { textingHoursStart, textingHoursEnd, textingHoursEnforced, timezone }
+    config.campaignTextingHours = {
+      textingHoursStart,
+      textingHoursEnd,
+      textingHoursEnforced,
+      timezone,
+    }
   }
 
   const [validOffsets, invalidOffsets] = getOffsets(config)
-  if (!includePastDue && pastDue && contactsFilter && contactsFilter.messageStatus === 'needsMessage') {
+  if (
+    !includePastDue &&
+    pastDue &&
+    contactsFilter &&
+    contactsFilter.messageStatus === 'needsMessage'
+  ) {
     return []
   }
 
   let query = r.knex('campaign_contact').where({
-    assignment_id: assignment.id
+    assignment_id: assignment.id,
   })
 
   if (contactsFilter) {
@@ -76,12 +93,12 @@ export function getContacts(assignment, contactsFilter, organization, campaign, 
 
     query = addWhereClauseForContactsFilterMessageStatusIrrespectiveOfPastDue(
       query,
-      ((contactsFilter && contactsFilter.messageStatus) ||
-       (pastDue
-        // by default if asking for 'send later' contacts we include only those that need replies
-        ? 'needsResponse'
-        // we do not want to return closed/messaged
-        : 'needsMessageOrResponse'))
+      (contactsFilter && contactsFilter.messageStatus) ||
+        (pastDue
+          ? // by default if asking for 'send later' contacts we include only those that need replies
+            'needsResponse'
+          : // we do not want to return closed/messaged
+            'needsMessageOrResponse')
     )
 
     if (Object.prototype.hasOwnProperty.call(contactsFilter, 'isOptedOut')) {
@@ -103,34 +120,40 @@ export function getContacts(assignment, contactsFilter, organization, campaign, 
 export const resolvers = {
   Assignment: {
     ...mapFieldsToModel(['id', 'maxContacts'], Assignment),
-    texter: async (assignment, _, { loaders }) => (
+    texter: async (assignment, _, { loaders }) =>
       assignment.texter
-      ? assignment.texter
-      : loaders.user.load(assignment.user_id)
-    ),
-    campaign: async (assignment, _, { loaders }) => loaders.campaign.load(assignment.campaign_id),
+        ? assignment.texter
+        : loaders.user.load(assignment.user_id),
+    campaign: async (assignment, _, { loaders }) =>
+      loaders.campaign.load(assignment.campaign_id),
     contactsCount: async (assignment, { contactsFilter }) => {
       const campaign = await r.table('campaign').get(assignment.campaign_id)
 
-      const organization = await r.table('organization').get(campaign.organization_id)
+      const organization = await r
+        .table('organization')
+        .get(campaign.organization_id)
 
-      return await r.getCount(getContacts(assignment, contactsFilter, organization, campaign, true))
+      return await r.getCount(
+        getContacts(assignment, contactsFilter, organization, campaign, true)
+      )
     },
     contacts: async (assignment, { contactsFilter }) => {
       const campaign = await r.table('campaign').get(assignment.campaign_id)
 
-      const organization = await r.table('organization').get(campaign.organization_id)
+      const organization = await r
+        .table('organization')
+        .get(campaign.organization_id)
       return getContacts(assignment, contactsFilter, organization, campaign)
     },
     campaignCannedResponses: async assignment =>
       await cacheableData.cannedResponse.query({
         userId: '',
-        campaignId: assignment.campaign_id
+        campaignId: assignment.campaign_id,
       }),
     userCannedResponses: async assignment =>
       await cacheableData.cannedResponse.query({
         userId: assignment.user_id,
-        campaignId: assignment.campaign_id
-      })
-  }
+        campaignId: assignment.campaign_id,
+      }),
+  },
 }

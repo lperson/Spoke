@@ -18,7 +18,9 @@ if (process.env.TWILIO_API_KEY && process.env.TWILIO_AUTH_TOKEN) {
 }
 
 if (!process.env.TWILIO_MESSAGE_SERVICE_SID) {
-  log.warn('Twilio will not be able to send without TWILIO_MESSAGE_SERVICE_SID set')
+  log.warn(
+    'Twilio will not be able to send without TWILIO_MESSAGE_SERVICE_SID set'
+  )
 }
 
 function webhook() {
@@ -27,7 +29,9 @@ function webhook() {
     return Twilio.webhook()
   } else {
     log.warn('NO TWILIO WEB VALIDATION')
-    return function (req, res, next) { next() }
+    return function(req, res, next) {
+      next()
+    }
   }
 }
 
@@ -35,13 +39,15 @@ async function convertMessagePartsToMessage(messageParts) {
   const firstPart = messageParts[0]
   const userNumber = firstPart.user_number
   const contactNumber = firstPart.contact_number
-  const serviceMessages = messageParts.map((part) => JSON.parse(part.service_message))
+  const serviceMessages = messageParts.map(part =>
+    JSON.parse(part.service_message)
+  )
   const text = serviceMessages
-    .map((serviceMessage) => serviceMessage.Body)
+    .map(serviceMessage => serviceMessage.Body)
     .join('')
 
   const lastMessage = await getLastMessage({
-    contactNumber
+    contactNumber,
   })
   return new Message({
     contact_number: contactNumber,
@@ -52,7 +58,7 @@ async function convertMessagePartsToMessage(messageParts) {
     service_id: serviceMessages[0].MessagingServiceSid,
     assignment_id: lastMessage.assignment_id,
     service: 'twilio',
-    send_status: 'DELIVERED'
+    send_status: 'DELIVERED',
   })
 }
 
@@ -77,21 +83,28 @@ async function rentNewCell() {
   }
   const newCell = await findNewCell()
 
-  if (newCell && newCell.availablePhoneNumbers && newCell.availablePhoneNumbers[0] && newCell.availablePhoneNumbers[0].phone_number) {
+  if (
+    newCell &&
+    newCell.availablePhoneNumbers &&
+    newCell.availablePhoneNumbers[0] &&
+    newCell.availablePhoneNumbers[0].phone_number
+  ) {
     return new Promise((resolve, reject) => {
-      twilio.incomingPhoneNumbers.create({
-        phoneNumber: newCell.availablePhoneNumbers[0].phone_number,
-        smsApplicationSid: process.env.TWILIO_APPLICATION_SID
-      }, (err, purchasedNumber) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(purchasedNumber.phone_number)
+      twilio.incomingPhoneNumbers.create(
+        {
+          phoneNumber: newCell.availablePhoneNumbers[0].phone_number,
+          smsApplicationSid: process.env.TWILIO_APPLICATION_SID,
+        },
+        (err, purchasedNumber) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(purchasedNumber.phone_number)
+          }
         }
-      })
+      )
     })
   }
-
 
   throw new Error('Did not find any cell')
 }
@@ -101,7 +114,7 @@ const mediaExtractor = new RegExp(/\[\s*(http[^\]\s]*)\s*\]/)
 function parseMessageText(message) {
   const text = message.text || ''
   const params = {
-    body: text.replace(mediaExtractor, '')
+    body: text.replace(mediaExtractor, ''),
   }
   // Image extraction
   const results = text.match(mediaExtractor)
@@ -113,11 +126,16 @@ function parseMessageText(message) {
 
 async function sendMessage(message, contact, trx) {
   if (!twilio) {
-    log.warn('cannot actually send SMS message -- twilio is not fully configured:', message.id)
+    log.warn(
+      'cannot actually send SMS message -- twilio is not fully configured:',
+      message.id
+    )
     if (message.id) {
       const options = trx ? { transaction: trx } : {}
-      await Message.get(message.id)
-        .update({ send_status: 'SENT', sent_at: new Date() }, options)
+      await Message.get(message.id).update(
+        { send_status: 'SENT', sent_at: new Date() },
+        options
+      )
     }
     return 'test_message_uuid'
   }
@@ -127,12 +145,15 @@ async function sendMessage(message, contact, trx) {
       log.warn('Message not marked as a twilio message', message.id)
     }
 
-    const messageParams = Object.assign({
-      to: message.contact_number,
-      body: message.text,
-      messagingServiceSid: process.env.TWILIO_MESSAGE_SERVICE_SID,
-      statusCallback: process.env.TWILIO_STATUS_CALLBACK_URL
-    }, parseMessageText(message))
+    const messageParams = Object.assign(
+      {
+        to: message.contact_number,
+        body: message.text,
+        messagingServiceSid: process.env.TWILIO_MESSAGE_SERVICE_SID,
+        statusCallback: process.env.TWILIO_STATUS_CALLBACK_URL,
+      },
+      parseMessageText(message)
+    )
 
     let twilioValidityPeriod = process.env.TWILIO_MESSAGE_VALIDITY_PERIOD
 
@@ -141,7 +162,9 @@ async function sendMessage(message, contact, trx) {
       // the send_before time, less 30 seconds
       // we subtract the MESSAGE_VALIDITY_PADDING_SECONDS seconds to allow time for the message to be sent by
       // a downstream service
-      const messageValidityPeriod = Math.ceil((message.send_before - Date.now())/1000) - MESSAGE_VALIDITY_PADDING_SECONDS
+      const messageValidityPeriod =
+        Math.ceil((message.send_before - Date.now()) / 1000) -
+        MESSAGE_VALIDITY_PADDING_SECONDS
 
       if (messageValidityPeriod < 0) {
         // this is an edge case
@@ -150,9 +173,16 @@ async function sendMessage(message, contact, trx) {
       }
 
       if (twilioValidityPeriod) {
-        twilioValidityPeriod = Math.min(twilioValidityPeriod, messageValidityPeriod, MAX_TWILIO_MESSAGE_VALIDITY)
+        twilioValidityPeriod = Math.min(
+          twilioValidityPeriod,
+          messageValidityPeriod,
+          MAX_TWILIO_MESSAGE_VALIDITY
+        )
       } else {
-        twilioValidityPeriod = Math.min(messageValidityPeriod, MAX_TWILIO_MESSAGE_VALIDITY)
+        twilioValidityPeriod = Math.min(
+          messageValidityPeriod,
+          MAX_TWILIO_MESSAGE_VALIDITY
+        )
       }
     }
 
@@ -162,7 +192,7 @@ async function sendMessage(message, contact, trx) {
 
     twilio.messages.create(messageParams, (err, response) => {
       const messageToSave = {
-        ...message
+        ...message,
       }
       log.info('messageToSave', messageToSave)
       let hasError = false
@@ -180,7 +210,10 @@ async function sendMessage(message, contact, trx) {
 
       if (hasError) {
         const SENT_STRING = '"status"' // will appear in responses
-        if (messageToSave.service_response.split(SENT_STRING).length >= MAX_SEND_ATTEMPTS + 1) {
+        if (
+          messageToSave.service_response.split(SENT_STRING).length >=
+          MAX_SEND_ATTEMPTS + 1
+        ) {
           messageToSave.send_status = 'ERROR'
         }
         let options = { conflict: 'update' }
@@ -188,22 +221,29 @@ async function sendMessage(message, contact, trx) {
           options.transaction = trx
         }
         Message.save(messageToSave, options)
-        // eslint-disable-next-line no-unused-vars
-        .then((_, newMessage) => {
-          reject(err || (response ? new Error(JSON.stringify(response)) : new Error('Encountered unknown error')))
-        })
+          // eslint-disable-next-line no-unused-vars
+          .then((_, newMessage) => {
+            reject(
+              err ||
+                (response
+                  ? new Error(JSON.stringify(response))
+                  : new Error('Encountered unknown error'))
+            )
+          })
       } else {
         let options = { conflict: 'update' }
         if (trx) {
           options.transaction = trx
         }
-        Message.save({
-          ...messageToSave,
-          send_status: 'SENT',
-          service: 'twilio',
-          sent_at: new Date()
-        }, options)
-        .then((saveError, newMessage) => {
+        Message.save(
+          {
+            ...messageToSave,
+            send_status: 'SENT',
+            service: 'twilio',
+            sent_at: new Date(),
+          },
+          options
+        ).then((saveError, newMessage) => {
           resolve(newMessage)
         })
       }
@@ -214,9 +254,13 @@ async function sendMessage(message, contact, trx) {
 async function handleDeliveryReport(report) {
   const messageSid = report.MessageSid
   if (messageSid) {
-    await Log.save({ message_sid: report.MessageSid, body: JSON.stringify(report) })
+    await Log.save({
+      message_sid: report.MessageSid,
+      body: JSON.stringify(report),
+    })
     const messageStatus = report.MessageStatus
-    const message = await r.table('message')
+    const message = await r
+      .table('message')
       .getAll(messageSid, { index: 'service_id' })
       .limit(1)(0)
       .default(null)
@@ -224,8 +268,10 @@ async function handleDeliveryReport(report) {
       message.service_response_at = new Date()
       if (messageStatus === 'delivered') {
         message.send_status = 'DELIVERED'
-      } else if (messageStatus === 'failed' ||
-        messageStatus === 'undelivered') {
+      } else if (
+        messageStatus === 'failed' ||
+        messageStatus === 'undelivered'
+      ) {
         message.send_status = 'ERROR'
       }
       Message.save(message, { conflict: 'update' })
@@ -234,16 +280,18 @@ async function handleDeliveryReport(report) {
 }
 
 async function handleIncomingMessage(message) {
-  if (!message.hasOwnProperty('From') ||
+  if (
+    !message.hasOwnProperty('From') ||
     !message.hasOwnProperty('To') ||
     !message.hasOwnProperty('Body') ||
-    !message.hasOwnProperty('MessageSid')) {
+    !message.hasOwnProperty('MessageSid')
+  ) {
     log.error(`This is not an incoming message: ${JSON.stringify(message)}`)
   }
 
   const { From, To, MessageSid } = message
   const contactNumber = getFormattedPhoneNumber(From)
-  const userNumber = (To ? getFormattedPhoneNumber(To) : '')
+  const userNumber = To ? getFormattedPhoneNumber(To) : ''
 
   const pendingMessagePart = new PendingMessagePart({
     service: 'twilio',
@@ -251,7 +299,7 @@ async function handleIncomingMessage(message) {
     parent_id: null,
     service_message: JSON.stringify(message),
     user_number: userNumber,
-    contact_number: contactNumber
+    contact_number: contactNumber,
   })
 
   const part = await pendingMessagePart.save()
@@ -259,7 +307,10 @@ async function handleIncomingMessage(message) {
   if (process.env.JOBS_SAME_PROCESS) {
     const finalMessage = await convertMessagePartsToMessage([part])
     await saveNewIncomingMessage(finalMessage)
-    await r.knex('pending_message_part').where('id', partId).delete()
+    await r
+      .knex('pending_message_part')
+      .where('id', partId)
+      .delete()
   }
   return partId
 }
@@ -273,5 +324,5 @@ export default {
   sendMessage,
   handleDeliveryReport,
   handleIncomingMessage,
-  parseMessageText
+  parseMessageText,
 }

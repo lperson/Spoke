@@ -16,37 +16,37 @@ const styles = StyleSheet.create({
   container: {
     marginTop: '5vh',
     textAlign: 'center',
-    color: theme.colors.white
+    color: theme.colors.white,
   },
   formContainer: {
-    ...theme.layouts.greenBox
+    ...theme.layouts.greenBox,
   },
   bigHeader: {
     ...theme.text.header,
-    fontSize: 40
+    fontSize: 40,
   },
   header: {
     ...theme.text.header,
     marginRight: 'auto',
     marginLeft: 'auto',
-    maxWidth: '80%'
+    maxWidth: '80%',
   },
   form: {
     marginTop: 40,
     maxWidth: '80%',
     marginRight: 'auto',
-    marginLeft: 'auto'
-  }
+    marginLeft: 'auto',
+  },
 })
 
 class CreateOrganization extends React.Component {
   formSchema = yup.object({
-    name: yup.string().required()
+    name: yup.string().required(),
   })
   renderInvalid() {
     return (
       <div>
-        That invite is no longer valid.  This probably means it already got used!
+        That invite is no longer valid. This probably means it already got used!
       </div>
     )
   }
@@ -61,27 +61,29 @@ class CreateOrganization extends React.Component {
           <Paper style={{ padding: 20 }}>
             <GSForm
               schema={this.formSchema}
-              onSubmit={async (formValues) => {
+              onSubmit={async formValues => {
                 const newOrganization = await this.props.mutations.createOrganization(
-                    formValues.name,
-                    this.props.userData.currentUser.id,
-                    this.props.inviteData.inviteByHash[0].id
-                  )
-                this.props.router.push(`/admin/${newOrganization.data.createOrganization.id}`)
+                  formValues.name,
+                  this.props.userData.currentUser.id,
+                  this.props.inviteData.inviteByHash[0].id
+                )
+                this.props.router.push(
+                  `/admin/${newOrganization.data.createOrganization.id}`
+                )
               }}
             >
               <Form.Field
                 {...dataTest('organization')}
-                name='name'
-                label='Your organization'
-                hintText='Bartlet Campaign'
+                name="name"
+                label="Your organization"
+                hintText="Bartlet Campaign"
                 fullWidth
               />
               <Form.Button
-                type='submit'
-                label='Get Started'
-                name='submit'
-                value='Get Started'
+                type="submit"
+                label="Get Started"
+                name="submit"
+                value="Get Started"
                 fullWidth
                 secondary
                 style={{ marginTop: 40 }}
@@ -96,11 +98,12 @@ class CreateOrganization extends React.Component {
   render() {
     return (
       <div className={css(styles.container)}>
-        <div className={css(styles.bigHeader)}>
-          Spoke
-        </div>
+        <div className={css(styles.bigHeader)}>Spoke</div>
         <div className={css(styles.formContainer)}>
-          {this.props.inviteData.inviteByHash && this.props.inviteData.inviteByHash[0].isValid ? this.renderForm() : this.renderInvalid()}
+          {this.props.inviteData.inviteByHash &&
+          this.props.inviteData.inviteByHash[0].isValid
+            ? this.renderForm()
+            : this.renderInvalid()}
         </div>
       </div>
     )
@@ -109,44 +112,56 @@ class CreateOrganization extends React.Component {
 
 const mapQueriesToProps = ({ ownProps }) => ({
   inviteData: {
-    query: gql`query getInvite($inviteId: String!) {
-      inviteByHash(hash: $inviteId) {
-        id
-        isValid
+    query: gql`
+      query getInvite($inviteId: String!) {
+        inviteByHash(hash: $inviteId) {
+          id
+          isValid
+        }
       }
-    }`,
+    `,
     variables: {
-      inviteId: ownProps.params.inviteId
+      inviteId: ownProps.params.inviteId,
     },
-    forceFetch: true
+    forceFetch: true,
   },
   userData: {
-    query: gql` query getCurrentUser {
-      currentUser {
-        id
+    query: gql`
+      query getCurrentUser {
+        currentUser {
+          id
+        }
       }
-    }`,
-    forceFetch: true
-  }
+    `,
+    forceFetch: true,
+  },
 })
 
 CreateOrganization.propTypes = {
   mutations: PropTypes.object,
   router: PropTypes.object,
   userData: PropTypes.object,
-  inviteData: PropTypes.object
+  inviteData: PropTypes.object,
 }
 
 const mapMutationsToProps = () => ({
   createOrganization: (name, userId, inviteId) => ({
     mutation: gql`
-      mutation createOrganization($name: String!, $userId: String!, $inviteId: String!) {
+      mutation createOrganization(
+        $name: String!
+        $userId: String!
+        $inviteId: String!
+      ) {
         createOrganization(name: $name, userId: $userId, inviteId: $inviteId) {
           id
         }
-      }`,
-    variables: { name, userId, inviteId }
-  })
+      }
+    `,
+    variables: { name, userId, inviteId },
+  }),
 })
 
-export default loadData(wrapMutations(withRouter(CreateOrganization)), { mapQueriesToProps, mapMutationsToProps })
+export default loadData(wrapMutations(withRouter(CreateOrganization)), {
+  mapQueriesToProps,
+  mapMutationsToProps,
+})

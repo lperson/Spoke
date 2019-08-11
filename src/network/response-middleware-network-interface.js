@@ -12,13 +12,15 @@ class ResponseMiddlewareNetworkInterface {
     if (!Array.isArray(responseMiddlewares)) {
       responseMiddlewares = [responseMiddlewares]
     }
-    responseMiddlewares.forEach((middleware) => {
+    responseMiddlewares.forEach(middleware => {
       if (typeof middleware.applyMiddleware === 'function') {
         this.defaultNetworkInterface.use([middleware])
       } else if (typeof middleware.applyResponseMiddleware === 'function') {
         this.responseMiddlewares.push(middleware)
       } else {
-        throw new Error('Middleware must implement the applyMiddleware or applyResponseMiddleware functions')
+        throw new Error(
+          'Middleware must implement the applyMiddleware or applyResponseMiddleware functions'
+        )
       }
     })
   }
@@ -26,7 +28,7 @@ class ResponseMiddlewareNetworkInterface {
   async applyResponseMiddlewares(response) {
     // eslint-disable-next-line no-unused-vars
     return new Promise((resolve, reject) => {
-      const queue = async (funcs) => {
+      const queue = async funcs => {
         const next = async () => {
           if (funcs.length > 0) {
             const f = funcs.shift()

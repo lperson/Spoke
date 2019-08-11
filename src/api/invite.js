@@ -5,4 +5,3 @@ export const schema = `
     hash: String
   }
 `
-

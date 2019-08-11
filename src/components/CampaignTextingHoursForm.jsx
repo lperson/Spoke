@@ -16,7 +16,7 @@ export default class CampaignTextingHoursForm extends React.Component {
     showForm: false,
     timezoneSearchText: undefined,
     textingHoursStartSearchText: undefined,
-    textingHoursEndSearchText: undefined
+    textingHoursEndSearchText: undefined,
   }
 
   formSchema = yup.object({
@@ -24,7 +24,7 @@ export default class CampaignTextingHoursForm extends React.Component {
     textingHoursEnforced: yup.boolean(),
     textingHoursStart: yup.number().integer(),
     textingHoursEnd: yup.number().integer(),
-    timezone: yup.string()
+    timezone: yup.string(),
   })
 
   fireOnChangeIfTheFormValuesChanged(fieldName, newValue) {
@@ -123,7 +123,7 @@ export default class CampaignTextingHoursForm extends React.Component {
       20,
       21,
       22,
-      23
+      23,
     ]
     const hourChoices = hours.map(hour => {
       const formattedHour = formatTextingHours(hour)
@@ -144,7 +144,7 @@ export default class CampaignTextingHoursForm extends React.Component {
       'US/Pacific',
       'US/Samoa',
       'America/Puerto_Rico',
-      'America/Virgin'
+      'America/Virgin',
     ]
     const timezoneChoices = timezones.map(timezone =>
       dataSourceItem(timezone, timezone)
@@ -158,8 +158,8 @@ export default class CampaignTextingHoursForm extends React.Component {
         onSubmit={this.props.onSubmit}
       >
         <CampaignFormSectionHeading
-          title='Texting hours for campaign'
-          subtitle='You can use the texting-hours configuration for your organization, or configure texting hours for this campaign.'
+          title="Texting hours for campaign"
+          subtitle="You can use the texting-hours configuration for your organization, or configure texting hours for this campaign."
         />
 
         {this.addToggleFormField(
@@ -215,7 +215,7 @@ export default class CampaignTextingHoursForm extends React.Component {
         )}
 
         <Form.Button
-          type='submit'
+          type="submit"
           disabled={this.props.saveDisabled}
           label={this.props.saveLabel}
         />
@@ -229,5 +229,5 @@ CampaignTextingHoursForm.propTypes = {
   saveDisabled: type.bool,
   onSubmit: type.func,
   onChange: type.func,
-  formValues: type.object
+  formValues: type.object,
 }

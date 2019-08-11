@@ -14,4 +14,3 @@ export const schema = `
     isUserCreated: Boolean
   }
 `
-

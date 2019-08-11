@@ -7,8 +7,8 @@ const styles = StyleSheet.create({
   header: theme.text.header,
   secondaryHeader: theme.text.body,
   container: {
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 })
 
 const CampaignFormSectionHeading = ({ title, subtitle }) => (
@@ -20,7 +20,7 @@ const CampaignFormSectionHeading = ({ title, subtitle }) => (
 
 CampaignFormSectionHeading.propTypes = {
   title: PropTypes.string,
-  subtitle: PropTypes.any
+  subtitle: PropTypes.any,
 }
 
 export default CampaignFormSectionHeading

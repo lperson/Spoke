@@ -6,9 +6,10 @@ const errorMessages = {
   invalidInvite: 'Invalid invite code. Contact your administrator.',
   invalidCredentials: 'Invalid username or password',
   emailTaken: 'That email is already taken.',
-  passwordsDontMatch: 'Passwords don\'t match.',
-  invalidResetHash: 'Invalid username or password reset link. Contact your administrator.',
-  noSamePassword: 'Old and new password can\'t be the same'
+  passwordsDontMatch: "Passwords don't match.",
+  invalidResetHash:
+    'Invalid username or password reset link. Contact your administrator.',
+  noSamePassword: "Old and new password can't be the same",
 }
 
 const validUuid = async (nextUrl, uuidMatch) => {
@@ -23,12 +24,7 @@ const validUuid = async (nextUrl, uuidMatch) => {
   if (foundUUID.length === 0) throw new Error(errorMessages.invalidInvite)
 }
 
-const login = async ({
-  password,
-  existingUser,
-  nextUrl,
-  uuidMatch
-}) => {
+const login = async ({ password, existingUser, nextUrl, uuidMatch }) => {
   if (existingUser.length === 0) {
     throw new Error(errorMessages.invalidCredentials)
   }
@@ -37,19 +33,16 @@ const login = async ({
   const pwFieldSplit = existingUser[0].auth0_id.split('|')
   const hashed = {
     salt: pwFieldSplit[1],
-    hash: pwFieldSplit[2]
+    hash: pwFieldSplit[2],
   }
   return new Promise((resolve, reject) => {
-    AuthHasher.verify(
-      password, hashed,
-      (err, verified) => {
-        if (err) reject(err)
-        if (verified) {
-          resolve(existingUser[0])
-        }
-        reject({ message: errorMessages.invalidCredentials })
+    AuthHasher.verify(password, hashed, (err, verified) => {
+      if (err) reject(err)
+      if (verified) {
+        resolve(existingUser[0])
       }
-    )
+      reject({ message: errorMessages.invalidCredentials })
+    })
   })
 }
 
@@ -59,7 +52,7 @@ const signup = async ({
   existingUser,
   nextUrl,
   uuidMatch,
-  reqBody
+  reqBody,
 }) => {
   // Verify UUID validity
   // If there is an error, it will be caught on local strategy invocation
@@ -77,7 +70,7 @@ const signup = async ({
 
   // create the user
   return new Promise((resolve, reject) => {
-    AuthHasher.hash(password, async function (err, hashed) {
+    AuthHasher.hash(password, async function(err, hashed) {
       if (err) reject(err)
       // .salt and .hash
       const passwordToSave = `localauth|${hashed.salt}|${hashed.hash}`
@@ -87,19 +80,14 @@ const signup = async ({
         first_name: capitalizeWord(reqBody.firstName),
         last_name: capitalizeWord(reqBody.lastName),
         cell: reqBody.cell,
-        is_superadmin: false
+        is_superadmin: false,
       })
       resolve(user)
     })
   })
 }
 
-const reset = ({
-  password,
-  existingUser,
-  reqBody,
-  uuidMatch
-}) => {
+const reset = ({ password, existingUser, reqBody, uuidMatch }) => {
   if (existingUser.length === 0) {
     throw new Error(errorMessages.invalidResetHash)
   }
@@ -126,12 +114,11 @@ const reset = ({
 
   // Save new user password to DB
   return new Promise((resolve, reject) => {
-    AuthHasher.hash(password, async function (err, hashed) {
+    AuthHasher.hash(password, async function(err, hashed) {
       if (err) reject(err)
       // .salt and .hash
       const passwordToSave = `localauth|${hashed.salt}|${hashed.hash}`
-      const updatedUser = await User
-        .get(existingUser[0].id)
+      const updatedUser = await User.get(existingUser[0].id)
         .update({ auth0_id: passwordToSave })
         .run()
       resolve(updatedUser)
@@ -140,16 +127,11 @@ const reset = ({
 }
 
 // Only used in the changeUserPassword GraphQl mutation
-export const change = ({
-  user,
-  password,
-  newPassword,
-  passwordConfirm
-}) => {
+export const change = ({ user, password, newPassword, passwordConfirm }) => {
   const pwFieldSplit = user.auth0_id.split('|')
   const hashedPassword = {
     salt: pwFieldSplit[0],
-    hash: pwFieldSplit[1]
+    hash: pwFieldSplit[1],
   }
 
   // Verify password and password confirm fields match
@@ -163,23 +145,19 @@ export const change = ({
   }
 
   return new Promise((resolve, reject) => {
-    AuthHasher.verify(
-      password, hashedPassword,
-      (error, verified) => {
-        if (error) return reject(error)
-        if (!verified) return reject(errorMessages.invalidCredentials)
-        return AuthHasher.hash(newPassword, async function (err, hashed) {
-          if (err) reject(err)
-          // .salt and .hash
-          const passwordToSave = `localauth|${hashed.salt}|${hashed.hash}`
-          const updatedUser = await User
-            .get(user.id)
-            .update({ auth0_id: passwordToSave })
-            .run()
-          resolve(updatedUser)
-        })
-      }
-    )
+    AuthHasher.verify(password, hashedPassword, (error, verified) => {
+      if (error) return reject(error)
+      if (!verified) return reject(errorMessages.invalidCredentials)
+      return AuthHasher.hash(newPassword, async function(err, hashed) {
+        if (err) reject(err)
+        // .salt and .hash
+        const passwordToSave = `localauth|${hashed.salt}|${hashed.hash}`
+        const updatedUser = await User.get(user.id)
+          .update({ auth0_id: passwordToSave })
+          .run()
+        resolve(updatedUser)
+      })
+    })
   })
 }
 export default { login, signup, reset }
