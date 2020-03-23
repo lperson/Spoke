@@ -758,6 +758,11 @@ const mapQueriesToProps = ({ ownProps }) => ({
           name
           display_name
           instructions
+          clientChoiceData {
+            name
+            type
+            details
+          }
         }
       }
     `,

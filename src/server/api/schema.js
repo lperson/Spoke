@@ -1,3 +1,4 @@
+import ld from "lodash";
 import GraphQLDate from "graphql-date";
 import GraphQLJSON from "graphql-type-json";
 import { GraphQLError } from "graphql/error";
@@ -1259,7 +1260,7 @@ const rootResolvers = {
         return await cacheableData.user.userOrgs(user.id, "TEXTER");
       }
     },
-    availableActions: (_, { organizationId }, { user }) => {
+    availableActions: async (_, { organizationId }, { user }) => {
       if (!process.env.ACTION_HANDLERS) {
         return [];
       }
@@ -1274,13 +1275,42 @@ const rootResolvers = {
         })
         .filter(async h => h && (await h.handler.available(organizationId)));
 
-      const availableHandlerObjects = availableHandlers.map(handler => {
-        return {
-          name: handler.name,
-          display_name: handler.handler.displayName(),
-          instructions: handler.handler.instructions()
-        };
-      });
+      let availableHandlersWithClientChoiceData = availableHandlers.map(
+        async handler => {
+          const toReturn = {
+            ...handler
+          };
+          if (ld.isFunction(handler.handler.getClientChoiceData)) {
+            toReturn.clientChoiceData = await handler.handler.getClientChoiceData();
+          }
+          return toReturn;
+        }
+      );
+
+      availableHandlersWithClientChoiceData = await Promise.all(
+        availableHandlersWithClientChoiceData
+      );
+
+      const availableHandlerObjects = availableHandlersWithClientChoiceData.map(
+        handler => {
+          const clientChoiceDataItemsString = ld.get(
+            handler.clientChoiceData,
+            "data",
+            "{}"
+          );
+          return {
+            name: handler.name,
+            display_name: handler.handler.displayName(),
+            instructions: handler.handler.instructions(),
+            clientChoiceData: ld.get(
+              JSON.parse(clientChoiceDataItemsString),
+              "items",
+              []
+            )
+          };
+        }
+      );
+
       return availableHandlerObjects;
     },
     conversations: async (

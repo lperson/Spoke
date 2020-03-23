@@ -172,10 +172,17 @@ const rootSchema = gql`
     assignmentId: String!
   }
 
+  type ActionChoice {
+    type: String!
+    name: String!
+    details: String!
+  }
+
   type Action {
     name: String
     display_name: String
     instructions: String
+    clientChoiceData: [ActionChoice]
   }
 
   type FoundContact {
