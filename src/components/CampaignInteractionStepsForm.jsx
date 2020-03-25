@@ -123,6 +123,7 @@ export default class CampaignInteractionStepsForm extends React.Component {
 
   handleFormChange(event) {
     this.setState({
+      answerActions: event.answerActions,
       interactionSteps: this.state.interactionSteps.map(is => {
         if (is.id == event.id) {
           delete event.interactionSteps;
@@ -139,10 +140,22 @@ export default class CampaignInteractionStepsForm extends React.Component {
     script: yup.string(),
     questionText: yup.string(),
     answerOption: yup.string(),
-    answerActions: yup.string()
+    answerActions: yup.string(),
+    answerActionData: yup.string()
   });
 
   renderInteractionStep(interactionStep, title = "Start") {
+    const answerActions =
+      interactionStep.answerActions &&
+      this.availableActions[interactionStep.answerActions];
+    let clientChoiceData;
+    let instructions;
+
+    if (answerActions) {
+      clientChoiceData = answerActions.clientChoiceData;
+      instructions = answerActions.instructions;
+    }
+
     return (
       <div>
         <Card
@@ -207,13 +220,17 @@ export default class CampaignInteractionStepsForm extends React.Component {
                   <IconButton tooltip="An action is something that is triggered by this answer being chosen, often in an outside system">
                     <HelpIconOutline />
                   </IconButton>
-                  <div>
-                    {interactionStep.answerActions
-                      ? this.props.availableActions.filter(
-                          a => a.name === interactionStep.answerActions
-                        )[0].instructions
-                      : ""}
-                  </div>
+                  {clientChoiceData && clientChoiceData.length ? (
+                    <Form.Field
+                      name="answerActionData"
+                      type="autocomplete"
+                      choices={clientChoiceData.map(item => ({
+                        value: item.details,
+                        label: item.name
+                      }))}
+                    />
+                  ) : null}
+                  {instructions ? <div>{instructions}</div> : null}
                 </div>
               ) : (
                 ""
@@ -271,6 +288,17 @@ export default class CampaignInteractionStepsForm extends React.Component {
   }
 
   render() {
+    this.availableActions = this.props.availableActions.reduce(
+      (result, action) => {
+        const toReturn = {
+          ...result
+        };
+        toReturn[action.name] = action;
+        return toReturn;
+      },
+      {}
+    );
+
     const tree = makeTree(this.state.interactionSteps);
 
     return (
