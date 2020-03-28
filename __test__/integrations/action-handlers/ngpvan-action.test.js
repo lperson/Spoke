@@ -296,7 +296,7 @@ describe("ngpvn-action", () => {
       ];
 
       expect(receivedItems).toEqual(expectedItems);
-      expect(clientChoiceData.expireSeconds).toEqual(30);
+      expect(clientChoiceData.expiresSeconds).toEqual(30);
 
       getCanvassResponsesResultCodesNock.done();
       getActivistCodesNock.done();

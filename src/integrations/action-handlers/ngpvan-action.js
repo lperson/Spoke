@@ -152,6 +152,6 @@ export async function getClientChoiceData(organization, user) {
 
   return {
     data: `${JSON.stringify({ items: vanActions })}`,
-    expireSeconds: Number(getConfig("NGP_VAN_CACHE_TTL")) || 300
+    expiresSeconds: Number(getConfig("NGP_VAN_CACHE_TTL")) || 300
   };
 }
