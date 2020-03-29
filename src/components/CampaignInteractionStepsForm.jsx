@@ -50,6 +50,7 @@ export default class CampaignInteractionStepsForm extends React.Component {
             answerOption: "",
             script: "",
             answerActions: "",
+            answerActionsData: "",
             isDeleted: false
           }
         ],
@@ -96,6 +97,7 @@ export default class CampaignInteractionStepsForm extends React.Component {
             script: "",
             answerOption: "",
             answerActions: "",
+            answerActionsData: "",
             isDeleted: false
           }
         ]
@@ -124,6 +126,7 @@ export default class CampaignInteractionStepsForm extends React.Component {
   handleFormChange(event) {
     this.setState({
       answerActions: event.answerActions,
+      answerActionsData: event.answerActionsData,
       interactionSteps: this.state.interactionSteps.map(is => {
         if (is.id == event.id) {
           delete event.interactionSteps;
@@ -141,7 +144,7 @@ export default class CampaignInteractionStepsForm extends React.Component {
     questionText: yup.string(),
     answerOption: yup.string(),
     answerActions: yup.string(),
-    answerActionData: yup.string()
+    answerActionsData: yup.string()
   });
 
   renderInteractionStep(interactionStep, title = "Start") {
@@ -222,7 +225,7 @@ export default class CampaignInteractionStepsForm extends React.Component {
                   </IconButton>
                   {clientChoiceData && clientChoiceData.length ? (
                     <Form.Field
-                      name="answerActionData"
+                      name="answerActionsData"
                       type="autocomplete"
                       choices={clientChoiceData.map(item => ({
                         value: item.details,

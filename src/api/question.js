@@ -9,6 +9,7 @@ export const schema = `
     interactionStepId: Int
     value: String
     action: String
+    actionData: String
     nextInteractionStep: InteractionStep
     responders: [CampaignContact]
     responderCount: Int
