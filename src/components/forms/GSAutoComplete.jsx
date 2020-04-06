@@ -4,39 +4,46 @@ import { dataSourceItem } from "../../components/utils";
 
 import GSFormField from "./GSFormField";
 
-export default class GSSAutoComplete extends GSFormField {
+export default class GSAutoComplete extends GSFormField {
   constructor(props) {
     super(props);
-    const propsObject = JSON.parse(props.value);
+    const propsValue = props.value || {};
+
+    const autoCompleteProps = {
+      ...props
+    };
+    delete autoCompleteProps.choices;
+
     this.state = {
-      ...propsObject,
-      selectData: this.createMenuItems(props)
+      dataSource: this.createMenuItems(props.choices),
+      value: propsValue,
+      name: propsValue.label,
+      autoCompleteProps
     };
   }
 
-  createMenuItems = props =>
-    props.choices.map(({ value, label }) => dataSourceItem(label, value));
+  createMenuItems = choices =>
+    choices.map(({ value, label }) => dataSourceItem(label, value));
 
   findMatchingChoices = valueToLookFor => {
     const regex = new RegExp(`.*${valueToLookFor}.*`, "i");
-    return this.state.selectData.filter(item => regex.test(item.text));
+    return this.state.dataSource.filter(item => regex.test(item.text));
   };
 
   render = () => {
     return (
       <AutoComplete
+        filter={AutoComplete.caseInsensitiveFilter}
         autoFocus
+        {...this.state.autoCompleteProps}
         onUpdateInput={searchText => {
-          this.setState({ name: searchText });
-          const matches = this.findMatchingChoices(searchText);
-          if (!matches.length || !searchText.trim().length) {
+          if (searchText !== this.state.name) {
             this.props.onChange(undefined);
           }
+          this.setState({ name: searchText });
         }}
-        searchText={this.state.name}
-        filter={AutoComplete.caseInsensitiveFilter}
-        hintText={this.props.hintText}
-        dataSource={this.state.selectData}
+        searchText={this.state.value.label}
+        dataSource={this.state.dataSource}
         onNewRequest={value => {
           // If you're searching but get no match, value is a string
           // representing your search term, but we only want to handle matches
@@ -45,8 +52,8 @@ export default class GSSAutoComplete extends GSFormField {
             this.setState({ data, name: value.text });
             this.props.onChange(
               JSON.stringify({
-                data,
-                name: value.text
+                value: data,
+                label: value.text
               })
             );
           } else {
@@ -57,8 +64,8 @@ export default class GSSAutoComplete extends GSFormField {
               const searchText = matches[0].text;
               this.setState({ name: searchText, data });
               this.props.onChange({
-                data,
-                name: searchText
+                value: data,
+                label: searchText
               });
             } else {
               this.setState({ data: undefined });
