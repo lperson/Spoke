@@ -182,7 +182,14 @@ export default class CampaignInteractionStepsForm extends React.Component {
                 !interactionStep.parentInteractionId
               )}
               schema={this.formSchema}
-              value={interactionStep}
+              value={{
+                ...interactionStep,
+                ...(interactionStep.answerActionsData && {
+                  answerActionsData: JSON.parse(
+                    interactionStep.answerActionsData
+                  )
+                })
+              }}
               onChange={this.handleFormChange.bind(this)}
             >
               {interactionStep.parentInteractionId ? (

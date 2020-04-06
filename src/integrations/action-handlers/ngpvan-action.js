@@ -10,7 +10,7 @@ const getVanAuth = () => {
   return `Basic ${buffer.toString("base64")}`;
 };
 
-import { getAxiosWithRetries } from "../../server/lib/axiosWithRetries";
+import requestWithRetry from "../../server/lib/http-request.js";
 
 // What the user sees as the option
 export const displayName = () => "NGPVAN action";
@@ -67,14 +67,16 @@ export async function getClientChoiceData(organization, user) {
     // cycle	query	int	A year in the format YYYY; filters to Survey Questions with the given cycle
 
     // The savedLists endpoint supports pagination; we are ignoring pagination now
-    surveyQuestionsResponse = await getAxiosWithRetries()({
-      url: `https://api.securevan.com/v4/surveyQuestions`,
-      method: "GET",
-      headers: {
-        Authorization: getVanAuth()
-      },
-      validateStatus: status => status === 200
-    });
+    const response = await requestWithRetry(
+      `https://api.securevan.com/v4/surveyQuestions`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: getVanAuth()
+        }
+      }
+    );
+    surveyQuestionsResponse = await response.json();
   } catch (error) {
     const message = `Error retrieving survey questions from VAN ${error}`;
     // eslint-disable-next-line no-console
@@ -90,14 +92,16 @@ export async function getClientChoiceData(organization, user) {
     // type	query	string	Filters to Activist Codes of the given type
 
     // The activst codes endpoint supports pagination; we are ignoring pagination now
-    activistCodesResponse = await getAxiosWithRetries()({
-      url: `https://api.securevan.com/v4/activistCodes`,
-      method: "GET",
-      headers: {
-        Authorization: getVanAuth()
-      },
-      validateStatus: status => status === 200
-    });
+    const response = await requestWithRetry(
+      `https://api.securevan.com/v4/activistCodes`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: getVanAuth()
+        }
+      }
+    );
+    activistCodesResponse = await response.json();
   } catch (error) {
     const message = `Error retrieving activist codes from VAN ${error}`;
     // eslint-disable-next-line no-console
@@ -112,14 +116,16 @@ export async function getClientChoiceData(organization, user) {
     // contactTypeId	query	int	Optional; filter Result Codes to those available to the given Contact Type
 
     // The activst codes endpoint supports pagination; we are ignoring pagination now
-    canvassResponsesResultCodesResponse = await getAxiosWithRetries()({
-      url: `https://api.securevan.com/v4/canvassResponses/resultCodes`,
-      method: "GET",
-      headers: {
-        Authorization: getVanAuth()
-      },
-      validateStatus: status => status === 200
-    });
+    const response = await requestWithRetry(
+      `https://api.securevan.com/v4/canvassResponses/resultCodes`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: getVanAuth()
+        }
+      }
+    );
+    canvassResponsesResultCodesResponse = await response.json();
   } catch (error) {
     const message = `Error canvass result codes from VAN ${error}`;
     // eslint-disable-next-line no-console
@@ -128,7 +134,7 @@ export async function getClientChoiceData(organization, user) {
   }
 
   const vanActions = [];
-  surveyQuestionsResponse.data.items.forEach(surveyQuestion => {
+  surveyQuestionsResponse.items.forEach(surveyQuestion => {
     const responses = surveyQuestion.responses.map(surveyResponse => ({
       type: "SurveyResponse",
       name: `${surveyQuestion.name} - ${surveyResponse.name}`,
@@ -140,7 +146,7 @@ export async function getClientChoiceData(organization, user) {
     vanActions.push(...responses);
   });
 
-  const activistCodes = activistCodesResponse.data.items.map(activistCode => ({
+  const activistCodes = activistCodesResponse.items.map(activistCode => ({
     type: "ActivistCode",
     name: activistCode.name,
     details: JSON.stringify({
