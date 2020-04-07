@@ -761,7 +761,6 @@ const mapQueriesToProps = ({ ownProps }) => ({
           instructions
           clientChoiceData {
             name
-            type
             details
           }
         }

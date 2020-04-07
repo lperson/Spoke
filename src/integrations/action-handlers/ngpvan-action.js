@@ -1,4 +1,3 @@
-import request from "request";
 import { r } from "../../server/models";
 import _ from "lodash";
 import { getConfig } from "../../server/api/lib/config";
@@ -10,7 +9,7 @@ const getVanAuth = () => {
   return `Basic ${buffer.toString("base64")}`;
 };
 
-import requestWithRetry from "../../server/lib/http-request.js";
+import HttpRequest from "../../server/lib/http-request.js";
 
 // What the user sees as the option
 export const displayName = () => "NGPVAN action";
@@ -67,7 +66,7 @@ export async function getClientChoiceData(organization, user) {
     // cycle	query	int	A year in the format YYYY; filters to Survey Questions with the given cycle
 
     // The savedLists endpoint supports pagination; we are ignoring pagination now
-    const response = await requestWithRetry(
+    const response = await HttpRequest(
       `https://api.securevan.com/v4/surveyQuestions`,
       {
         method: "GET",
@@ -92,7 +91,7 @@ export async function getClientChoiceData(organization, user) {
     // type	query	string	Filters to Activist Codes of the given type
 
     // The activst codes endpoint supports pagination; we are ignoring pagination now
-    const response = await requestWithRetry(
+    const response = await HttpRequest(
       `https://api.securevan.com/v4/activistCodes`,
       {
         method: "GET",
@@ -116,7 +115,7 @@ export async function getClientChoiceData(organization, user) {
     // contactTypeId	query	int	Optional; filter Result Codes to those available to the given Contact Type
 
     // The activst codes endpoint supports pagination; we are ignoring pagination now
-    const response = await requestWithRetry(
+    const response = await HttpRequest(
       `https://api.securevan.com/v4/canvassResponses/resultCodes`,
       {
         method: "GET",
@@ -136,9 +135,9 @@ export async function getClientChoiceData(organization, user) {
   const vanActions = [];
   surveyQuestionsResponse.items.forEach(surveyQuestion => {
     const responses = surveyQuestion.responses.map(surveyResponse => ({
-      type: "SurveyResponse",
       name: `${surveyQuestion.name} - ${surveyResponse.name}`,
       details: JSON.stringify({
+        type: "SurveyResponse",
         surveyQuestionId: surveyQuestion.surveyQuestionId,
         surveyResponseId: surveyResponse.surveyResponseId
       })
@@ -147,9 +146,9 @@ export async function getClientChoiceData(organization, user) {
   });
 
   const activistCodes = activistCodesResponse.items.map(activistCode => ({
-    type: "ActivistCode",
     name: activistCode.name,
     details: JSON.stringify({
+      type: "ActivistCode",
       activistCodeId: activistCode.activistCodeId
     })
   }));

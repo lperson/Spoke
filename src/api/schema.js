@@ -174,7 +174,6 @@ const rootSchema = gql`
   }
 
   type ActionChoice {
-    type: String!
     name: String!
     details: String!
   }
