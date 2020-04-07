@@ -3,20 +3,16 @@ import AbortController from "node-abort-controller";
 import { log } from "../../lib";
 import { v4 as uuid } from "uuid";
 
-const requestWithRetry = async (url, props) => {
-  const originalProps = props || {};
-  const remainingProps = {
-    ...(originalProps || {})
-  };
-  delete remainingProps.validateStatus;
-  delete remainingProps.retries;
-  delete remainingProps.timeout;
-
+const requestWithRetry = async (
+  url,
+  {
+    validateStatus,
+    retries = retries === 0 ? 0 : retries || 2,
+    timeout = 2000,
+    ...props
+  } = {}
+) => {
   const requestId = uuid();
-  const propsRetries = originalProps.retries;
-  const retries =
-    propsRetries !== null && propsRetries !== undefined ? propsRetries : 2;
-  const timeout = originalProps.timeout || 2000;
 
   const retryDelay = () => {
     const baseDelay = 50;
@@ -24,16 +20,15 @@ const requestWithRetry = async (url, props) => {
     return baseDelay + randomDelay;
   };
 
-  const validateStatus = status => {
-    const validateProp = originalProps.validateStatus;
+  const statusValidator = status => {
     let acceptableStatuses = [200];
-    if (validateProp) {
-      if (typeof validateProp === "function") {
-        return validateProp(status);
-      } else if (Array.isArray(validateProp)) {
-        acceptableStatuses = validateProp;
+    if (validateStatus) {
+      if (typeof validateStatus === "function") {
+        return validateStatus(status);
+      } else if (Array.isArray(validateStatus)) {
+        acceptableStatuses = validateStatus;
       } else {
-        acceptableStatuses = [validateProp];
+        acceptableStatuses = [validateStatus];
       }
     }
 
@@ -50,33 +45,31 @@ const requestWithRetry = async (url, props) => {
     ERROR: 3
   };
   const shouldRetryReturnOrError = (attempt, error, resp) => {
-    if (validateStatus(resp && resp.status)) {
-      return RetryReturnError.RETURN;
+    if (statusValidator(resp && resp.status)) {
+      return [RetryReturnError.RETURN];
     }
 
-    if (
-      attempt < retries &&
-      (error || (resp && resp.status >= 500 && resp.status <= 599))
-    ) {
-      let message;
+    let message = resp ? `received status ${resp.status}` : "";
+    if (error || (resp && resp.status >= 500 && resp.status <= 599)) {
       if (error) {
         let tweakedError = error;
         if (error.toString && error.toString().match(/.*AbortError.*/g)) {
-          tweakedError = `timeout after ${timeout}ms`;
+          tweakedError = new Error(`timeout after ${timeout}ms`);
         }
-        message = `error -- ${tweakedError}`;
-      } else {
-        message = `status code ${resp.status}`;
+        message = `${tweakedError.message}`;
       }
 
       log.warn(
-        `Retrying request id ${requestId}. Reason: ${message}. Details: ${logRequest()}. Retry ${attempt +
-          1} of ${retries}`
+        `Request id ${requestId} failed. Reason: ${message}. Details: ${logRequest()}. Attempt ${attempt +
+          1} of ${retries + 1}`
       );
-      return RetryReturnError.RETRY;
+
+      if (attempt < retries) {
+        return [RetryReturnError.RETRY];
+      }
     }
 
-    return RetryReturnError.ERROR;
+    return [RetryReturnError.ERROR, message];
   };
 
   for (let attempt = 0; attempt < retries + 1; attempt++) {
@@ -84,13 +77,13 @@ const requestWithRetry = async (url, props) => {
     let response;
 
     const controller = new AbortController();
-    const controllerTimeout = setInterval(() => {
+    const controllerTimeout = setTimeout(() => {
       controller.abort();
     }, timeout);
 
     try {
       response = await originalFetch(url, {
-        ...remainingProps,
+        ...props,
         signal: controller.signal
       });
     } catch (caughtException) {
@@ -99,17 +92,20 @@ const requestWithRetry = async (url, props) => {
       clearTimeout(controllerTimeout);
     }
 
-    const retryReturnError = shouldRetryReturnOrError(attempt, error, response);
+    let [retryReturnError, message] = shouldRetryReturnOrError(
+      attempt,
+      error,
+      response
+    );
 
     if (retryReturnError === RetryReturnError.RETRY) {
       await setTimeout(() => {}, retryDelay());
       continue;
     } else if (retryReturnError === RetryReturnError.ERROR) {
-      let message;
-      if (attempt >= retries) {
+      if (attempt >= retries && retries > 0) {
         message = `Request id ${requestId} failed; all ${retries} retries exhausted`;
-      } else if (response) {
-        message = `Request id ${requestId} failed; received status ${response.status}`;
+      } else if (message) {
+        message = `Request id ${requestId} failed; ${message}`;
       } else {
         message = `Request id ${requestId} failed; no further information`;
       }
