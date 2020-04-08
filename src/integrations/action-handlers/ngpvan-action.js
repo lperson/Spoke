@@ -35,13 +35,10 @@ export async function processAction(
   interactionStep,
   campaignContactId
 ) {
-  // This is a meta action that updates a variable in the contact record itself.
-  // Generally, you want to send action data to the outside world, so you
-  // might want the request library loaded above
   const contact = await r
     .knex("campaign_contact")
-    .where("campaign_contact_id", campaignContactId);
-  const customFields = JSON.parse(contact.custom_fields || "{}");
+    .where("campaign_contact.id", campaignContactId);
+  const customFields = JSON.parse(contact[0].custom_fields || "{}");
   if (customFields) {
     customFields["processed_test_action"] = "completed";
   }
@@ -79,7 +76,6 @@ export async function getClientChoiceData(organization, user) {
   } catch (error) {
     const message = `Error retrieving survey questions from VAN ${error}`;
     // eslint-disable-next-line no-console
-    console.log(message);
     return { data: `${JSON.stringify({ error: message })}` };
   }
 
@@ -104,7 +100,6 @@ export async function getClientChoiceData(organization, user) {
   } catch (error) {
     const message = `Error retrieving activist codes from VAN ${error}`;
     // eslint-disable-next-line no-console
-    console.log(message);
     return { data: `${JSON.stringify({ error: message })}` };
   }
 
@@ -128,7 +123,6 @@ export async function getClientChoiceData(organization, user) {
   } catch (error) {
     const message = `Error canvass result codes from VAN ${error}`;
     // eslint-disable-next-line no-console
-    console.log(message);
     return { data: `${JSON.stringify({ error: message })}` };
   }
 

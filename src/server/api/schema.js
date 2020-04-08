@@ -389,15 +389,13 @@ const rootMutations = {
       { userId, organizationId, roles },
       { user, loaders }
     ) => {
-      const currentRoles = (
-        await r
-          .knex("user_organization")
-          .where({
-            organization_id: organizationId,
-            user_id: userId
-          })
-          .select("role")
-      ).map(res => res.role);
+      const currentRoles = (await r
+        .knex("user_organization")
+        .where({
+          organization_id: organizationId,
+          user_id: userId
+        })
+        .select("role")).map(res => res.role);
       const oldRoleIsOwner = currentRoles.indexOf("OWNER") !== -1;
       const newRoleIsOwner = roles.indexOf("OWNER") !== -1;
       const roleRequired = oldRoleIsOwner || newRoleIsOwner ? "OWNER" : "ADMIN";
@@ -1087,7 +1085,7 @@ const rootMutations = {
           // run interaction step handler
           try {
             const handler = require(`../../integrations/action-handlers/${interactionStepAction}.js`);
-            handler.processAction(
+            await handler.processAction(
               qr,
               interactionStepResult[0],
               campaignContactId
