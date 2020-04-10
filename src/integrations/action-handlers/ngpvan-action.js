@@ -1,4 +1,4 @@
-import { r } from "../../server/models";
+import { r, cacheableData } from "../../server/models";
 import _ from "lodash";
 import { getConfig } from "../../server/api/lib/config";
 
@@ -35,10 +35,8 @@ export async function processAction(
   interactionStep,
   campaignContactId
 ) {
-  const contact = await r
-    .knex("campaign_contact")
-    .where("campaign_contact.id", campaignContactId);
-  const customFields = JSON.parse(contact[0].custom_fields || "{}");
+  const contact = await cacheableData.campaignContact.load(campaignContactId);
+  const customFields = JSON.parse(contact.custom_fields || "{}");
   if (customFields) {
     customFields["processed_test_action"] = "completed";
   }
