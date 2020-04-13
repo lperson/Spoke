@@ -216,80 +216,80 @@ describe("ngpvn-action", () => {
 
       const expectedItems = [
         {
-          type: "SurveyResponse",
           name: "2020VotePPE - Yes - Early",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 378552,
             surveyResponseId: 1555791
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VotePPE - Yes - Eday",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 378552,
             surveyResponseId: 1555792
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VotePPE - Yes - Absentee",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 378552,
             surveyResponseId: 1555793
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VotePPE - Maybe",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 378552,
             surveyResponseId: 1555794
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VotePPE - No",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 378552,
             surveyResponseId: 1555795
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VoteTime - Morning",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 381390,
             surveyResponseId: 1566012
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VoteTime - Afternoon",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 381390,
             surveyResponseId: 1566013
           })
         },
         {
-          type: "SurveyResponse",
           name: "2020VoteTime - Evening",
           details: JSON.stringify({
+            type: "SurveyResponse",
             surveyQuestionId: 381390,
             surveyResponseId: 1566014
           })
         },
         {
-          type: "ActivistCode",
           name: "EdayIssue-PollWorker",
           details: JSON.stringify({
+            type: "ActivistCode",
             activistCodeId: 4482459
           })
         },
         {
-          type: "ActivistCode",
           name: "Opt-In: Cell Phone",
           details: JSON.stringify({
+            type: "ActivistCode",
             activistCodeId: 4153148
           })
         }

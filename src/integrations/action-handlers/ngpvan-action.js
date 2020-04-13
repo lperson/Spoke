@@ -1,13 +1,7 @@
 import { r, cacheableData } from "../../server/models";
 import _ from "lodash";
 import { getConfig } from "../../server/api/lib/config";
-
-const getVanAuth = () => {
-  const buffer = Buffer.from(
-    `${getConfig("NGP_VAN_APP_NAME")}:${getConfig("NGP_VAN_API_KEY")}|0`
-  );
-  return `Basic ${buffer.toString("base64")}`;
-};
+import Van from "../lib/ngpvan";
 
 import HttpRequest from "../../server/lib/http-request.js";
 
@@ -66,7 +60,7 @@ export async function getClientChoiceData(organization, user) {
       {
         method: "GET",
         headers: {
-          Authorization: getVanAuth()
+          Authorization: Van.getAuth(organization)
         }
       }
     );
@@ -90,7 +84,7 @@ export async function getClientChoiceData(organization, user) {
       {
         method: "GET",
         headers: {
-          Authorization: getVanAuth()
+          Authorization: Van.getAuth(organization)
         }
       }
     );
@@ -113,7 +107,7 @@ export async function getClientChoiceData(organization, user) {
       {
         method: "GET",
         headers: {
-          Authorization: getVanAuth()
+          Authorization: Van.getAuth(organization)
         }
       }
     );
@@ -145,7 +139,9 @@ export async function getClientChoiceData(organization, user) {
     })
   }));
 
-  vanActions.push(...activistCodes);
+  const canvassResults = [];
+
+  vanActions.push(...activistCodes, ...canvassResults);
 
   return {
     data: `${JSON.stringify({ items: vanActions })}`,
