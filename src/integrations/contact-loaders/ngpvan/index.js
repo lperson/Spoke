@@ -79,7 +79,7 @@ export function addServerEndpoints(expressApp) {
   // Currently, this is implemented by VAN as a placeholder, it carries no meaningful data and
   // is included here for illustrative purposes.
   expressApp.post(
-    "/ingest-data/ngpvan/:jobId/:maxContacts/:vanListId",
+    "/integration/ngpvan/ingest/:jobId/:maxContacts/:vanListId",
     function(req, res) {
       const { jobId, maxContacts, vanListId } = req.params;
       console.log(
@@ -279,7 +279,7 @@ export async function processContactLoad(job, maxContacts, organization) {
           DEFAULT_NGP_VAN_EXPORT_JOB_TYPE_ID,
         webhookUrl
       }),
-      validateStatus: status => {
+      statusValidationFunction: status => {
         return status >= 200 && status < 300;
       },
       compress: false
