@@ -292,6 +292,52 @@ describe("ngpvn-action", () => {
             type: "ActivistCode",
             activistCodeId: 4153148
           })
+        },
+        {
+          name: "Busy",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 18 })
+        },
+        {
+          name: "Call Back",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 17 })
+        },
+        {
+          name: "Canvassed",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 14 })
+        },
+        {
+          name: "Come Back",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 13 })
+        },
+        {
+          name: "Deceased",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 4 })
+        },
+        {
+          name: "Disconnected",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 25 })
+        },
+        {
+          name: "Do Not Call",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 22 })
+        },
+        {
+          name: "Do Not Email",
+          details: JSON.stringify({
+            type: "CanvassResponse",
+            resultCodeId: 131
+          })
+        },
+        {
+          name: "Do Not Text",
+          details: JSON.stringify({
+            type: "CanvassResponse",
+            resultCodeId: 130
+          })
+        },
+        {
+          name: "Do Not Walk",
+          details: JSON.stringify({ type: "CanvassResponse", resultCodeId: 23 })
         }
       ];
 
