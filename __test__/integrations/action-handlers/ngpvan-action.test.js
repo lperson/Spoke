@@ -16,12 +16,12 @@ describe("ngpvn-action", () => {
     let makeGetCanvassResponsesResultCodesNock;
 
     beforeEach(async () => {
-      makeGetSurveyQuestionsNock = () =>
+      makeGetSurveyQuestionsNock = (statusCode = 200) =>
         nock("https://api.securevan.com:443", {
           encodedQueryParams: true
         })
           .get("/v4/surveyQuestions")
-          .reply(200, {
+          .reply(statusCode, {
             items: [
               {
                 surveyQuestionId: 378552,
@@ -207,7 +207,7 @@ describe("ngpvn-action", () => {
     });
 
     it("returns what we expect", async () => {
-      const getSurveyQuestionsNock = makeGetSurveyQuestionsNock();
+      const getSurveyQuestionsNock = makeGetSurveyQuestionsNock(200);
       const getActivistCodesNock = makeGetActivistCodesNock();
       const getCanvassResponsesResultCodesNock = makeGetCanvassResponsesResultCodesNock();
 
@@ -347,6 +347,25 @@ describe("ngpvn-action", () => {
       getCanvassResponsesResultCodesNock.done();
       getActivistCodesNock.done();
       getSurveyQuestionsNock.done();
+    });
+
+    describe("when there's an error ", () => {
+      it("returns what we expect", async () => {
+        const getSurveyQuestionsNock = makeGetSurveyQuestionsNock(404);
+        const getActivistCodesNock = makeGetActivistCodesNock();
+        const getCanvassResponsesResultCodesNock = makeGetCanvassResponsesResultCodesNock();
+
+        const clientChoiceData = await getClientChoiceData();
+        const receivedError = JSON.parse(clientChoiceData.data).error;
+
+        expect(receivedError).toEqual(
+          "Failed to load surveyQuestions, activistCodes or canvassResultCodes from VAN"
+        );
+
+        getCanvassResponsesResultCodesNock.done();
+        getActivistCodesNock.done();
+        getSurveyQuestionsNock.done();
+      });
     });
   });
 });

@@ -1,9 +1,8 @@
 import { r, cacheableData } from "../../server/models";
-import _ from "lodash";
 import { getConfig } from "../../server/api/lib/config";
 import Van from "../contact-loaders/ngpvan/util";
 
-import HttpRequest from "../../server/lib/http-request.js";
+import httpRequest from "../../server/lib/http-request.js";
 
 // What the user sees as the option
 export const displayName = () => "NGPVAN action";
@@ -29,16 +28,63 @@ export async function processAction(
   interactionStep,
   campaignContactId
 ) {
-  const contact = await cacheableData.campaignContact.load(campaignContactId);
-  const customFields = JSON.parse(contact.custom_fields || "{}");
-  if (customFields) {
-    customFields["processed_test_action"] = "completed";
-  }
+  console.log("questionResponse", questionResponse);
+  console.log("interactionStep", interactionStep);
+  console.log("campaignContactId", campaignContactId);
 
-  await r
-    .knex("campaign_contact")
-    .where("campaign_contact.id", campaignContactId)
-    .update("custom_fields", JSON.stringify(customFields));
+  const contact = await cacheableData.campaignContact.load(campaignContactId);
+  const campaign = await cacheableData.campaign.load(contact.campaign_id);
+  const organization = await cacheableData.organization.load(
+    campaign.organization_id
+  );
+
+  console.log("contact", contact);
+  const answerActionsData = JSON.parse(
+    (interactionStep || {}).answer_actions_data || "{}"
+  );
+
+  const answerActionsDataValue = JSON.parse(answerActionsData.value);
+
+  console.log("answerActionsData", answerActionsDataValue);
+
+  const url = Van.makeUrl(
+    `v4/people/${contact.external_id}/canvassResponses`,
+    organization
+  );
+
+  const type = answerActionsDataValue.type;
+
+  const body = {
+    canvassContext: {
+      contactTypeId: 37,
+      inputTypeId: 11
+    },
+    ...(type === "CanvassResponse" && {
+      resultCodeId: answerActionsDataValue.resultCodeId
+    }),
+    ...(type !== "CanvassResponse" && {
+      responses: [answerActionsDataValue]
+    })
+  };
+
+  console.log("body", body);
+
+  try {
+    await httpRequest(url, {
+      method: "POST",
+      retries: 0,
+      timeout: 5000,
+      headers: {
+        Authorization: Van.getAuth(organization),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body),
+      validStatuses: [204],
+      compress: false
+    });
+  } catch (caughtError) {
+    console.log(caughtError);
+  }
 }
 
 export async function getClientChoiceData(organization, user) {
@@ -66,7 +112,7 @@ export async function getClientChoiceData(organization, user) {
 
   // The activst codes endpoint supports pagination; we are ignoring pagination now
 
-  const surveyQuestionsPromise = HttpRequest(
+  const surveyQuestionsPromise = httpRequest(
     `https://api.securevan.com/v4/surveyQuestions`,
     {
       method: "GET",
@@ -79,10 +125,11 @@ export async function getClientChoiceData(organization, user) {
     .catch(error => {
       const message = `Error retrieving survey questions from VAN ${error}`;
       // eslint-disable-next-line no-console
-      return { data: `${JSON.stringify({ error: message })}` };
+      console.log(message);
+      throw new Error(message);
     });
 
-  const activistCodesPromise = HttpRequest(
+  const activistCodesPromise = httpRequest(
     `https://api.securevan.com/v4/activistCodes`,
     {
       method: "GET",
@@ -95,10 +142,11 @@ export async function getClientChoiceData(organization, user) {
     .catch(error => {
       const message = `Error retrieving activist codes from VAN ${error}`;
       // eslint-disable-next-line no-console
-      return { data: `${JSON.stringify({ error: message })}` };
+      console.log(message);
+      throw new Error(message);
     });
 
-  const canvassResultCodesPromise = HttpRequest(
+  const canvassResultCodesPromise = httpRequest(
     `https://api.securevan.com/v4/canvassResponses/resultCodes`,
     {
       method: "GET",
@@ -109,25 +157,34 @@ export async function getClientChoiceData(organization, user) {
   )
     .then(async response => await response.json())
     .catch(error => {
-      const message = `Error canvass result codes from VAN ${error}`;
+      const message = `Error retrieving canvass result codes from VAN ${error}`;
       // eslint-disable-next-line no-console
-      return { data: `${JSON.stringify({ error: message })}` };
+      console.log(message);
+      throw new Error(message);
     });
 
-  const [
-    surveyQuestionsResponse,
-    activistCodesResponse,
-    canvassResponsesResultCodesResponse
-  ] = await Promise.all([
-    surveyQuestionsPromise,
-    activistCodesPromise,
-    canvassResultCodesPromise
-  ]);
+  let surveyQuestionsResponse;
+  let activistCodesResponse;
+  let canvassResponsesResultCodesResponse;
 
-  console.log(
-    "canvassResponsesResultCodesResponse",
-    canvassResponsesResultCodesResponse
-  );
+  try {
+    [
+      surveyQuestionsResponse,
+      activistCodesResponse,
+      canvassResponsesResultCodesResponse
+    ] = await Promise.all([
+      surveyQuestionsPromise,
+      activistCodesPromise,
+      canvassResultCodesPromise
+    ]);
+  } catch (caughtError) {
+    return {
+      data: `${JSON.stringify({
+        error:
+          "Failed to load surveyQuestions, activistCodes or canvassResultCodes from VAN"
+      })}`
+    };
+  }
 
   const surveyResponses = surveyQuestionsResponse.items.reduce(
     (accumulator, surveyQuestion) => {
@@ -149,6 +206,7 @@ export async function getClientChoiceData(organization, user) {
     name: activistCode.name,
     details: JSON.stringify({
       type: "ActivistCode",
+      action: "Apply",
       activistCodeId: activistCode.activistCodeId
     })
   }));
