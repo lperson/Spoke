@@ -283,6 +283,7 @@ describe("ngpvn-action", () => {
           name: "EdayIssue-PollWorker",
           details: JSON.stringify({
             type: "ActivistCode",
+            action: "Apply",
             activistCodeId: 4482459
           })
         },
@@ -290,6 +291,7 @@ describe("ngpvn-action", () => {
           name: "Opt-In: Cell Phone",
           details: JSON.stringify({
             type: "ActivistCode",
+            action: "Apply",
             activistCodeId: 4153148
           })
         },

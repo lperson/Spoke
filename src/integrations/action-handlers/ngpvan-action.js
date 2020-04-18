@@ -1,8 +1,11 @@
 import { r, cacheableData } from "../../server/models";
 import { getConfig } from "../../server/api/lib/config";
 import Van from "../contact-loaders/ngpvan/util";
+import { log } from "../../lib";
 
 import httpRequest from "../../server/lib/http-request.js";
+
+export const name = "ngpvan-action";
 
 // What the user sees as the option
 export const displayName = () => "NGPVAN action";
@@ -17,8 +20,11 @@ export const instructions = () =>
 // either in environment variables or organization.features json data
 // Besides this returning true, "test-action" will also need to be added to
 // process.env.ACTION_HANDLERS
-export async function available(organizationId) {
-  return true;
+export async function available(organization, user) {
+  return {
+    result: true,
+    expiresSeconds: 60
+  };
 }
 
 // What happens when a texter saves the answer that triggers the action
@@ -28,48 +34,44 @@ export async function processAction(
   interactionStep,
   campaignContactId
 ) {
-  console.log("questionResponse", questionResponse);
-  console.log("interactionStep", interactionStep);
-  console.log("campaignContactId", campaignContactId);
-
-  const contact = await cacheableData.campaignContact.load(campaignContactId);
-  const campaign = await cacheableData.campaign.load(contact.campaign_id);
-  const organization = await cacheableData.organization.load(
-    campaign.organization_id
-  );
-
-  console.log("contact", contact);
-  const answerActionsData = JSON.parse(
-    (interactionStep || {}).answer_actions_data || "{}"
-  );
-
-  const answerActionsDataValue = JSON.parse(answerActionsData.value);
-
-  console.log("answerActionsData", answerActionsDataValue);
-
-  const url = Van.makeUrl(
-    `v4/people/${contact.external_id}/canvassResponses`,
-    organization
-  );
-
-  const type = answerActionsDataValue.type;
-
-  const body = {
-    canvassContext: {
-      contactTypeId: 37,
-      inputTypeId: 11
-    },
-    ...(type === "CanvassResponse" && {
-      resultCodeId: answerActionsDataValue.resultCodeId
-    }),
-    ...(type !== "CanvassResponse" && {
-      responses: [answerActionsDataValue]
-    })
-  };
-
-  console.log("body", body);
-
   try {
+    const contact = await cacheableData.campaignContact.load(campaignContactId);
+    const campaign = await cacheableData.campaign.load(contact.campaign_id);
+    const organization = await cacheableData.organization.load(
+      campaign.organization_id
+    );
+
+    const answerActionsData = JSON.parse(
+      (interactionStep || {}).answer_actions_data || "{}"
+    );
+
+    const answerActionsDataValue = JSON.parse(answerActionsData.value);
+
+    const url = Van.makeUrl(
+      `v4/people/${contact.external_id}/canvassResponses`,
+      organization
+    );
+
+    const type = answerActionsDataValue.type;
+
+    const body = {
+      canvassContext: {
+        contactTypeId: 37,
+        inputTypeId: 11
+      },
+      ...(type === "CanvassResponse" && {
+        resultCodeId: answerActionsDataValue.resultCodeId
+      }),
+      ...(type !== "CanvassResponse" && {
+        responses: [answerActionsDataValue]
+      })
+    };
+
+    log.debug("Sending contact update to VAN", {
+      vanId: contact.external_id,
+      body
+    });
+
     await httpRequest(url, {
       method: "POST",
       retries: 0,
@@ -83,7 +85,8 @@ export async function processAction(
       compress: false
     });
   } catch (caughtError) {
-    console.log(caughtError);
+    log.error("Encountered exception in ngpvan.processAction", caughtError);
+    throw caughtError;
   }
 }
 
@@ -124,8 +127,7 @@ export async function getClientChoiceData(organization, user) {
     .then(async response => await response.json())
     .catch(error => {
       const message = `Error retrieving survey questions from VAN ${error}`;
-      // eslint-disable-next-line no-console
-      console.log(message);
+      log.error(message);
       throw new Error(message);
     });
 
@@ -141,8 +143,7 @@ export async function getClientChoiceData(organization, user) {
     .then(async response => await response.json())
     .catch(error => {
       const message = `Error retrieving activist codes from VAN ${error}`;
-      // eslint-disable-next-line no-console
-      console.log(message);
+      log.error(message);
       throw new Error(message);
     });
 
@@ -158,8 +159,7 @@ export async function getClientChoiceData(organization, user) {
     .then(async response => await response.json())
     .catch(error => {
       const message = `Error retrieving canvass result codes from VAN ${error}`;
-      // eslint-disable-next-line no-console
-      console.log(message);
+      log.error(message);
       throw new Error(message);
     });
 
