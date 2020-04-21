@@ -67,7 +67,7 @@ export async function processAction(
       })
     };
 
-    log.debug("Sending contact update to VAN", {
+    log.info("Sending contact update to VAN", {
       vanId: contact.external_id,
       body
     });
