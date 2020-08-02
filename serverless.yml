@@ -1,0 +1,129 @@
+service: spoke
+
+frameworkVersion: ">=1.0.0 <2.0.0"
+
+custom:
+  stage: ${opt:stage, 'prod'}
+  region: ${opt:region, 'us-east-1'}
+  contentCompression: 1024
+  baseUrl: https://spoke.resist2020.net
+  vpcConfig:
+    subnetIds:
+      - subnet-0e4f7c18d10626c71
+      - subnet-0c4230f85d8d11f81
+    securityGroupIds:
+       - sg-0290d5c15df6d5bee
+  customDomain:
+    domainName: 'spoke.resist2020.net'
+    stage: 'dev'
+    createRoute53Record: true
+    basePath: ''
+    certificateArn: 'arn:aws:acm:us-east-1:126815068090:certificate/1f2cf55c-f1d0-4e11-a709-920d84640b96'
+    endpointType: 'regional'
+    securityPolicy: tls_1_2
+    apiType: rest
+    autoDomain: false
+    hostedZoneId: 'Z01055702IGEE6X6ENFOT'
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  # deploymentBucket:
+  # arn: ${ssm:/${self:custom.stage}/s3/lambda-deploy/bucket/arn~true}
+  # blockPublicAccess: true
+  environment:
+    STAGE: ${self:custom.stage}
+    NODE_ENV: production
+    ASSETS_DIR: ./build/client/assets
+    ASSETS_MAP_FILE: assets.json
+    STATIC_BASE_URL: /assets/
+    # AWS_S3_BUCKET_NAME: ${ssm:/${self:custom.stage}/s3/spoke-private/bucket/name~true}
+    PHONE_NUMBER_COUNTRY: US
+    SUPPRESS_SELF_INVITE: 1
+    SUPPRESS_SEED_CALLS: 1
+    SUPPRESS_MIGRATIONS: 1
+    SUPPRESS_DATABASE_AUTOCREATE: 1
+    PASSPORT_STRATEGY: local
+    # SLACK_CLIENT_ID: ${ssm:/${self:custom.stage}/spoke/SLACK_CLIENT_ID~true}
+    # SLACK_CLIENT_SECRET: ${ssm:/${self:custom.stage}/spoke/SLACK_CLIENT_SECRET~true}
+    # SLACK_TEAM_NAME: ${ssm:/${self:custom.stage}/spoke/SLACK_TEAM_NAME~true}
+    # SLACK_TEAM_ID: ${ssm:/${self:custom.stage}/spoke/SLACK_TEAM_ID~true}
+    DST_REFERENCE_TIMEZONE: America/New_York
+    DB_TYPE: pg
+    DB_PORT: 5432
+    DB_HOST: spoke2.chivkpenkqgn.us-east-1.rds.amazonaws.com
+    DB_NAME: spoke_prod
+    DB_USER: spoke
+    DB_PASSWORD: BtbguAH84VzGeaX
+    DB_MIN_POOL: 1
+    DB_MAX_POOL: 3
+    CACHE_PREFIX: spoke-
+    REDIS_CONTACT_CACHE: 1
+    CONTACT_LOADERS: csv-upload
+    JOBS_SAME_PROCESS: 1
+    OPTOUTS_SHARE_ALL_ORGS: 1
+    BASE_URL: ${self:custom.baseUrl}
+    SESSION_SECRET: set_this_in_productiuon
+    #REDIS_URL: redis://spoke-redis-001.r0fj1a.0001.use1.cache.amazonaws.com:6379/0
+    DEFAULT_SERVICE: fakeservice
+    # TWILIO_ACCOUNT_SID: ${ssm:/${self:custom.stage}/spoke/TWILIO_ACCOUNT_SID~true}
+    # TWILIO_AUTH_TOKEN: ${ssm:/${self:custom.stage}/spoke/TWILIO_AUTH_TOKEN~true}
+    # TWILIO_MESSAGE_SERVICE_SID: ${ssm:/${self:custom.stage}/spoke/TWILIO_MESSAGE_SERVICE_SID~true}
+    # TWILIO_STATUS_CALLBACK_URL: ${self:custom.baseUrl}/twilio-message-report
+    # TWILIO_BASE_CALLBACK_URL: ${self:custom.baseUrl}
+    TEXTER_SIDEBOXES: contact-reference,tag-contact
+    EXPERIMENTAL_TAGS: 1
+    # GOOGLE_SECRET: ${ssm:/${self:custom.stage}/spoke/GOOGLE_SECRET~true}
+    EXPERIMENTAL_CAMPAIGN_PHONE_NUMBERS: 1
+    EXPERIMENTAL_PHONE_INVENTORY: 1
+    JOB_RUNNER: lambda-async
+    WORKER_LAMBDA_FUNCTION_NAME: spoke-${self:custom.stage}-worker
+    MAX_TEXTERS_PER_CAMPAIGN: 300
+    # SWEEPER_WEBHOOK_URL: ${ssm:/${self:custom.stage}/spoke/SWEEPER_WEBHOOK_URL~true}
+    # SWEEPER_WEBHOOK_SECRET: ${ssm:/${self:custom.stage}/sweeper/API_AUTHORIZATION_TOKEN~true}
+  iamRoleStatements:
+    # - Effect: Allow
+    #   Action: "s3:*"
+    #   Resource:
+    #     - "${ssm:/${self:custom.stage}/s3/spoke-private/bucket/arn~true}"
+    #     - "${ssm:/${self:custom.stage}/s3/spoke-private/bucket/arn~true}/*"
+    - Effect: Allow
+      Action: lambda:InvokeFunction
+      Resource: "*" # TODO: tighten up perms
+functions:
+  api:
+    handler: lambda.handler
+    timeout: 900
+    vpc: ${self:custom.vpcConfig}
+    events:
+      - http: ANY /
+      - http: ANY {proxy+}
+  worker:
+    handler: build/server/integrations/job-runners/lambda-async/handler.handler
+    vpc: ${self:custom.vpcConfig}
+    timeout: 900
+
+plugins:
+  - serverless-api-compression
+  - serverless-domain-manager
+
+package:
+  excludeDevDependencies: true
+  package:
+  exclude:
+    - "*"
+    - "webpack/**"
+    - ".github/**"
+    - "dev-tools/**"
+    - "docs/**"
+    - "__test__/**"
+    - "__mocks__/**"
+    - "**/node_modules/aws-sdk/**" # included on Lambda.
+    - "!package.json"
+    - "!lambda.js"
+    - "!knexfile.js"
+    - "virtualbox/**"
+    - "coverage/**"
+    - "ngrok"
+    - ".idea"
+    - "mydb.sqlite"
