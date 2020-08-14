@@ -63,6 +63,104 @@ describe("ngpvan/util", () => {
     });
   });
 
+  describe("getInstances", () => {
+    beforeEach(async () => {
+      jest.spyOn(config, "getConfig");
+      jest.spyOn(Van, "getInstances");
+
+      organization.features = JSON.stringify({
+        NGP_VAN_INSTANCES: JSON.stringify([
+          {
+            NAME: "MyV",
+            NGP_VAN_API_KEY: "MyV_key",
+            NGP_VAN_APP_NAME: "MyV_app_name",
+            NGP_VAN_DATABASE_MODE: 0
+          },
+          {
+            NAME: "MyC",
+            NGP_VAN_API_KEY: "MyC_key",
+            NGP_VAN_APP_NAME: "MyC_app_name",
+            NGP_VAN_DATABASE_MODE: 1
+          }
+        ])
+      });
+    });
+
+    it("returns the instances", async () => {
+      const instances = Van.getInstances(organization);
+      expect(instances).toEqual({
+        MyV: {
+          NGP_VAN_API_KEY: "MyV_key",
+          NGP_VAN_APP_NAME: "MyV_app_name",
+          NGP_VAN_DATABASE_MODE: 0
+        },
+        MyC: {
+          NGP_VAN_API_KEY: "MyC_key",
+          NGP_VAN_APP_NAME: "MyC_app_name",
+          NGP_VAN_DATABASE_MODE: 1
+        },
+        Default: {
+          NGP_VAN_API_KEY: undefined,
+          NGP_VAN_APP_NAME: undefined,
+          NGP_VAN_DATABASE_MODE: 0
+        }
+      });
+    });
+
+    describe("when there are no instances", () => {
+      beforeEach(async () => {
+        delete organization.features;
+      });
+
+      it("returns an empty object", async () => {
+        const instances = Van.getInstances(organization);
+        expect(instances).toEqual({
+          Default: {
+            NGP_VAN_API_KEY: undefined,
+            NGP_VAN_APP_NAME: undefined,
+            NGP_VAN_DATABASE_MODE: 0
+          }
+        });
+      });
+    });
+
+    describe("when an instance doesn't have all the keys", () => {
+      beforeEach(async () => {
+        organization.features = JSON.stringify({
+          NGP_VAN_INSTANCES: JSON.stringify([
+            {
+              NAME: "MyV",
+              NGP_VAN_API_KEY: "MyV_key",
+              NGP_VAN_APP_NAME: "MyV_app_name",
+              NGP_VAN_DATABASE_MODE: 0
+            },
+            {
+              NAME: "MyC",
+              NGP_VAN_API_KEY: "MyC_key",
+              NGP_VAN_DATABASE_MODE: 1
+            }
+          ])
+        });
+      });
+
+      it("doesn't return that instance", async () => {
+        const instances = Van.getInstances(organization);
+        expect(instances).toEqual({
+          MyV: {
+            NGP_VAN_API_KEY: "MyV_key",
+            NGP_VAN_APP_NAME: "MyV_app_name",
+            NGP_VAN_DATABASE_MODE: 0
+          },
+          Default: {
+            NGP_VAN_API_KEY: undefined,
+            NGP_VAN_APP_NAME: undefined,
+            NGP_VAN_DATABASE_MODE: 0
+          }
+        });
+      });
+    });
+  });
+
   describe(".getAuth", () => {
     let oldNgpVanAppName;
     let oldNgpVanApiKey;
@@ -78,6 +176,7 @@ describe("ngpvan/util", () => {
 
     beforeEach(async () => {
       jest.spyOn(config, "getConfig");
+      jest.spyOn(Van, "getInstances");
     });
 
     const successValidator = (auth, error) => {
@@ -124,9 +223,13 @@ describe("ngpvan/util", () => {
       } catch (caughtException) {
         error = caughtException;
       } finally {
+        expect(Van.getInstances.mock.calls).toEqual([[organization]]);
+
         expect(config.getConfig.mock.calls).toEqual([
+          ["NGP_VAN_INSTANCES", organization],
           ["NGP_VAN_APP_NAME", organization],
-          ["NGP_VAN_API_KEY", organization]
+          ["NGP_VAN_API_KEY", organization],
+          ["NGP_VAN_DATABASE_MODE", organization]
         ]);
         validator(auth, error);
       }
