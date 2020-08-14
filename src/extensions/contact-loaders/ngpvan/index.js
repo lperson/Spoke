@@ -99,9 +99,11 @@ export function clientChoiceDataCacheKey(organization, campaign, user) {
   return `${organization.id}`;
 }
 
-export async function getClientChoiceData(organization, campaign, user) {
+export const getClientChoiceDataForVanInstance = async (
+  organization,
+  vanInstanceName
+) => {
   let responseJson;
-
   try {
     const maxPeopleCount =
       Number(getConfig("NGP_VAN_MAXIMUM_LIST_SIZE", organization)) ||
@@ -116,7 +118,7 @@ export async function getClientChoiceData(organization, campaign, user) {
     const response = await HttpRequest(url, {
       method: "GET",
       headers: {
-        Authorization: Van.getAuth(organization)
+        Authorization: Van.getAuth(organization, vanInstanceName)
       },
       retries: 0,
       timeout: 5000
@@ -124,18 +126,36 @@ export async function getClientChoiceData(organization, campaign, user) {
 
     responseJson = await response.json();
   } catch (error) {
-    const message = `Error retrieving saved list metadata from VAN ${error}`;
+    const message = `Error retrieving saved list metadata from VAN for instance ${vanInstanceName} ${error}`;
     // eslint-disable-next-line no-console
     console.log(message);
     return { data: `${JSON.stringify({ error: message })}` };
   }
+
+  return {
+    data: `${JSON.stringify(responseJson)}`
+  };
+};
+
+export async function getClientChoiceData(organization, campaign, user) {
+  const vanInstances = Van.getInstances(organization);
+
+  const promises = Object.keys(vanInstances).map(vanInstanceName =>
+    getClientChoiceDataForVanInstance(organization, vanInstanceName)
+  );
+  const resolvedPromises = await Promise.all(promises);
+
+  const allTheClientChoiceData = {};
+  Object.keys(vanInstances).forEach((vanInstanceName, index) => {
+    allTheClientChoiceData[vanInstanceName] = resolvedPromises[index];
+  });
 
   // / data to be sent to the admin client to present options to the component or similar
   // / The react-component will be sent this data as a property
   // / return a json object which will be cached for expiresSeconds long
   // / `data` should be a single string -- it can be JSON which you can parse in the client component
   return {
-    data: `${JSON.stringify(responseJson)}`,
+    data: `${JSON.stringify(allTheClientChoiceData)}`,
     expiresSeconds:
       Number(getConfig("NGP_VAN_CACHE_TTL", organization)) ||
       DEFAULT_NGP_VAN_CACHE_TTL

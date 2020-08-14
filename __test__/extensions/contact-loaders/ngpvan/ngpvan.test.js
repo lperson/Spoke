@@ -157,9 +157,12 @@ describe("ngpvan", () => {
           nextPageLink: null,
           count: 5
         });
-      const savedListsResponse = await getClientChoiceData();
 
-      expect(JSON.parse(savedListsResponse.data).items).toEqual(listItems);
+      const savedListsResponse = await getClientChoiceData();
+      const allTheVanInstancesResponse = JSON.parse(savedListsResponse.data);
+      expect(JSON.parse(allTheVanInstancesResponse.Default.data).items).toEqual(
+        listItems
+      );
       expect(savedListsResponse.expiresSeconds).toEqual(30);
       getSavedListsNock.done();
     });
@@ -178,10 +181,10 @@ describe("ngpvan", () => {
           .reply(404);
 
         const savedListsResponse = await getClientChoiceData();
-
-        expect(JSON.parse(savedListsResponse.data)).toEqual({
+        const allTheVanInstancesResponse = JSON.parse(savedListsResponse.data);
+        expect(JSON.parse(allTheVanInstancesResponse.Default.data)).toEqual({
           error: expect.stringMatching(
-            /Error retrieving saved list metadata from VAN Error: Request id .+ failed; received status 404/
+            /Error retrieving saved list metadata from VAN for instance Default Error: Request id .+ failed; received status 404/
           )
         });
         getSavedListsNock.done();
@@ -426,8 +429,10 @@ describe("ngpvan", () => {
       expect(config.getConfig.mock.calls).toEqual([
         ["NGP_VAN_WEBHOOK_BASE_URL", organization],
         ["NGP_VAN_API_BASE_URL", organization],
+        ["NGP_VAN_INSTANCES", organization],
         ["NGP_VAN_APP_NAME", organization],
         ["NGP_VAN_API_KEY", organization],
+        ["NGP_VAN_DATABASE_MODE", organization],
         ["NGP_VAN_EXPORT_JOB_TYPE_ID", organization],
         ["NGP_VAN_CAUTIOUS_CELL_PHONE_SELECTION", organization]
       ]);
