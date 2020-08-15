@@ -19,21 +19,93 @@ const styles = StyleSheet.create({
 export class CampaignContactsForm extends React.Component {
   constructor(props) {
     super(props);
-    const { lastResult } = this.props;
+    const { clientChoiceData, lastResult } = this.props;
     const reference =
       lastResult && lastResult.reference && JSON.parse(lastResult.reference);
     const searchText = (reference && reference.savedListName) || undefined;
+    const vanInstanceSearchText =
+      (reference && reference.vanInstanceName) || undefined;
+    const clientChoiceDataObject = JSON.parse(clientChoiceData);
+    const vanInstanceNames = Object.keys(clientChoiceDataObject);
+    const sortedVanInstanceNames = vanInstanceNames.sort((left, right) => {
+      if (left === right) {
+        return 0;
+      } else if (left === "Default") {
+        return -1;
+      } else if (right === "Default") {
+        return 1;
+      }
+
+      return left < right ? -1 : 1;
+    });
     this.state = {
+      sortedVanInstanceNames,
+      vanInstanceName: sortedVanInstanceNames[0],
+      clientChoiceDataObject,
       errorResult: undefined,
       savedListId: undefined,
-      searchText
+      searchText,
+      vanInstanceSearchText
     };
   }
 
+  buildVanInstancesSelectData = () => {
+    return this.state.sortedVanInstanceNames.map(name =>
+      dataSourceItem(name, name)
+    );
+  };
+
+  renderVanInstances = () => {
+    const selectData = this.buildVanInstancesSelectData();
+    return (
+      <AutoComplete
+        ref="autocomplete"
+        // style={inlineStyles.autocomplete}
+        autoFocus
+        onFocus={() => {
+          this.setState({ searchText: "", vanInstanceName: undefined });
+          this.props.onChange(undefined);
+        }}
+        onUpdateInput={vanInstanceSearchText => {
+          this.setState({ vanInstanceSearchText });
+          if (vanInstanceSearchText.trim().length === 0) {
+            this.props.onChange(undefined);
+          }
+        }}
+        vanInstanceSearchText={this.state.vanInstanceSearchText}
+        filter={AutoComplete.caseInsensitiveFilter}
+        hintText="Select a VAN instance"
+        dataSource={selectData}
+        onNewRequest={value => {
+          // If you're searching but get no match, value is a string
+          // representing your search term, but we only want to handle matches
+          if (typeof value === "object") {
+            const vanInstanceName = value.rawValue;
+            this.setState({ vanInstanceName });
+          } else {
+            // if it matches one item, that's their selection
+            const regex = new RegExp(`.*${value}.*`, "i");
+            const matches = selectData.filter(item => regex.test(item.text));
+
+            if (matches.length === 1) {
+              const vanInstanceName = matches[0].rawValue;
+              const vanInstanceSearchText = matches[0].text;
+              this.setState({ vanInstanceSearchText, vanInstanceName });
+            }
+          }
+        }}
+      />
+    );
+  };
+
   buildSelectData = () => {
-    const { clientChoiceData } = this.props;
-    const clientChoiceDataObject = JSON.parse(clientChoiceData);
-    return clientChoiceDataObject.items.map(item =>
+    if (!this.state.vanInstanceName) {
+      return [];
+    }
+    const selectData = JSON.parse(
+      this.state.clientChoiceDataObject[this.state.vanInstanceName].data
+    );
+    return selectData.items.map(item =>
       dataSourceItem(item.name, item.savedListId)
     );
   };
@@ -55,7 +127,7 @@ export class CampaignContactsForm extends React.Component {
             this.props.onChange(undefined);
           }
         }}
-        searchText={this.state.searchText}
+        vanInstanceSearchText={this.state.searchText}
         filter={AutoComplete.caseInsensitiveFilter}
         hintText="Select a list to import"
         dataSource={selectData}
@@ -68,7 +140,8 @@ export class CampaignContactsForm extends React.Component {
             this.props.onChange(
               JSON.stringify({
                 savedListId,
-                savedListName: this.state.searchText
+                savedListName: this.state.searchText,
+                vanInstanceName: this.state.vanInstanceName
               })
             );
           } else {
@@ -81,7 +154,11 @@ export class CampaignContactsForm extends React.Component {
               const searchText = matches[0].text;
               this.setState({ searchText, savedListId });
               this.props.onChange(
-                JSON.stringify({ savedListId, savedListName: searchText })
+                JSON.stringify({
+                  savedListId,
+                  savedListName: searchText,
+                  vanInstanceName: this.state.vanInstanceName
+                })
               );
             }
           }
@@ -154,6 +231,7 @@ export class CampaignContactsForm extends React.Component {
   render() {
     return (
       <div className={css(styles.form)}>
+        {this.renderVanInstances()}
         {this.renderSavedLists()}
         {this.renderJobResult()}
         {this.renderSaveButton()}

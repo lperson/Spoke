@@ -290,7 +290,10 @@ export async function processContactLoad(job, maxContacts, organization) {
       retries: 0,
       timeout: 5000,
       headers: {
-        Authorization: Van.getAuth(organization),
+        Authorization: Van.getAuth(
+          organization,
+          ingestDataReference.vanInstanceName
+        ),
         "Content-Type": "application/json"
       },
       body: JSON.stringify({

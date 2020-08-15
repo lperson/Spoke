@@ -1166,6 +1166,22 @@ describe("ngpvan", () => {
         }
       ];
 
+      const data = {
+        Default: {
+          data: JSON.stringify({
+            items: [
+              {
+                savedListId: 682913,
+                name: "200-220 W 103",
+                description: null,
+                listCount: 171,
+                doorCount: 127
+              }
+            ]
+          })
+        }
+      };
+
       commonProps = {
         onChange,
         onSubmit,
@@ -1173,17 +1189,7 @@ describe("ngpvan", () => {
         icons,
         saveDisabled: false,
         saveLabel: "Save",
-        clientChoiceData: JSON.stringify({
-          items: [
-            {
-              savedListId: 682913,
-              name: "200-220 W 103",
-              description: null,
-              listCount: 171,
-              doorCount: 127
-            }
-          ]
-        }),
+        clientChoiceData: JSON.stringify(data),
         jobResultMessage: null
       };
 
