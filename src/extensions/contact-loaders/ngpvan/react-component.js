@@ -20,8 +20,7 @@ export class CampaignContactsForm extends React.Component {
   constructor(props) {
     super(props);
     const { clientChoiceData, lastResult } = this.props;
-    const reference =
-      lastResult && lastResult.reference && JSON.parse(lastResult.reference);
+    const reference = JSON.parse((lastResult || {}).reference || "{}");
     const searchText = (reference && reference.savedListName) || undefined;
     const vanInstanceSearchText =
       (reference && reference.vanInstanceName) || undefined;
@@ -40,7 +39,7 @@ export class CampaignContactsForm extends React.Component {
     });
     this.state = {
       sortedVanInstanceNames,
-      vanInstanceName: sortedVanInstanceNames[0],
+      vanInstanceName: vanInstanceSearchText || sortedVanInstanceNames[0],
       clientChoiceDataObject,
       errorResult: undefined,
       savedListId: undefined,
@@ -61,7 +60,7 @@ export class CampaignContactsForm extends React.Component {
       <AutoComplete
         ref="autocomplete"
         // style={inlineStyles.autocomplete}
-        autoFocus
+        searchText={this.state.vanInstanceSearchText}
         onFocus={() => {
           this.setState({
             savedListId: undefined,
@@ -77,7 +76,6 @@ export class CampaignContactsForm extends React.Component {
             this.props.onChange(undefined);
           }
         }}
-        vanInstanceSearchText={this.state.vanInstanceSearchText}
         filter={AutoComplete.caseInsensitiveFilter}
         hintText="Select a VAN instance"
         dataSource={selectData}
@@ -121,7 +119,7 @@ export class CampaignContactsForm extends React.Component {
       <AutoComplete
         ref="autocomplete"
         // style={inlineStyles.autocomplete}
-        autoFocus
+        searchText={this.state.searchText}
         onFocus={() => {
           this.setState({ searchText: "", savedListId: undefined });
           this.props.onChange(undefined);
@@ -186,12 +184,17 @@ export class CampaignContactsForm extends React.Component {
     if (!lastResult) {
       return null;
     }
-    const reference =
-      (lastResult.reference && JSON.parse(lastResult.reference)) || {};
-    const result = (lastResult.result && JSON.parse(lastResult.result)) || {};
+    const reference = JSON.parse((lastResult || {}).reference || "{}");
+    const result = JSON.parse(lastResult.result || "{}");
     return (
       <List>
         <Subheader>Last Import</Subheader>
+        {reference.vanInstanceName && (
+          <ListItem
+            primaryText={`Van instance name: ${reference.vanInstanceName}`}
+            leftIcon={this.props.icons.info}
+          />
+        )}
         {reference.savedListName && (
           <ListItem
             primaryText={`List name: ${reference.savedListName}`}
