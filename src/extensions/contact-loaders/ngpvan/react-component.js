@@ -63,7 +63,12 @@ export class CampaignContactsForm extends React.Component {
         // style={inlineStyles.autocomplete}
         autoFocus
         onFocus={() => {
-          this.setState({ searchText: "", vanInstanceName: undefined });
+          this.setState({
+            savedListId: undefined,
+            vanInstanceSearchText: "",
+            searchText: "",
+            vanInstanceName: undefined
+          });
           this.props.onChange(undefined);
         }}
         onUpdateInput={vanInstanceSearchText => {
